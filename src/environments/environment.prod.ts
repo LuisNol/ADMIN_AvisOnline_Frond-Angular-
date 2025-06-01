@@ -156,10 +156,10 @@ export const environment = {
       'thumbnail': './assets/media/demos/demo20.png'
     },
   },
-  URL_BACKEND: 'http://api.dominio.com/',
-  URL_SERVICIOS: 'http://api.dominio.com/api',
-  URL_FRONTED: 'http://admin.dominio.com',
-  URL_TIENDA: 'http://tienda.dominio.com',
+    URL_BACKEND: 'https://apis.avisonline.store/',
+    URL_SERVICIOS: 'https://apis.avisonline.store/api',
+    URL_FRONTED: 'https://www.admin.avisonline.store/',
+    URL_TIENDA: 'https://www.avisonline.store',
 };
 
 /*
@@ -170,3 +170,4 @@ export const environment = {
  * on performance if an error is thrown.
  */
 // import 'zone.js/plugins/zone-error';  // Included with Angular CLI.
+//hola
