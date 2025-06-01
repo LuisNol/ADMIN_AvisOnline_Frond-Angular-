@@ -1,0 +1,21 @@
+.form-check {
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  border-radius: 0.475rem;
+  border: 1px solid #eee;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background-color: #f8f9fa;
+  }
+}
+
+.form-check-input:checked ~ .form-check-label {
+  font-weight: 600;
+}
+
+.required:after {
+  content: "*";
+  color: #f1416c;
+  margin-left: 0.25rem;
+} 

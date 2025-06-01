@@ -15,7 +15,7 @@ export class CreateProductComponent {
   resumen:string = '';
   price_pen:number = 0;
   price_usd:number = 0;
-  description:any = "<p>Hello, world!</p>";
+  description:string = '';
   imagen_previsualiza:any = "https://preview.keenthemes.com/metronic8/demo1/assets/media/svg/illustrations/easy/2.svg";
   file_imagen:any = null;
   marca_id:string = '';
@@ -80,10 +80,19 @@ export class CreateProductComponent {
   }
 
   addItems(){
+    console.log("Intentando agregar item:", this.word);
+    if (!this.word || this.word.trim() === '') {
+      this.toastr.error("Validación", "Debe ingresar una palabra clave");
+      return;
+    }
+    
     this.isShowMultiselect = true;
     let time_date = new Date().getTime();
     this.dropdownList.push({ item_id: time_date, item_text: this.word });
     this.selectedItems.push({ item_id: time_date, item_text: this.word });
+    console.log("Item agregado correctamente:", this.word);
+    console.log("Lista actualizada:", this.selectedItems);
+    
     setTimeout(() => {
       this.word = '';
       this.isShowMultiselect = false;
@@ -92,6 +101,11 @@ export class CreateProductComponent {
   }
 
   processFile($event:any){
+    if(!$event.target.files || !$event.target.files[0]) {
+      this.toastr.error("Validacion","No se seleccionó ninguna imagen");
+      return;
+    }
+    
     if($event.target.files[0].type.indexOf("image") < 0){
       this.toastr.error("Validacion","El archivo no es una imagen");
       return;
@@ -133,13 +147,28 @@ export class CreateProductComponent {
   }
 
   save(){
-
+    console.log("Verificando campos del formulario...");
+    
+    // Comprobamos cada campo individualmente y mostramos su estado
+    console.log("Título:", this.title ? "OK" : "FALTA", this.title);
+    console.log("SKU:", this.sku ? "OK" : "FALTA", this.sku);
+    console.log("Price USD:", this.price_usd ? "OK" : "FALTA", this.price_usd);
+    console.log("Price PEN:", this.price_pen ? "OK" : "FALTA", this.price_pen);
+    console.log("Marca ID:", this.marca_id ? "OK" : "FALTA", this.marca_id);
+    console.log("Imagen:", this.file_imagen ? "OK" : "FALTA");
+    console.log("Categoría First ID:", this.categorie_first_id ? "OK" : "FALTA", this.categorie_first_id);
+    console.log("Descripción:", this.description ? "OK" : "FALTA", this.description);
+    console.log("Resumen:", this.resumen ? "OK" : "FALTA", this.resumen);
+    console.log("SelectedItems:", this.selectedItems.length > 0 ? "OK" : "FALTA", this.selectedItems);
+    
     if(!this.title || !this.sku || !this.price_usd || !this.price_pen || !this.marca_id
-      || !this.file_imagen|| !this.categorie_first_id|| !this.description|| !this.resumen|| (this.selectedItems == 0)){
+      || !this.file_imagen|| !this.categorie_first_id|| !this.description|| !this.resumen|| (this.selectedItems.length == 0)){
       this.toastr.error("Validacion","Los campos con el * son obligatorio");
+      console.error("Faltan campos requeridos en el formulario");
       return;
     }
 
+    console.log("Todos los campos requeridos están completados. Preparando FormData...");
 
     let formData = new FormData();
     formData.append("title",this.title);
@@ -159,31 +188,56 @@ export class CreateProductComponent {
     formData.append("resumen",this.resumen);
     formData.append("multiselect",JSON.stringify(this.selectedItems));
 
-    this.productService.createProducts(formData).subscribe((resp:any) => {
-      console.log(resp);
-
-      if(resp.message == 403){
-        this.toastr.error("Validación",resp.message_text);
-      }else{
-        this.title = '';
-        this.file_imagen = null;
-        this.sku = '';
-        this.price_usd = 0;
-        this.price_pen = 0;
-        this.marca_id = '';
-        this.categorie_first_id = '';
-        this.categorie_second_id = '';
-        this.categorie_third_id = '';
-        this.description = '';
-        this.resumen = '';
-        this.selectedItems = [];
-  
-        this.imagen_previsualiza = "https://preview.keenthemes.com/metronic8/demo1/assets/media/svg/illustrations/easy/2.svg";
-        this.toastr.success("Exito","El product se registro perfectamente");
+    console.log("FormData preparado. Enviando solicitud para crear producto...");
+    
+    this.productService.createProducts(formData).subscribe({
+      next: (resp: any) => {
+        console.log("Respuesta del servidor:", resp);
+        
+        if(resp.message == 403){
+          this.toastr.error("Error de permisos", resp.message_text);
+          console.error("Error 403: ", resp.message_text);
+        } else if (resp.message == 500) {
+          this.toastr.error("Error del servidor", resp.message_text);
+          console.error("Error 500: ", resp.message_text);
+        } else if (resp.message == 400) {
+          this.toastr.error("Error de validación", resp.message_text);
+          console.error("Error 400: ", resp.message_text);
+        } else {
+          // Resetear formulario
+          this.title = '';
+          this.file_imagen = null;
+          this.sku = '';
+          this.price_usd = 0;
+          this.price_pen = 0;
+          this.marca_id = '';
+          this.categorie_first_id = '';
+          this.categorie_second_id = '';
+          this.categorie_third_id = '';
+          this.description = '';
+          this.resumen = '';
+          this.selectedItems = [];
+    
+          this.imagen_previsualiza = "https://preview.keenthemes.com/metronic8/demo1/assets/media/svg/illustrations/easy/2.svg";
+          this.toastr.success("Éxito","El producto se registró correctamente");
+          console.log("Producto creado exitosamente con ID: ", resp.product_id);
+        }
+      },
+      error: (error: any) => {
+        console.error("Error al crear producto:", error);
+        
+        if (error.status === 403) {
+          this.toastr.error("Error de permisos", "No tienes permiso para crear productos");
+          console.error("Error 403 en la respuesta del servidor");
+        } else if (error.error && error.error.message_text) {
+          this.toastr.error("Error", error.error.message_text);
+          console.error("Error con mensaje específico: ", error.error.message_text);
+        } else {
+          this.toastr.error("Error", "Ha ocurrido un error al crear el producto");
+          console.error("Error desconocido al crear el producto");
+        }
       }
-
-
-    })
+    });
   }
 
 }

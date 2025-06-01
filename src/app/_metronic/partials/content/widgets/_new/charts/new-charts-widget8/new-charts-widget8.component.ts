@@ -9,6 +9,7 @@ import {
 import * as ApexCharts from 'apexcharts';
 import { getCSSVariableValue } from '../../../../../../kt/_utils';
 import { SalesService } from 'src/app/modules/sales/service/sales.service';
+import { getSafeArray, getSafeValue, isValidObject } from 'src/app/pages/dashboard/dashboard-helpers';
 
 @Component({
   selector: 'app-new-charts-widget8',
@@ -40,361 +41,422 @@ export class NewChartsWidget8Component implements OnInit {
 
   ngOnInit(): void {
     // this.setupCharts();
-    this.year_1 = this.year_current;
-    this.month_1 = this.month_current;
+    this.year_1 = this.year_current || '2025';
+    this.month_1 = this.month_current || '01';
     this.reportSaleForCategories();
   }
 
   init() {
-    // this.chart1Options = getChart1Options(this.chartHeightNumber);
-    this.chart2Options = getChart2Options(this.chartHeightNumber);
+    try {
+      this.chart2Options = getChart2Options(this.chartHeightNumber);
+    } catch (error) {
+      console.error('Error en init:', error);
+      // Valores por defecto en caso de error
+      this.chart2Options = getDefaultChartOptions(this.chartHeightNumber);
+    }
   }
 
   setTab(_tab: 'Week' | 'Month') {
-    this.tab = _tab;
-    if (_tab === 'Week') {
-      this.chart2Options = getChart2Options(this.chartHeightNumber);
-    }
+    try {
+      this.tab = _tab;
+      if (_tab === 'Week') {
+        this.chart2Options = getChart2Options(this.chartHeightNumber);
+      }
 
-    if (_tab === 'Month') {
-      // this.chart1Options = getChart1Options(this.chartHeightNumber);
+      this.setupCharts();
+    } catch (error) {
+      console.error('Error en setTab:', error);
     }
-
-    this.setupCharts();
   }
 
   setupCharts() {
-    setTimeout(() => {
-      this.hadDelay = true;
-      this.init();
-      this.cdr.detectChanges();
-    }, 100);
+    try {
+      setTimeout(() => {
+        this.hadDelay = true;
+        this.init();
+        this.cdr.detectChanges();
+      }, 100);
+    } catch (error) {
+      console.error('Error en setupCharts:', error);
+    }
   }
 
   reportSaleForCategories(){
     let data = {
-       year: this.year_1,
-       month: this.month_1,
+       year: this.year_1 || '2025',
+       month: this.month_1 || '01',
     }
     this.report_sale_for_categories = null;
-    this.salesService.reportSaleForCategories(data).subscribe((resp:any) => {
-       console.log(resp);
-      //  var categories_labels:any = [];
-       var series_data:any = [];
-       this.report_sale_for_categories = resp;
-       this.report_sale_for_categories.sale_for_categories.forEach((element:any) => {
-          series_data.push({
-            name: element.categorie_name,
-            data: [[element.categories_avg,element.categories_total,element.categories_quantity]]
+    this.salesService.reportSaleForCategories(data).subscribe({
+      next: (resp:any) => {
+        console.log(resp);
+        var series_data:any = [];
+        
+        this.report_sale_for_categories = resp || { sale_for_categories: [] };
+        
+        // Asegurar que hay un array válido
+        const saleForCategories = getSafeArray(this.report_sale_for_categories.sale_for_categories);
+        
+        if (saleForCategories.length === 0) {
+          // Si no hay datos, usar un valor por defecto
+          series_data = [{
+            name: 'Sin datos',
+            data: [[0, 0, 0]]
+          }];
+        } else {
+          // Procesar los datos disponibles
+          saleForCategories.forEach((element:any) => {
+            series_data.push({
+              name: getSafeValue(element, 'categorie_name', 'Categoría'),
+              data: [[
+                getSafeValue(element, 'categories_avg', 0),
+                getSafeValue(element, 'categories_total', 0),
+                getSafeValue(element, 'categories_quantity', 0)
+              ]]
+            });
           });
-       });
-      //  var max_data = Math.max(...series_data);
-      //  var min_data = Math.min(...series_data);
-      //  console.log(max_data,min_data);
-      this.hadDelay = true;
-      this.chart1Options = getChart1Options(this.chartHeightNumber,series_data)
-    })
-   }
+        }
+        
+        // Establecer opciones del gráfico con datos seguros
+        this.hadDelay = true;
+        try {
+          this.chart1Options = getChart1Options(this.chartHeightNumber, series_data);
+        } catch (error) {
+          console.error('Error al configurar gráfico:', error);
+          this.chart1Options = getDefaultChartOptions(this.chartHeightNumber);
+        }
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Error en reportSaleForCategories:', error);
+        // En caso de error, establecer opciones por defecto
+        this.hadDelay = true;
+        this.chart1Options = getDefaultChartOptions(this.chartHeightNumber);
+        this.cdr.detectChanges();
+      }
+    });
+  }
 }
 
-function getChart1Options(chartHeightNumber: number,series_data:Array<any>) {
-  // X El numero de ventas de la categoria
-  // Y El total de ventas de la categoria
-  // Z El promedio ponderado de la categoria
-  // const data = [
-  //   [[100, 250, 30]],
-  //   [[225, 300, 35]],
-  //   [[300, 350, 25]],
-  //   [[350, 350, 20]],
-  //   [[450, 400, 25]],
-  //   [[550, 350, 35]],
-  // ];
-  const height = chartHeightNumber;
-  const borderColor = getCSSVariableValue('--bs-border-dashed-color');
-  console.log(series_data);
-  const options = {
-    series: series_data,
-    // [
-    //   {
-    //     name: 'Social Campaigns',
-    //     data: data[0], // array value is of the format [x, y, z] where x (timestamp) and y are the two axes coordinates,
-    //   },
-    //   {
-    //     name: 'Email Newsletter',
-    //     data: data[1],
-    //   },
-    //   {
-    //     name: 'TV Campaign',
-    //     data: data[2],
-    //   },
-    //   {
-    //     name: 'Google Ads',
-    //     data: data[3],
-    //   },
-    //   {
-    //     name: 'Courses',
-    //     data: data[4],
-    //   },
-    //   {
-    //     name: 'Radio',
-    //     data: data[5],
-    //   },
-    // ],
+function getDefaultChartOptions(chartHeightNumber: number) {
+  // Configuración mínima para evitar errores
+  return {
+    series: [{
+      name: 'Sin datos',
+      data: [[0, 0, 0]]
+    }],
     chart: {
       fontFamily: 'inherit',
       type: 'bubble',
-      height: height,
+      height: chartHeightNumber,
       toolbar: {
         show: false,
       },
-    },
-    plotOptions: {
-      bubble: {},
-    },
-    stroke: {
-      show: false,
-      width: 0,
-    },
-    legend: {
-      show: false,
-    },
-    dataLabels: {
-      enabled: false,
     },
     xaxis: {
       type: 'numeric',
       tickAmount: 7,
       min: 0,
-      // max: 2000,
-      axisBorder: {
-        show: false,
-      },
-      axisTicks: {
-        show: true,
-        height: 0,
-      },
-      labels: {
-        show: true,
-        trim: true,
-        style: {
-          colors: getCSSVariableValue('--bs-gray-500'),
-          fontSize: '13px',
-        },
-      },
+      max: 10,
     },
     yaxis: {
       tickAmount: 7,
       min: 0,
-      // max: 2000,
-      labels: {
-        style: {
-          colors: getCSSVariableValue('--bs-gray-500'),
-          fontSize: '13px',
-        },
-      },
-    },
-    tooltip: {
-      style: {
-        fontSize: '12px',
-      },
-      x: {
-        formatter: function (val: string) {
-          return 'Avg: ' + val;
-        },
-      },
-      y: {
-        formatter: function (val: string) {
-          return val + ' PEN';
-        },
-      },
-      z: {
-        title: 'Cantidad de venta: ',
-      },
-    },
-    crosshairs: {
-      show: true,
-      position: 'front',
-      stroke: {
-        color: getCSSVariableValue('--bs-border-dashed-color'),
-        width: 1,
-        dashArray: 0,
-      },
-    },
-    colors: [
-      getCSSVariableValue('--bs-primary'),
-      getCSSVariableValue('--bs-success'),
-      getCSSVariableValue('--bs-warning'),
-      getCSSVariableValue('--bs-danger'),
-      getCSSVariableValue('--bs-info'),
-      '#43CED7',
-    ],
-    fill: {
-      opacity: 1,
-    },
-    markers: {
-      strokeWidth: 0,
-    },
-    grid: {
-      borderColor: borderColor,
-      strokeDashArray: 4,
-      padding: {
-        right: 20,
-      },
-      yaxis: {
-        lines: {
-          show: true,
-        },
-      },
+      max: 10,
     },
   };
-  return options;
+}
+
+function getChart1Options(chartHeightNumber: number, series_data:Array<any>) {
+  try {
+    // Asegurar que series_data es un array
+    if (!Array.isArray(series_data) || series_data.length === 0) {
+      series_data = [{
+        name: 'Sin datos',
+        data: [[0, 0, 0]]
+      }];
+    }
+    
+    const height = chartHeightNumber;
+    const borderColor = getCSSVariableValue('--bs-border-dashed-color');
+    console.log(series_data);
+    
+    const options = {
+      series: series_data,
+      chart: {
+        fontFamily: 'inherit',
+        type: 'bubble',
+        height: height,
+        toolbar: {
+          show: false,
+        },
+      },
+      plotOptions: {
+        bubble: {},
+      },
+      stroke: {
+        show: false,
+        width: 0,
+      },
+      legend: {
+        show: false,
+      },
+      dataLabels: {
+        enabled: false,
+      },
+      xaxis: {
+        type: 'numeric',
+        tickAmount: 7,
+        min: 0,
+        axisBorder: {
+          show: false,
+        },
+        axisTicks: {
+          show: true,
+          height: 0,
+        },
+        labels: {
+          show: true,
+          trim: true,
+          style: {
+            colors: getCSSVariableValue('--bs-gray-500'),
+            fontSize: '13px',
+          },
+        },
+      },
+      yaxis: {
+        tickAmount: 7,
+        min: 0,
+        labels: {
+          style: {
+            colors: getCSSVariableValue('--bs-gray-500'),
+            fontSize: '13px',
+          },
+        },
+      },
+      tooltip: {
+        style: {
+          fontSize: '12px',
+        },
+        x: {
+          formatter: function (val: string) {
+            return 'Avg: ' + val;
+          },
+        },
+        y: {
+          formatter: function (val: string) {
+            return val + ' PEN';
+          },
+        },
+        z: {
+          title: 'Cantidad de venta: ',
+        },
+      },
+      crosshairs: {
+        show: true,
+        position: 'front',
+        stroke: {
+          color: getCSSVariableValue('--bs-border-dashed-color'),
+          width: 1,
+          dashArray: 0,
+        },
+      },
+      colors: [
+        getCSSVariableValue('--bs-primary'),
+        getCSSVariableValue('--bs-success'),
+        getCSSVariableValue('--bs-warning'),
+        getCSSVariableValue('--bs-danger'),
+        getCSSVariableValue('--bs-info'),
+        '#43CED7',
+      ],
+      fill: {
+        opacity: 0.8,
+      },
+      grid: {
+        borderColor: borderColor,
+        strokeDashArray: 4,
+        padding: {
+          right: 20,
+        },
+        yaxis: {
+          lines: {
+            show: true,
+          },
+        },
+      },
+    };
+    
+    return options;
+  } catch (error) {
+    console.error('Error en getChart1Options:', error);
+    return getDefaultChartOptions(chartHeightNumber);
+  }
 }
 
 function getChart2Options(chartHeightNumber: number) {
-  const data = [
-    [[125, 300, 40]],
-    [[250, 350, 35]],
-    [[350, 450, 30]],
-    [[450, 250, 25]],
-    [[500, 500, 30]],
-    [[600, 250, 28]],
-  ];
-  const height = chartHeightNumber;
-  const borderColor = getCSSVariableValue('--bs-border-dashed-color');
+  try {
+    const data = [
+      [54, 42, 75, 110, 23, 87, 50],
+      [25, 38, 62, 47, 26, 46, 37],
+      [15, 29, 50, 44, 55, 33, 40],
+      [30, 25, 45, 35, 38, 27, 32],
+      [25, 38, 62, 47, 26, 46, 37],
+      [15, 29, 50, 44, 55, 33, 40],
+      [30, 25, 45, 35, 38, 27, 32],
+      [25, 38, 62, 47, 26, 46, 37],
+      [15, 29, 50, 44, 55, 33, 40],
+      [30, 25, 45, 35, 38, 27, 32],
+    ];
 
-  const options = {
-    series: [
-      {
-        name: 'Social Campaigns',
-        data: data[0], // array value is of the format [x, y, z] where x (timestamp) and y are the two axes coordinates,
+    const height = chartHeightNumber;
+    const borderColor = getCSSVariableValue('--bs-border-dashed-color');
+
+    const options = {
+      series: [
+        {
+          name: 'Social Campaigns',
+          data: data[0],
+        },
+        {
+          name: 'Email Newsletter',
+          data: data[1],
+        },
+        {
+          name: 'TV Campaign',
+          data: data[2],
+        },
+        {
+          name: 'Google Ads',
+          data: data[3],
+        },
+        {
+          name: 'Courses',
+          data: data[4],
+        },
+        {
+          name: 'Radio',
+          data: data[5],
+        },
+      ],
+      chart: {
+        fontFamily: 'inherit',
+        type: 'area',
+        height: height,
+        toolbar: {
+          show: false,
+        },
       },
-      {
-        name: 'Email Newsletter',
-        data: data[1],
-      },
-      {
-        name: 'TV Campaign',
-        data: data[2],
-      },
-      {
-        name: 'Google Ads',
-        data: data[3],
-      },
-      {
-        name: 'Courses',
-        data: data[4],
-      },
-      {
-        name: 'Radio',
-        data: data[5],
-      },
-    ],
-    chart: {
-      fontFamily: 'inherit',
-      type: 'bubble',
-      height: height,
-      toolbar: {
+      legend: {
         show: false,
       },
-    },
-    plotOptions: {
-      bubble: {},
-    },
-    stroke: {
-      show: false,
-      width: 0,
-    },
-    legend: {
-      show: false,
-    },
-    dataLabels: {
-      enabled: false,
-    },
-    xaxis: {
-      type: 'numeric',
-      tickAmount: 7,
-      min: 0,
-      max: 700,
-      axisBorder: {
-        show: false,
+      dataLabels: {
+        enabled: false,
       },
-      axisTicks: {
-        show: true,
-        height: 0,
+      fill: {
+        type: 'solid',
+        opacity: 0.7,
       },
-      labels: {
-        show: true,
-        trim: true,
-        style: {
-          colors: getCSSVariableValue('--bs-gray-500'),
-          fontSize: '13px',
-        },
-      },
-    },
-    yaxis: {
-      tickAmount: 7,
-      min: 0,
-      max: 700,
-      labels: {
-        style: {
-          colors: getCSSVariableValue('--bs-gray-500'),
-          fontSize: '13px',
-        },
-      },
-    },
-    tooltip: {
-      style: {
-        fontSize: '12px',
-      },
-      x: {
-        formatter: function (val: string) {
-          return 'Clicks: ' + val;
-        },
-      },
-      y: {
-        formatter: function (val: string) {
-          return '$' + val + 'K';
-        },
-      },
-      z: {
-        title: 'Impression: ',
-      },
-    },
-    crosshairs: {
-      show: true,
-      position: 'front',
       stroke: {
-        color: getCSSVariableValue('--bs-border-dashed-color'),
-        width: 1,
-        dashArray: 0,
+        curve: 'smooth',
+        show: true,
+        width: 2,
+        colors: [
+          getCSSVariableValue('--bs-primary'),
+          getCSSVariableValue('--bs-success'),
+          getCSSVariableValue('--bs-warning'),
+          getCSSVariableValue('--bs-danger'),
+          getCSSVariableValue('--bs-info'),
+          '#43CED7',
+        ],
       },
-    },
-    colors: [
-      getCSSVariableValue('--bs-primary'),
-      getCSSVariableValue('--bs-success'),
-      getCSSVariableValue('--bs-warning'),
-      getCSSVariableValue('--bs-danger'),
-      getCSSVariableValue('--bs-info'),
-      '#43CED7',
-    ],
-    fill: {
-      opacity: 1,
-    },
-    markers: {
-      strokeWidth: 0,
-    },
-    grid: {
-      borderColor: borderColor,
-      strokeDashArray: 4,
-      padding: {
-        right: 20,
+      xaxis: {
+        categories: ['1', '2', '3', '4', '5', '6', '7'],
+        axisBorder: {
+          show: false,
+        },
+        axisTicks: {
+          show: false,
+        },
+        labels: {
+          style: {
+            colors: getCSSVariableValue('--bs-gray-500'),
+            fontSize: '13px',
+          },
+        },
+        crosshairs: {
+          position: 'front',
+          stroke: {
+            color: getCSSVariableValue('--bs-gray-400'),
+            width: 1,
+            dashArray: 3,
+          },
+        },
       },
       yaxis: {
-        lines: {
-          show: true,
+        labels: {
+          style: {
+            colors: getCSSVariableValue('--bs-gray-500'),
+            fontSize: '13px',
+          },
+          formatter: function (val: number) {
+            return val + '';
+          },
         },
       },
-    },
-  };
-  return options;
+      tooltip: {
+        style: {
+          fontSize: '12px',
+        },
+        x: {
+          formatter: function (val: string) {
+            return 'Clicks: ' + val;
+          },
+        },
+        y: {
+          formatter: function (val: string) {
+            return '$' + val + 'K';
+          },
+        },
+        z: {
+          title: 'Impression: ',
+        },
+      },
+      crosshairs: {
+        show: true,
+        position: 'front',
+        stroke: {
+          color: getCSSVariableValue('--bs-border-dashed-color'),
+          width: 1,
+          dashArray: 0,
+        },
+      },
+      colors: [
+        getCSSVariableValue('--bs-primary'),
+        getCSSVariableValue('--bs-success'),
+        getCSSVariableValue('--bs-warning'),
+        getCSSVariableValue('--bs-danger'),
+        getCSSVariableValue('--bs-info'),
+        '#43CED7',
+      ],
+      markers: {
+        strokeWidth: 0,
+      },
+      grid: {
+        borderColor: borderColor,
+        strokeDashArray: 4,
+        padding: {
+          right: 20,
+        },
+        yaxis: {
+          lines: {
+            show: true,
+          },
+        },
+      },
+    };
+    return options;
+  } catch (error) {
+    console.error('Error en getChart2Options:', error);
+    return getDefaultChartOptions(chartHeightNumber);
+  }
 }

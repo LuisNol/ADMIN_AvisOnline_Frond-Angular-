@@ -1,6 +1,10 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ModalConfig, ModalComponent } from '../../_metronic/partials';
 import { SalesService } from 'src/app/modules/sales/service/sales.service';
+import { getSafeArray, getSafeValue, initChartSafely, isValidObject } from './dashboard-helpers';
+import { PermissionService } from 'src/app/modules/auth/services/permission.service';
+import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 
 declare var KTUtil:any;
 declare var KTThemeMode:any;
@@ -9,7 +13,7 @@ declare var KTThemeMode:any;
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
 })
-export class DashboardComponent {
+export class DashboardComponent implements OnInit {
   modalConfig: ModalConfig = {
     modalTitle: 'Modal title',
     dismissButtonLabel: 'Submit',
@@ -56,8 +60,17 @@ export class DashboardComponent {
   categorie_details:any = [];
 
   report_sale_brands:any;
+  
+  // Controlar el acceso limitado para usuarios con manage-own-products
+  hasFullAccess: boolean = false;
+  hasLimitedAccess: boolean = false;
+  limitedAccessMessage: string = '';
+  
   constructor(
    public salesService: SalesService,
+   private permissionService: PermissionService,
+   private router: Router,
+   private toastr: ToastrService
   ) {}
 
   async openModal() {
@@ -65,184 +78,230 @@ export class DashboardComponent {
   }
 
   ngOnInit(): void {
-    //Called after the constructor, initializing input properties, and the first call to ngOnChanges.
-    //Add 'implements OnInit' to the class.
+    // Verificar permisos antes de cargar el dashboard
+    const hasManageProducts = this.permissionService.hasPermission('manage-products');
+    const isAdmin = this.permissionService.hasRole('Admin');
+    const hasManageOwnProducts = this.permissionService.hasPermission('manage-own-products');
+    
+    this.hasFullAccess = isAdmin || hasManageProducts;
+    this.hasLimitedAccess = !this.hasFullAccess && hasManageOwnProducts;
+    
+    if (!this.hasFullAccess && !this.hasLimitedAccess) {
+      this.toastr.error('No tienes permisos para acceder al dashboard', 'Error de permisos');
+      this.router.navigate(['/products/list']);
+      return;
+    }
+    
    this.isLoading$ = this.salesService.isLoading$;
-   this.salesService.configAllReport().subscribe((resp:any) => {
-      console.log(resp);
-      // meses , año y mes
-      this.meses = resp.meses;
-      this.year_current = resp.year;
-      this.month_current = resp.month;
-      // 
-      this.year_1 = resp.year;
-      this.month_1 = resp.month;
-      this.year_2 = resp.year;
-      this.month_2 = resp.month;
-      this.year_3 = resp.year;
-      this.year_4 = resp.year;
-      this.month_4 = resp.month;
-      this.year_5 = resp.year;
-      this.month_5 = resp.month;
-      // 
-      this.reportSaleForCountry();
-      this.reportSaleForWeek();
-      this.reportSaleForDiscountWeek();
-      this.reportSaleForMonth();
-      this.reportSaleForYearDiscount();
-      this.reportSaleForCategorieDetail();
-      this.reportSaleForBrands();
-   })
-
+   
+   this.salesService.configAllReport().subscribe({
+      next: (resp: any) => {
+        console.log(resp);
+        
+        // Verificar si tiene acceso limitado (desde el backend)
+        if (resp.limited_access) {
+          this.hasLimitedAccess = true;
+          this.hasFullAccess = false;
+          this.limitedAccessMessage = resp.message || 'Acceso limitado al dashboard';
+          this.toastr.info(this.limitedAccessMessage);
+        }
+        
+        // meses , año y mes
+        this.meses = getSafeArray(resp.meses);
+        this.year_current = getSafeValue(resp, 'year', '2025');
+        this.month_current = getSafeValue(resp, 'month', '01');
+        // 
+        this.year_1 = getSafeValue(resp, 'year', '2025');
+        this.month_1 = getSafeValue(resp, 'month', '01');
+        this.year_2 = getSafeValue(resp, 'year', '2025');
+        this.month_2 = getSafeValue(resp, 'month', '01');
+        this.year_3 = getSafeValue(resp, 'year', '2025');
+        this.year_4 = getSafeValue(resp, 'year', '2025');
+        this.month_4 = getSafeValue(resp, 'month', '01');
+        this.year_5 = getSafeValue(resp, 'year', '2025');
+        this.month_5 = getSafeValue(resp, 'month', '01');
+        
+        // Solo cargar informes si tiene acceso completo
+        if (this.hasFullAccess) {
+          this.loadAllReports();
+        }
+      },
+      error: (error) => {
+        console.error('Error al cargar configuración del dashboard:', error);
+        if (error.status === 403) {
+          this.toastr.error('No tienes permisos para acceder al dashboard', 'Error de permisos');
+          this.router.navigate(['/products/list']);
+        }
+      }
+   });
+  }
+  
+  // Método para cargar todos los informes
+  loadAllReports() {
+    this.reportSaleForCountry();
+    this.reportSaleForWeek();
+    this.reportSaleForDiscountWeek();
+    this.reportSaleForMonth();
+    this.reportSaleForYearDiscount();
+    this.reportSaleForCategorieDetail();
+    this.reportSaleForBrands();
   }
 
   reportSaleForCountry(){
+    // Skip si no tiene acceso completo
+    if (!this.hasFullAccess) return;
+    
    let data = {
       year: this.year_1,
       month: this.month_1,
    }
    this.sales_for_year_for_country = null;
-   this.salesService.reportSaleForCountry(data).subscribe((resp:any) => {
-      console.log(resp);
-      var categories_labels:any = [];
-      var series_data:any = [];
-      this.percentage_sale_for_country = resp.percentageV;
-      this.sales_for_year_for_country = resp.sales_for_year;
-      resp.sales_for_country.forEach((element:any) => {
-         categories_labels.push(element.country_region);
-         series_data.push(element.total_sales);
-      });
-      var KTChartsWidget27 = function() {
-         var e:any = {
-                 self: null,
-                 rendered: !1
-             },
-             t = function(e:any) {
-                 var t = document.getElementById("kt_charts_widget_27");
-                 if (t) {
-                     var a = KTUtil.getCssVariableValue("--bs-gray-800"),
-                         l = KTUtil.getCssVariableValue("--bs-border-dashed-color"),
-                         r = {
-                             series: [{
-                                 name: "Sessions",
-                                 data: series_data,
-                             }],
-                             chart: {
-                                 fontFamily: "inherit",
-                                 type: "bar",
-                                 height: 350,
-                                 toolbar: {
-                                     show: !1
-                                 }
-                             },
-                             plotOptions: {
-                                 bar: {
-                                     borderRadius: 8,
-                                     horizontal: !0,
-                                     distributed: !0,
-                                     barHeight: 50,
-                                     dataLabels: {
-                                         position: "bottom"
-                                     }
-                                 }
-                             },
-                             dataLabels: {
-                                 enabled: !0,
-                                 textAnchor: "start",
-                                 offsetX: 0,
-                                 // formatter: function(e:any, t:any) {
-                                 //     e *= 1e3;
-                                 //     return wNumb({
-                                 //         thousand: ","
-                                 //     }).to(e)
-                                 // },
-                                 style: {
-                                     fontSize: "14px",
-                                     fontWeight: "600",
-                                     align: "left"
-                                 }
-                             },
-                             legend: {
-                                 show: !1
-                             },
-                             colors: ["#3E97FF", "#F1416C", "#50CD89", "#FFC700", "#7239EA"],
-                             xaxis: {
-                                 categories: categories_labels,
-                                 labels: {
-                                    //  formatter: function(e:any) {
-                                    //      return e + "K"
-                                    //  },
-                                     style: {
-                                         colors: a,
-                                         fontSize: "14px",
-                                         fontWeight: "600",
-                                         align: "left"
-                                     }
-                                 },
-                                 axisBorder: {
-                                     show: !1
-                                 }
-                             },
-                             yaxis: {
-                                 labels: {
-                                     formatter: function(et:any, t:any) {
-                                          let result = parseInt((100 * et / 18)+"");
-                                         return Number.isInteger(et) ? et + " - " + result.toString() + "%" : et
-                                     },
-                                     style: {
-                                         colors: a,
-                                         fontSize: "14px",
-                                         fontWeight: "600"
-                                     },
-                                     offsetY: 2,
-                                     align: "left"
-                                 }
-                             },
-                             grid: {
-                                 borderColor: l,
-                                 xaxis: {
-                                     lines: {
-                                         show: !0
-                                     }
-                                 },
-                                 yaxis: {
-                                     lines: {
-                                         show: !1
-                                     }
-                                 },
-                                 strokeDashArray: 4
-                             },
-                             tooltip: {
-                                 style: {
-                                     fontSize: "12px"
-                                 },
-                                 y: {
-                                     formatter: function(e:any) {
-                                         return e
-                                     }
-                                 }
-                             }
-                         };
-                     e.self = new ApexCharts(t, r), setTimeout((function() {
-                         e.self.render(), e.rendered = !0
-                     }), 200)
-                 }
-             };
-         return {
-             init: function() {
-                 t(e), KTThemeMode.on("kt.thememode.change", (function() {
-                     e.rendered && e.self.destroy(), t(e)
-                 }))
-             }
-         }
-      }();
-      setTimeout(() => {
-         KTUtil.onDOMContentLoaded((function() {
-            KTChartsWidget27.init()
-         }));
-      }, 50);
+   this.salesService.reportSaleForCountry(data).subscribe({
+      next: (resp:any) => {
+        console.log(resp);
+        var categories_labels:any = [];
+        var series_data:any = [];
+        this.percentage_sale_for_country = resp.percentageV;
+        this.sales_for_year_for_country = resp.sales_for_year;
+        resp.sales_for_country.forEach((element:any) => {
+           categories_labels.push(element.country_region);
+           series_data.push(element.total_sales);
+        });
+        var KTChartsWidget27 = function() {
+           var e:any = {
+                   self: null,
+                   rendered: !1
+               },
+               t = function(e:any) {
+                   var t = document.getElementById("kt_charts_widget_27");
+                   if (t) {
+                       var a = KTUtil.getCssVariableValue("--bs-gray-800"),
+                           l = KTUtil.getCssVariableValue("--bs-border-dashed-color"),
+                           r = {
+                               series: [{
+                                   name: "Sessions",
+                                   data: series_data,
+                               }],
+                               chart: {
+                                   fontFamily: "inherit",
+                                   type: "bar",
+                                   height: 350,
+                                   toolbar: {
+                                       show: !1
+                                   }
+                               },
+                               plotOptions: {
+                                   bar: {
+                                       borderRadius: 8,
+                                       horizontal: !0,
+                                       distributed: !0,
+                                       barHeight: 50,
+                                       dataLabels: {
+                                           position: "bottom"
+                                       }
+                                   }
+                               },
+                               dataLabels: {
+                                   enabled: !0,
+                                   textAnchor: "start",
+                                   offsetX: 0,
+                                   // formatter: function(e:any, t:any) {
+                                   //     e *= 1e3;
+                                   //     return wNumb({
+                                   //         thousand: ","
+                                   //     }).to(e)
+                                   // },
+                                   style: {
+                                       fontSize: "14px",
+                                       fontWeight: "600",
+                                       align: "left"
+                                   }
+                               },
+                               legend: {
+                                   show: !1
+                               },
+                               colors: ["#3E97FF", "#F1416C", "#50CD89", "#FFC700", "#7239EA"],
+                               xaxis: {
+                                   categories: categories_labels,
+                                   labels: {
+                                      //  formatter: function(e:any) {
+                                      //      return e + "K"
+                                      //  },
+                                       style: {
+                                           colors: a,
+                                           fontSize: "14px",
+                                           fontWeight: "600",
+                                           align: "left"
+                                       }
+                                   },
+                                   axisBorder: {
+                                       show: !1
+                                   }
+                               },
+                               yaxis: {
+                                   labels: {
+                                       formatter: function(et:any, t:any) {
+                                            let result = parseInt((100 * et / 18)+"");
+                                           return Number.isInteger(et) ? et + " - " + result.toString() + "%" : et
+                                       },
+                                       style: {
+                                           colors: a,
+                                           fontSize: "14px",
+                                           fontWeight: "600"
+                                       },
+                                       offsetY: 2,
+                                       align: "left"
+                                   }
+                               },
+                               grid: {
+                                   borderColor: l,
+                                   xaxis: {
+                                       lines: {
+                                           show: !0
+                                       }
+                                   },
+                                   yaxis: {
+                                       lines: {
+                                           show: !1
+                                       }
+                                   },
+                                   strokeDashArray: 4
+                               },
+                               tooltip: {
+                                   style: {
+                                       fontSize: "12px"
+                                   },
+                                   y: {
+                                       formatter: function(e:any) {
+                                           return e
+                                       }
+                                   }
+                               }
+                           };
+                       e.self = new ApexCharts(t, r), setTimeout((function() {
+                           e.self.render(), e.rendered = !0
+                       }), 200)
+                   }
+               };
+           return {
+               init: function() {
+                   t(e), KTThemeMode.on("kt.thememode.change", (function() {
+                       e.rendered && e.self.destroy(), t(e)
+                   }))
+               }
+           }
+        }();
+        setTimeout(() => {
+           KTUtil.onDOMContentLoaded((function() {
+              KTChartsWidget27.init()
+           }));
+        }, 50);
 
-   })
+      },
+      error: (error) => {
+        console.error('Error al cargar reporte de ventas por país:', error);
+      }
+   });
   }
 
   reportSaleForWeek(){
@@ -829,22 +888,33 @@ export class DashboardComponent {
    // this.report_sale_categorie_details = null;
    this.salesService.reportSaleForCategorieDetail(data).subscribe((resp:any) => {
       console.log(resp);
-      this.product_most_sales = resp.product_most_sales;
-      this.sale_month_categories = resp.sale_month_categories;
+      this.product_most_sales = getSafeArray(resp?.product_most_sales);
+      this.sale_month_categories = getSafeArray(resp?.sale_month_categories);
       // this.report_sale_categorie_details = resp;
-      this.categorie_selected = this.sale_month_categories[0].categorie_id;
-      setTimeout(() => {
-         this.selectedCategorie(this.sale_month_categories[0]);
-         this.isLoadingView();
-      }, 50);
-
+      
+      // Solo intentamos seleccionar una categoría si hay datos
+      if (this.sale_month_categories && this.sale_month_categories.length > 0) {
+        this.categorie_selected = getSafeValue(this.sale_month_categories[0], 'categorie_id', 0);
+        setTimeout(() => {
+          this.selectedCategorie(this.sale_month_categories[0]);
+          this.isLoadingView();
+        }, 50);
+      }
    })
   }
 
   selectedCategorie(sale_month_categ:any){
-   this.categorie_selected = sale_month_categ.categorie_id;
-   let DATA = this.product_most_sales.find((item:any) => item.categorie_id == sale_month_categ.categorie_id);
-   this.categorie_details = DATA ? DATA.products : [];
+    if (!isValidObject(sale_month_categ)) {
+      this.categorie_details = [];
+      return;
+    }
+    
+    this.categorie_selected = getSafeValue(sale_month_categ, 'categorie_id', 0);
+    const DATA = this.product_most_sales?.find((item:any) => 
+      getSafeValue(item, 'categorie_id', 0) == this.categorie_selected
+    );
+    
+    this.categorie_details = getSafeValue(DATA, 'products', []);
   }
 
   reportSaleForBrands(){
@@ -860,10 +930,17 @@ export class DashboardComponent {
       let categorie_labels:any = [];
       var series_data:any = [];
 
-      this.report_sale_brands.sales_for_brand.forEach((element:any) => {
-         categorie_labels.push(element.brand_name);
-         series_data.push(element.quantity_total);
+      const salesForBrand = getSafeArray(resp?.sales_for_brand);
+      salesForBrand.forEach((element:any) => {
+         categorie_labels.push(getSafeValue(element, 'brand_name', 'Sin marca'));
+         series_data.push(getSafeValue(element, 'quantity_total', 0));
       });
+
+      // Si no hay datos, crear un valor por defecto para evitar errores
+      if (categorie_labels.length === 0) {
+        categorie_labels = ['Sin datos'];
+        series_data = [0];
+      }
 
       var KTChartsWidget22 = function () {
          var e = function (e:any, t:any, a:any, l:any) {
@@ -902,27 +979,54 @@ export class DashboardComponent {
                      fill: {
                         type: "false"
                      }
-                  },
-                  i = new ApexCharts(r, o),
-                  s:any = !1,
-                  n = document.querySelector(e);
-               !0 === l && (i.render(), s = !0), n.addEventListener("shown.bs.tab", (function (e:any) {
-                  0 == s && (i.render(), s = !0)
-               }))
+                  };
+                  
+               try {
+                  var i = new ApexCharts(r, o),
+                    s:any = !1,
+                    n = document.querySelector(e);
+                  
+                  if (n && l === true) {
+                    i.render();
+                    s = !0;
+                  }
+                  
+                  if (n) {
+                    n.addEventListener("shown.bs.tab", (function (e:any) {
+                      if (s === false) {
+                        i.render();
+                        s = !0;
+                      }
+                    }));
+                  }
+               } catch (error) {
+                  console.error("Error al renderizar gráfico:", error);
+               }
             }
          };
          return {
             init: function () {
-               e("#kt_chart_widgets_22_tab_1", "#kt_chart_widgets_22_chart_1", [20, 100, 15, 25], !0)//, 
-               // e("#kt_chart_widgets_22_tab_2", "#kt_chart_widgets_22_chart_2", [70, 13, 11, 2], !1)
+               try {
+                 e("#kt_chart_widgets_22_tab_1", "#kt_chart_widgets_22_chart_1", [20, 100, 15, 25], !0);
+               } catch (error) {
+                 console.error("Error al inicializar gráfico:", error);
+               }
             }
          }
       }();
 
       setTimeout(() => {
-         KTUtil.onDOMContentLoaded((function () {
-            KTChartsWidget22.init()
-         }));
+         try {
+           if (typeof KTUtil !== 'undefined' && KTUtil.onDOMContentLoaded) {
+             KTUtil.onDOMContentLoaded((function () {
+               if (typeof KTChartsWidget22 !== 'undefined' && KTChartsWidget22.init) {
+                 KTChartsWidget22.init();
+               }
+             }));
+           }
+         } catch (error) {
+           console.error("Error al inicializar evento DOM:", error);
+         }
       }, 50);
 
       let categorie_labels_brands:any = [];
@@ -1091,9 +1195,6 @@ export class DashboardComponent {
   }
 
   getExpressionCss(i:number){
-   let  colors = [KTUtil.getCssVariableValue("--bs-info"), KTUtil.getCssVariableValue("--bs-success"), KTUtil.getCssVariableValue("--bs-primary"), KTUtil.getCssVariableValue("--bs-danger"),
-   '#7fffd4','#87ceeb','#4169e1','#3cb371','#808000','#008080','#fff8dc',
-   '#bc8f8f','#a0522d','#cd853f','#b8860b','#2f4f4f','#d2b48c'];
-   return colors[i]+"";
+   return i % 2 === 0 ? 'odd:bg-light-success' : 'odd:bg-light-primary';
   }
 }

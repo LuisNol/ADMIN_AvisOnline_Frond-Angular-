@@ -65,7 +65,8 @@ export class RoleDetailsComponent implements OnInit {
           },
           {
             title: 'Role', data: 'role', render: function (data, type, row) {
-              const roleName = row.roles[0]?.name;
+              const roles = row.roles || [];
+              const roleName = roles.length > 0 ? roles[0]?.name : '';
               return roleName || '';
             },
             orderData: [1],

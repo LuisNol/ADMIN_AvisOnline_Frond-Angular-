@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { IRoleModel } from './role.service';
+import { URL_SERVICIOS } from 'src/app/config/config';
 
 export interface DataTablesResponse {
     draw?: number;
@@ -24,6 +25,8 @@ export interface IUserModel {
     password?: string;
     roles?: IRoleModel[];
     role?: string;
+    type_user?: string | number;
+    surname?: string;
 }
 
 @Injectable({
@@ -31,8 +34,7 @@ export interface IUserModel {
 })
 export class UserService {
 
-    private apiUrl = 'https://preview.keenthemes.com/starterkit/metronic/laravel/api/v1/users';
-    // private apiUrl = 'http://127.0.0.1:8000/api/v1/users';
+    private apiUrl = `${URL_SERVICIOS}/admin/users`;
 
     constructor(private http: HttpClient) { }
 
@@ -58,5 +60,15 @@ export class UserService {
     deleteUser(id: number): Observable<void> {
         const url = `${this.apiUrl}/${id}`;
         return this.http.delete<void>(url);
+    }
+
+    assignRole(userId: number, roleId: number): Observable<IUserModel> {
+        const url = `${this.apiUrl}/${userId}/roles/${roleId}`;
+        return this.http.post<IUserModel>(url, {});
+    }
+
+    removeRole(userId: number, roleId: number): Observable<IUserModel> {
+        const url = `${this.apiUrl}/${userId}/roles/${roleId}`;
+        return this.http.delete<IUserModel>(url);
     }
 }

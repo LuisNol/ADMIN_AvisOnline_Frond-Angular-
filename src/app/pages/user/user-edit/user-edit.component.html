@@ -1,0 +1,84 @@
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title">{{ userId ? 'Editar Usuario' : 'Crear Nuevo Usuario' }}</h3>
+  </div>
+  
+  <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+    <div class="card-body">
+      <!-- Nombre del usuario -->
+      <div class="mb-5">
+        <label class="form-label required">Nombre</label>
+        <input type="text" class="form-control" formControlName="name" placeholder="Nombre completo">
+        <div *ngIf="userForm.get('name')?.invalid && (userForm.get('name')?.dirty || userForm.get('name')?.touched)" class="text-danger mt-2">
+          <small *ngIf="userForm.get('name')?.hasError('required')">El nombre es obligatorio</small>
+          <small *ngIf="userForm.get('name')?.hasError('minlength')">El nombre debe tener al menos 3 caracteres</small>
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div class="mb-5">
+        <label class="form-label required">Email</label>
+        <input type="email" class="form-control" formControlName="email" placeholder="email@ejemplo.com">
+        <div *ngIf="userForm.get('email')?.invalid && (userForm.get('email')?.dirty || userForm.get('email')?.touched)" class="text-danger mt-2">
+          <small *ngIf="userForm.get('email')?.hasError('required')">El email es obligatorio</small>
+          <small *ngIf="userForm.get('email')?.hasError('email')">Introduce un email válido</small>
+        </div>
+      </div>
+
+      <!-- Contraseña -->
+      <div class="mb-5">
+        <label class="form-label" [class.required]="!userId">Contraseña</label>
+        <input type="password" class="form-control" formControlName="password" placeholder="Contraseña">
+        <div class="text-muted mt-1">
+          <small *ngIf="userId">Dejar en blanco para no cambiar la contraseña</small>
+        </div>
+      </div>
+
+      <!-- Tipo de usuario -->
+      <div class="mb-5">
+        <label class="form-label required">Tipo de Usuario</label>
+        <select class="form-select" formControlName="type_user">
+          <option value="ADMIN">Administrador</option>
+          <option value="CLIENT">Cliente</option>
+        </select>
+      </div>
+
+      <!-- Lista de roles -->
+      <div class="mb-5">
+        <label class="form-label">Roles</label>
+
+        <div *ngIf="isLoading" class="d-flex justify-content-center my-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+          </div>
+        </div>
+
+        <div *ngIf="!isLoading" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+          <div class="col" *ngFor="let role of roles">
+            <div class="form-check form-check-custom form-check-solid">
+              <input class="form-check-input" type="checkbox" 
+                     [id]="'role_' + role.id" 
+                     [checked]="isRoleSelected(role.id)"
+                     (change)="toggleRole(role.id)">
+              <label class="form-check-label" [for]="'role_' + role.id">
+                {{ role.name }}
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="!isLoading && roles.length === 0" class="alert alert-warning">
+          No hay roles disponibles en el sistema.
+        </div>
+      </div>
+    </div>
+
+    <div class="card-footer d-flex justify-content-end">
+      <a routerLink="/apps/users" class="btn btn-light me-2">Cancelar</a>
+      <button type="submit" class="btn btn-primary" [disabled]="isSubmitting || userForm.invalid">
+        <span *ngIf="!isSubmitting">Guardar</span>
+        <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+      </button>
+    </div>
+  </form>
+</div> 

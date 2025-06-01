@@ -94,9 +94,15 @@
         <div class="row mb-6">
             <div class="col-lg-4 col-md-4 col-sm-12 my-2">
                 <label class="fw-semibold fs-6 py-2">Word: (*)</label>
-                <input type="text" name="word" (keyup.enter)="addItems()" [(ngModel)]="word" 
-                class="form-control form-control-lg form-control-solid" 
-                placeholder="Por ejemplo:   XXXXX ">
+                <div class="input-group">
+                    <input type="text" name="word" [(ngModel)]="word" 
+                    class="form-control form-control-lg form-control-solid" 
+                    placeholder="Ingresa una palabra clave y presiona el botón">
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" type="button" (click)="addItems()">Agregar palabra clave</button>
+                    </div>
+                </div>
+                <small class="text-danger">Debe agregar al menos una palabra clave</small>
             </div>
             <div class="col-lg-6 col-md-6 col-sm-12 my-2" *ngIf="!isShowMultiselect">
                 <label class="fw-semibold fs-6 py-2">Tags: </label>
@@ -125,11 +131,12 @@
         </div>
         <div class="row mb-6">
             <div class="col-lg-8 fv-row fv-plugins-icon-container">
-                <label class="fs-6 fw-semibold mb-2">Descripción: </label>
-                <ckeditor [data]="description" (change)="onChange($event)"></ckeditor>
+                <label class="fs-6 fw-semibold mb-2">Descripción: (*)</label>
+                <textarea class="form-control form-control-solid" rows="6" 
+                name="description" [(ngModel)]="description" placeholder="Ingresa la descripción del producto"></textarea>
             </div>
             <div class="col-lg-4 fv-row fv-plugins-icon-container">
-                <label class="fs-6 fw-semibold mb-2">Resumen: </label>
+                <label class="fs-6 fw-semibold mb-2">Resumen: (*)</label>
                 <textarea class="form-control form-control-solid" rows="3" 
                 name="resumen" [(ngModel)]="resumen" placeholder="******"></textarea>
             </div>

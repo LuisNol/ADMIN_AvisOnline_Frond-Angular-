@@ -1,33 +1,25 @@
 <div class="card">
-  <div class="card-header border-0 pt-6">
-    <!--begin::Card title-->
-    <div class="card-title">
-      <!--begin::Search-->
-      <div class="d-flex align-items-center position-relative my-1">
-        <app-keenicon name="magnifier" class="fs-3 position-absolute ms-5"></app-keenicon>
-        <input type="text" data-action="filter" class="form-control form-control-solid w-250px ps-12" placeholder="Search Users">
-      </div>
-      <!--end::Search-->
-    </div>
-    <!--begin::Card title-->
-
-    <!--begin::Card toolbar-->
+  <!-- begin::Header -->
+  <div class="card-header border-0 pt-5">
+    <h3 class="card-title align-items-start flex-column">
+      <span class="card-label fw-bolder fs-3 mb-1">Users</span>
+      <span class="text-muted mt-1 fw-bold fs-7">Over 500 members</span>
+    </h3>
     <div class="card-toolbar">
-      <!--begin::Toolbar-->
-      <div class="d-flex justify-content-end">
-        <!--begin::Add user-->
-        <button type="button" class="btn btn-primary" data-action="create">
-          Add User
-        </button>
-        <!--end::Add user-->
-      </div>
-      <!--end::Toolbar-->
+      <a routerLink="/apps/users/create" class="btn btn-sm btn-light-primary">
+      <span class="svg-icon svg-icon-2">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <rect opacity="0.5" x="11.364" y="20.364" width="16" height="2" rx="1" transform="rotate(-90 11.364 20.364)" fill="currentColor"></rect>
+          <rect x="4.36396" y="11.364" width="16" height="2" rx="1" fill="currentColor"></rect>
+        </svg>
+      </span>
+      New User</a>
     </div>
-    <!--end::Card toolbar-->
   </div>
+  <!-- end::Header -->
 
-  <div class="card-body pt-0">
-    <app-crud [datatableConfig]="datatableConfig" route="/apps/users" (deleteEvent)="delete($event)" (editEvent)="edit($event)" (createEvent)="create()" [reload]="reloadEvent" [modal]="formModal"></app-crud>
+  <div class="card-body py-3">
+    <app-crud [datatableConfig]="datatableConfig" route="/apps/users" (deleteEvent)="delete($event)" [reload]="reloadEvent"></app-crud>
   </div>
 </div>
 
