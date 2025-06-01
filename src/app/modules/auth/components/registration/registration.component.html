@@ -4,45 +4,50 @@
   <div class="text-center mb-11">
     <!--begin::Title-->
     <h1 class="text-gray-900 fw-bolder mb-3">
-      Inscribirse
+      Sign Up
     </h1>
     <!--end::Title-->
 
     <!--begin::Subtitle-->
     <div class="text-gray-500 fw-semibold fs-6">
-      Tus campañas de avisos 
+      Your Social Campaigns
     </div>
     <!--end::Subtitle--->
   </div>
   <!--begin::Heading-->
 
-:
-   
+  <!--begin::Login options-->
   <div class="row g-3 mb-9">
-   
-  <div class="col-md-6">          
-  <a href="#"         
-     class="btn btn-flex btn-outline btn-text-gray-700 btn-active-color-primary bg-state-light flex-center text-nowrap w-100">         
-    <img alt="Logo" src="./assets/media/svg/brand-logos/bell-icon.svg" class="h-15px me-3" />         
-    Avisos Urgentes       
-  </a>          
-</div>           
+    <!--begin::Col-->
+    <div class="col-md-6">
+      <!--begin::Google link--->
+      <a href="#"
+        class="btn btn-flex btn-outline btn-text-gray-700 btn-active-color-primary bg-state-light flex-center text-nowrap w-100">
+        <img alt="Logo" src="./assets/media/svg/brand-logos/google-icon.svg" class="h-15px me-3" />
+        Sign in with Google
+      </a>
+      <!--end::Google link--->
+    </div>
+    <!--end::Col-->
 
-<div class="col-md-6">        
-  <a href="#"         
-     class="btn btn-flex btn-outline btn-text-gray-700 btn-active-color-primary bg-state-light flex-center text-nowrap w-100">         
-    <img alt="Logo" src="./assets/media/svg/brand-logos/notification-icon.svg" class="theme-light-show h-15px me-3" />         
-    <img alt="Logo" src="./assets/media/svg/brand-logos/notification-dark-icon.svg" class="theme-dark-show h-15px me-3" />         
-    Notificaciones Online       
-  </a>      
-</div>
+    <!--begin::Col-->
+    <div class="col-md-6">
+      <!--begin::Google link--->
+      <a href="#"
+        class="btn btn-flex btn-outline btn-text-gray-700 btn-active-color-primary bg-state-light flex-center text-nowrap w-100">
+        <img alt="Logo" src="./assets/media/svg/brand-logos/apple-black.svg" class="theme-light-show h-15px me-3" />
+        <img alt="Logo" src="./assets/media/svg/brand-logos/apple-black-dark.svg" class="theme-dark-show h-15px me-3" />
+        Sign in with Apple
+      </a>
+      <!--end::Google link--->
+    </div>
+    <!--end::Col-->
   </div>
-
-
- 
+  <!--end::Login options-->
 
   <!--begin::Separator-->
-  <div class="separator separator-content my-14"><span class="w-125px text-gray-500 fw-semibold fs-7"> con correo electrónico</span></div>
+  <div class="separator separator-content my-14"><span class="w-125px text-gray-500 fw-semibold fs-7">Or with
+      email</span></div>
   <!--end::Separator-->
 
   <!-- begin::Alert error-->
@@ -57,11 +62,11 @@
 
   <!--begin::Form group-->
   <div class="fv-row mb-8">
-    <label class="form-label fw-bolder text-gray-900 fs-6">Fullname</label>
-    <input class="form-control bg-transparent" type="text" name="fullname" formControlName="fullname"
-      placeholder="Fullname" autocomplete="off" [ngClass]="{
-        'is-invalid': registrationForm.controls['fullname'].invalid,
-        'is-valid': registrationForm.controls['fullname'].valid
+    <label class="form-label fw-bolder text-gray-900 fs-6">Name</label>
+    <input class="form-control bg-transparent" type="text" name="name" formControlName="name"
+      placeholder="Name" autocomplete="off" [ngClass]="{
+        'is-invalid': registrationForm.controls['name'].invalid,
+        'is-valid': registrationForm.controls['name'].valid
       }" />
     <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
         validation: 'required',
@@ -83,7 +88,7 @@
 
   <!--begin::Form group-->
   <div class="fv-row mb-8">
-    <label class="form-label fw-bolder text-gray-900 fs-6">Correo electrónico</label>
+    <label class="form-label fw-bolder text-gray-900 fs-6">Email</label>
     <input class="form-control bg-transparent" type="email" placeholder="Email" name="email" formControlName="email"
       autocomplete="off" [ngClass]="{
         'is-invalid': registrationForm.controls['email'].invalid,
@@ -114,7 +119,7 @@
 
   <!--begin::Form group-->
   <div class="fv-row mb-8">
-    <label class="form-label fw-bolder text-gray-900 fs-6">Contraseña</label>
+    <label class="form-label fw-bolder text-gray-900 fs-6">Password</label>
     <input class="form-control bg-transparent" type="password" placeholder="Password" name="password"
       formControlName="password" autocomplete="off" [ngClass]="{
         'is-invalid': registrationForm.controls['password'].invalid,
@@ -140,7 +145,7 @@
 
   <!--begin::Form group-->
   <div class="fv-row mb-8">
-    <label class="form-label fw-bolder text-gray-900 fs-6">confirmar Contraseña</label>
+    <label class="form-label fw-bolder text-gray-900 fs-6">Confirm Password</label>
     <input class="form-control bg-transparent" type="password" placeholder="Confirm password" name="cPassword"
       autocomplete="off" formControlName="cPassword" [ngClass]="{
         'is-invalid': registrationForm.controls['cPassword'].invalid,
@@ -179,8 +184,8 @@
     <label class="form-check form-check-inline">
       <input id="kt_login_toc_agree" type="checkbox" formControlName="agree" name="agree" class="form-check-input" />
       <span for="kt_login_toc_agree" class="form-check-label fw-semibold text-gray-700 fs-base ms-1">
-        Acepto los&nbsp;<a href="https://keenthemes.com/metronic/?page=faq" target="_blank"
-          class="ms-1 link-primary">términos</a>.
+        I Accept the&nbsp;<a href="https://keenthemes.com/metronic/?page=faq" target="_blank"
+          class="ms-1 link-primary">Terms</a>.
       </span>
     </label>
   </div>
@@ -192,7 +197,7 @@
         registrationForm.invalid || !registrationForm.controls['agree'].value
       " class="btn btn-primary">
       <ng-container *ngIf="(isLoading$ | async) === false">
-        <span class="indicator-label">Enviar</span>
+        <span class="indicator-label">Submit</span>
       </ng-container>
       <ng-container *ngIf="isLoading$ | async">
         <span class="indicator-progress" [style.display]="'block'">
@@ -206,10 +211,10 @@
 
   <!--begin::Sign up-->
   <div class="text-gray-500 text-center fw-semibold fs-6">
-    ¿Ya tienes una cuenta?
+    Already have an Account?
 
     <a routerLink="/auth/login" class="link-primary fw-semibold">
-      Iniciar sesión
+      Sign in
     </a>
   </div>
   <!--end::Sign up-->
