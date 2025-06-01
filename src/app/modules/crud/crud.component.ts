@@ -78,10 +78,15 @@ export class CrudComponent implements OnInit, AfterViewInit, OnDestroy {
       sortable: false,
       title: 'Actions',
       render: (data: any, type: any, full: any) => {
+        const viewButton = `
+          <a href="${this.route}/${full.id}" class="btn btn-icon btn-active-light-primary w-30px h-30px me-3">
+            <i class="ki-duotone ki-eye fs-3"><span class="path1"></span><span class="path2"></span></i>
+          </a>`;
+
         const editButton = `
-          <button class="btn btn-icon btn-active-light-primary w-30px h-30px me-3" data-action="edit" data-id="${full.id}">
+          <a href="${this.route}/edit/${full.id}" class="btn btn-icon btn-active-light-primary w-30px h-30px me-3">
             <i class="ki-duotone ki-pencil fs-3"><span class="path1"></span><span class="path2"></span></i>
-          </button>`;
+          </a>`;
 
         const deleteButton = `
           <button class="btn btn-icon btn-active-light-primary w-30px h-30px" data-action="delete" data-id="${full.id}">
@@ -93,8 +98,16 @@ export class CrudComponent implements OnInit, AfterViewInit, OnDestroy {
 
         const buttons = [];
 
-        if (this.editEvent.observed) {
+        if (this.route && this.route !== '/') {
+          buttons.push(viewButton);
           buttons.push(editButton);
+        } else {
+          if (this.editEvent.observed) {
+            buttons.push(`
+            <button class="btn btn-icon btn-active-light-primary w-30px h-30px me-3" data-action="edit" data-id="${full.id}">
+              <i class="ki-duotone ki-pencil fs-3"><span class="path1"></span><span class="path2"></span></i>
+            </button>`);
+          }
         }
 
         if (this.deleteEvent.observed) {

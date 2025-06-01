@@ -5,6 +5,7 @@ import { CreateProductComponent } from './create-product/create-product.componen
 import { LitsProductsComponent } from './lits-products/lits-products.component';
 import { EditProductComponent } from './edit-product/edit-product.component';
 import { CreateVariationSpecificationsComponent } from './attributes/create-variation-specifications/create-variation-specifications.component';
+import { PermissionGuard } from 'src/app/core/guards/permission.guard';
 
 const routes: Routes = [
   {
@@ -13,19 +14,27 @@ const routes: Routes = [
     children: [
       {
         path: 'register',
-        component: CreateProductComponent
+        component: CreateProductComponent,
+        canActivate: [PermissionGuard],
+        data: { permission: 'manage-own-products' }
       },
       {
         path: 'list',
-        component: LitsProductsComponent
+        component: LitsProductsComponent,
+        canActivate: [PermissionGuard],
+        data: { permission: 'manage-own-products' }
       },
       {
         path: 'list/edit/:id',
-        component: EditProductComponent
+        component: EditProductComponent,
+        canActivate: [PermissionGuard],
+        data: { permission: 'manage-own-products' }
       },
       {
         path: 'list/variations-specifications/:id',
         component: CreateVariationSpecificationsComponent,
+        canActivate: [PermissionGuard],
+        data: { permission: 'manage-own-products' }
       }
     ],
   }

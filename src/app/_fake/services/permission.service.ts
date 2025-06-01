@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { URL_SERVICIOS } from 'src/app/config/config';
 
 export interface DataTablesResponse {
   draw?: number;
@@ -21,8 +22,7 @@ export interface IPermissionModel {
 })
 export class PermissionService {
 
-  private apiUrl = 'https://preview.keenthemes.com/starterkit/metronic/laravel/api/v1/permissions';
-  // private apiUrl = 'http://127.0.0.1:8000/api/v1/permissions';
+  private apiUrl = `${URL_SERVICIOS}/admin/permissions`;
 
   constructor(private http: HttpClient) { }
 

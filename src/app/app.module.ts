@@ -18,12 +18,29 @@ import { ToastrModule } from 'ngx-toastr';
 import { CKEditorModule } from 'ckeditor4-angular';
 // #fake-end#
 import { NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
+import { AuthInterceptorProvider } from './core/interceptors/auth.interceptor';
+import { PermissionService } from './modules/auth/services/permission.service';
 
-function appInitializer(authService: AuthService) {
+function appInitializer(authService: AuthService, permissionService: PermissionService) {
   return () => {
-    return new Promise((resolve) => {
-      //@ts-ignore
-      authService.getUserByToken().subscribe().add(resolve);
+    return new Promise<void>((resolve) => {
+      // Primero cargamos el usuario
+      authService.getUserByToken().subscribe({
+        next: (user) => {
+          if (user) {
+            // Si hay usuario, cargamos los permisos
+            permissionService.loadUserPermissions().subscribe({
+              complete: () => resolve()
+            });
+          } else {
+            resolve();
+          }
+        },
+        error: (error) => {
+          console.error('Error loading user:', error);
+          resolve();
+        }
+      });
     });
   };
 }
@@ -59,8 +76,10 @@ function appInitializer(authService: AuthService) {
       provide: APP_INITIALIZER,
       useFactory: appInitializer,
       multi: true,
-      deps: [AuthService],
+      deps: [AuthService, PermissionService],
     },
+    AuthInterceptorProvider,
+    PermissionService,
   ],
   bootstrap: [AppComponent],
 })

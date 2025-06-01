@@ -8,11 +8,12 @@ import { SharedModule } from 'src/app/_metronic/shared/shared.module';
 import { NgbCollapseModule, NgbDropdownModule, NgbNavModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
+import { UserEditComponent } from './user-edit/user-edit.component';
 
 
 
 @NgModule({
-  declarations: [UserListingComponent, UserDetailsComponent],
+  declarations: [UserListingComponent, UserDetailsComponent, UserEditComponent],
   imports: [
     CommonModule,
     FormsModule,
@@ -21,6 +22,14 @@ import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
       {
         path: '',
         component: UserListingComponent,
+      },
+      {
+        path: 'create',
+        component: UserEditComponent,
+      },
+      {
+        path: 'edit/:id',
+        component: UserEditComponent,
       },
       {
         path: ':id',

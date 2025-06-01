@@ -4,7 +4,7 @@
   <!--begin::Heading-->
   <div class="text-center mb-11">
     <h1 class="text-gray-900 fw-bolder mb-3">
-      Sign In
+      Ingresar
     </h1>
     <!--begin::Subtitle-->
     <div class="text-gray-500 fw-semibold fs-6">
@@ -33,8 +33,7 @@
   <ng-container *ngIf="!hasError">
     <div class="mb-10 bg-light-info p-8 rounded">
       <div class="text-info">
-        Use account <strong>{{ defaultAuth.email }}</strong> and password
-        <strong>{{ defaultAuth.password }}</strong> to continue.
+        Si ya se registró use su correo y contraseña, si desdea registrarse dale click en "Registrarse".
       </div>
     </div>
   </ng-container>
@@ -45,7 +44,7 @@
   <ng-container *ngIf="hasError">
     <div class="mb-lg-15 alert alert-danger">
       <div class="alert-text font-weight-bold">
-        The login details are incorrect
+        Los datos ingresados son incorrectos o no se encuentra registrado.
       </div>
     </div>
   </ng-container>
@@ -142,7 +141,7 @@
     Not a Member yet?
 
     <a routerLink="/auth/registration" class="link-primary">
-      Sign up
+      Registrarse
     </a>
   </div>
 

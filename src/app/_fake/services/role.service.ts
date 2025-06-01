@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { IPermissionModel } from './permission.service';
 import { IUserModel } from './user-service';
-
+import { URL_SERVICIOS } from 'src/app/config/config';
 export interface DataTablesResponse {
   draw?: number;
   recordsTotal: number;
@@ -14,6 +14,7 @@ export interface DataTablesResponse {
 export interface IRoleModel {
   id: number;
   name: string;
+  description?: string;
   created_at?: string;
   updated_at?: string;
   permissions: IPermissionModel[];
@@ -25,8 +26,8 @@ export interface IRoleModel {
 })
 export class RoleService {
 
-  private apiUrl = 'https://preview.keenthemes.com/starterkit/metronic/laravel/api/v1/roles';
-  // private apiUrl = 'http://127.0.0.1:8000/api/v1/roles';
+  //private apiUrl = 'https://preview.keenthemes.com/starterkit/metronic/laravel/api/v1/roles';
+   private apiUrl = `${URL_SERVICIOS}/admin/roles`;
 
   constructor(private http: HttpClient) { }
 
