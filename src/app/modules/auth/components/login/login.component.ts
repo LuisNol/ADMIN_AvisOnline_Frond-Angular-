@@ -15,8 +15,8 @@ import { PermissionService } from '../../services/permission.service';
 export class LoginComponent implements OnInit, OnDestroy {
   // KeenThemes mock, change it to:
   defaultAuth: any = {
-    email: 'ejemplo@ejemplo.com',
-    password: '123456789',
+    email: '',
+    password: '',
   };
   loginForm: FormGroup;
   hasError: boolean;
