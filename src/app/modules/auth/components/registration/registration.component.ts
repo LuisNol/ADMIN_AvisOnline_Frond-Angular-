@@ -14,11 +14,10 @@ import { first } from 'rxjs/operators';
 })
 export class RegistrationComponent implements OnInit, OnDestroy {
   registrationForm: FormGroup;
-  hasError: boolean;
+  hasError: boolean = false;
+  registrationSuccess: boolean = false; // nueva bandera
   isLoading$: Observable<boolean>;
-
-  // private fields
-  private unsubscribe: Subscription[] = []; // Read more: => https://brianflove.com/2016/12/11/anguar-2-unsubscribe-observables/
+  private unsubscribe: Subscription[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -26,7 +25,6 @@ export class RegistrationComponent implements OnInit, OnDestroy {
     private router: Router
   ) {
     this.isLoading$ = this.authService.isLoading$;
-    // redirect to home if already logged in
     if (this.authService.currentUserValue) {
       this.router.navigate(['/']);
     }
@@ -36,7 +34,6 @@ export class RegistrationComponent implements OnInit, OnDestroy {
     this.initForm();
   }
 
-  // convenience getter for easy access to form fields
   get f() {
     return this.registrationForm.controls;
   }
@@ -44,40 +41,11 @@ export class RegistrationComponent implements OnInit, OnDestroy {
   initForm() {
     this.registrationForm = this.fb.group(
       {
-        name: [
-          '',
-          Validators.compose([
-            Validators.required,
-            Validators.minLength(3),
-            Validators.maxLength(100),
-          ]),
-        ],
-        email: [
-          '',
-          Validators.compose([
-            Validators.required,
-            Validators.email,
-            Validators.minLength(3),
-            Validators.maxLength(320), // https://stackoverflow.com/questions/386294/what-is-the-maximum-length-of-a-valid-email-address
-          ]),
-        ],
-        password: [
-          '',
-          Validators.compose([
-            Validators.required,
-            Validators.minLength(3),
-            Validators.maxLength(100),
-          ]),
-        ],
-        cPassword: [
-          '',
-          Validators.compose([
-            Validators.required,
-            Validators.minLength(3),
-            Validators.maxLength(100),
-          ]),
-        ],
-        agree: [false, Validators.compose([Validators.required])],
+        name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
+        email: ['', [Validators.required, Validators.email, Validators.minLength(3), Validators.maxLength(320)]],
+        password: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
+        cPassword: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
+        agree: [false, Validators.required],
       },
       {
         validator: ConfirmPasswordValidator.MatchPassword,
@@ -87,28 +55,34 @@ export class RegistrationComponent implements OnInit, OnDestroy {
 
   submit() {
     this.hasError = false;
-    const result: {
-      [key: string]: string;
-    } = {};
+    this.registrationSuccess = false;
+
+    const result: { [key: string]: string } = {};
     Object.keys(this.f).forEach((key) => {
       result[key] = this.f[key].value;
     });
+
     const newUser = new UserModel();
     newUser.setUser({
       name: result.name,
       email: result.email,
-      password: result.password
+      password: result.password,
     });
+
     const registrationSubscr = this.authService
       .registration(newUser)
       .pipe(first())
       .subscribe((user: UserModel) => {
         if (user) {
-          this.router.navigate(['/']);
+          this.registrationSuccess = true; // Mostrar mensaje de éxito
+          setTimeout(() => {
+            this.router.navigate(['/']);
+          }, 2000); // Espera 2 segundos para mostrar el mensaje
         } else {
           this.hasError = true;
         }
       });
+
     this.unsubscribe.push(registrationSubscr);
   }
 
