@@ -69,6 +69,91 @@ export class CreateProductComponent {
     this.configAll();
   }
 
+  // Función para generar SKU automáticamente basado en el título
+  generateSku() {
+    if (this.title && this.title.trim() !== '') {
+      // Convertir a mayúsculas, remover caracteres especiales y espacios
+      let baseSku = this.title
+        .toUpperCase()
+        .replace(/[^A-Z0-9\s]/g, '') // Remover caracteres especiales
+        .replace(/\s+/g, '') // Remover espacios
+        .substring(0, 6); // Tomar solo los primeros 6 caracteres
+      
+      // Agregar números aleatorios al final
+      const randomNumbers = Math.floor(Math.random() * 999) + 1;
+      this.sku = baseSku + randomNumbers.toString().padStart(3, '0');
+    }
+  }
+
+  // Función que se ejecuta cuando cambia el título
+  onTitleChange() {
+    this.generateSku();
+    this.generateKeywords();
+  }
+
+  // Función para generar palabras clave automáticamente
+  generateKeywords() {
+    // Combinar título, descripción y resumen
+    let textoCombinado = '';
+    if (this.title) textoCombinado += this.title + ' ';
+    if (this.description) textoCombinado += this.description + ' ';
+    if (this.resumen) textoCombinado += this.resumen + ' ';
+
+    if (textoCombinado.trim() === '') return;
+
+    // Limpiar y procesar el texto
+    let palabras = textoCombinado
+      .toLowerCase()
+      .replace(/[^\w\sáéíóúñü]/g, ' ') // Remover caracteres especiales pero mantener acentos
+      .replace(/\s+/g, ' ') // Reemplazar múltiples espacios por uno solo
+      .trim()
+      .split(' ')
+      .filter(palabra => palabra.length > 3) // Solo palabras de más de 3 caracteres
+      .filter(palabra => !this.isStopWord(palabra)); // Filtrar palabras vacías
+
+    // Remover duplicados y tomar las primeras 8-10 palabras
+    let palabrasUnicas = [...new Set(palabras)].slice(0, 10);
+
+    // Limpiar las palabras clave existentes que fueron generadas automáticamente
+    this.selectedItems = this.selectedItems.filter((item: any) => !item.auto_generated);
+    this.dropdownList = this.dropdownList.filter((item: any) => !item.auto_generated);
+
+    // Agregar las nuevas palabras clave
+    palabrasUnicas.forEach(palabra => {
+      let time_date = new Date().getTime() + Math.random();
+      let newItem = { 
+        item_id: time_date, 
+        item_text: palabra,
+        auto_generated: true // Marcar como generada automáticamente
+      };
+      this.dropdownList.push(newItem);
+      this.selectedItems.push(newItem);
+    });
+  }
+
+  // Función para filtrar palabras vacías comunes
+  isStopWord(palabra: string): boolean {
+    const stopWords = [
+      'para', 'con', 'por', 'como', 'una', 'este', 'esta', 'estos', 'estas',
+      'del', 'las', 'los', 'una', 'uno', 'sobre', 'entre', 'hasta', 'desde',
+      'the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'had',
+      'her', 'was', 'one', 'our', 'out', 'day', 'get', 'has', 'him', 'his',
+      'how', 'its', 'may', 'new', 'now', 'old', 'see', 'two', 'who', 'boy',
+      'did', 'she', 'use', 'way', 'who', 'oil', 'sit', 'set', 'run', 'eat'
+    ];
+    return stopWords.includes(palabra.toLowerCase());
+  }
+
+  // Función que se ejecuta cuando cambia la descripción
+  onDescriptionChange() {
+    this.generateKeywords();
+  }
+
+  // Función que se ejecuta cuando cambia el resumen
+  onResumenChange() {
+    this.generateKeywords();
+  }
+
   configAll(){
     this.productService.configAll().subscribe((resp:any) => {
       console.log(resp);
