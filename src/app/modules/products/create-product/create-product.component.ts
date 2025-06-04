@@ -161,7 +161,7 @@ export class CreateProductComponent {
     console.log("Resumen:", this.resumen ? "OK" : "FALTA", this.resumen);
     console.log("SelectedItems:", this.selectedItems.length > 0 ? "OK" : "FALTA", this.selectedItems);
     
-    if(!this.title || !this.sku || !this.price_usd || !this.price_pen || !this.marca_id
+    if(!this.title || !this.sku ||  !this.marca_id
       || !this.file_imagen|| !this.categorie_first_id|| !this.description|| !this.resumen|| (this.selectedItems.length == 0)){
       this.toastr.error("Validacion","Los campos con el * son obligatorio");
       console.error("Faltan campos requeridos en el formulario");
@@ -173,8 +173,8 @@ export class CreateProductComponent {
     let formData = new FormData();
     formData.append("title",this.title);
     formData.append("sku",this.sku);
-    formData.append("price_usd",this.price_usd+"");
-    formData.append("price_pen",this.price_pen+"");
+    formData.append("price_usd",this.price_usd+"0");
+    formData.append("price_pen",this.price_pen+"0");
     formData.append("brand_id",this.marca_id);
     formData.append("portada",this.file_imagen);
     formData.append("categorie_first_id",this.categorie_first_id);
