@@ -135,7 +135,7 @@
             <div class="col-lg-6 col-md-6 col-sm-12 my-2">
                 <label class="form-label">Sube tu imagen: (*)</label>
                 <div class="custom-file">
-                    <input type="file" class="custom-file-input" id="customFile"  accept=".jpeg, .bmp, .jpg, .png, .gif, .webp"  (change)="processFile($event)">
+                    <input type="file" class="custom-file-input" id="customFile" accept="image/jpeg,image/jpg,image/png,image/gif,image/bmp,image/webp" (change)="processFile($event)">
                     <label class="custom-file-label" for="customFile">Choose file</label>
                 </div>
                 <div class="">
@@ -160,4 +160,6 @@
                 <button class="btn btn-primary" (click)="save()">Guardar</button>
             </div>
         </div>
+
     </div>
+    

@@ -38,6 +38,17 @@ export class CreateProductComponent {
   word:string = '';
 
   isShowMultiselect:Boolean = false;
+  
+  // Array de tipos de archivo de imagen permitidos
+  private allowedImageTypes: string[] = [
+    'image/jpeg',
+    'image/jpg', 
+    'image/png',
+    'image/gif',
+    'image/bmp',
+    'image/webp'
+  ];
+
   constructor(
     public productService: ProductService,
     private toastr: ToastrService,
@@ -187,15 +198,29 @@ export class CreateProductComponent {
 
   processFile($event:any){
     if(!$event.target.files || !$event.target.files[0]) {
-      this.toastr.error("Validacion","No se seleccionó ninguna imagen");
+      this.toastr.error("Validación","No se seleccionó ninguna imagen");
       return;
     }
     
-    if($event.target.files[0].type.indexOf("image") < 0){
-      this.toastr.error("Validacion","El archivo no es una imagen");
+    const file = $event.target.files[0];
+    
+    // Validar que el archivo sea del tipo correcto
+    if(!this.allowedImageTypes.includes(file.type.toLowerCase())){
+      this.toastr.error("Validación", `Tipo de archivo no válido. Solo se permiten: ${this.allowedImageTypes.join(', ').replace(/image\//g, '').toUpperCase()}`);
+      // Limpiar el input
+      $event.target.value = '';
       return;
     }
-    this.file_imagen = $event.target.files[0];
+
+    // Validar tamaño del archivo (opcional - 5MB máximo)
+    const maxSize = 5 * 1024 * 1024; // 5MB en bytes
+    if(file.size > maxSize) {
+      this.toastr.error("Validación", "El archivo es demasiado grande. Tamaño máximo: 5MB");
+      $event.target.value = '';
+      return;
+    }
+    
+    this.file_imagen = file;
     let reader = new FileReader();
     reader.readAsDataURL(this.file_imagen);
     reader.onloadend = () => this.imagen_previsualiza = reader.result;
@@ -248,7 +273,7 @@ export class CreateProductComponent {
     
     if(!this.title || !this.sku ||  !this.marca_id
       || !this.file_imagen|| !this.categorie_first_id|| !this.description|| !this.resumen|| (this.selectedItems.length == 0)){
-      this.toastr.error("Validacion","Los campos con el * son obligatorio");
+      this.toastr.error("Validación","Los campos con el * son obligatorio");
       console.error("Faltan campos requeridos en el formulario");
       return;
     }
