@@ -15,6 +15,7 @@ import { CKEditorModule } from 'ckeditor4-angular';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { RegistrationComponent } from './modules/auth/components/registration/registration.component';
+import { MainComponent } from './main/main.component';
 
 
 import { AuthService } from './modules/auth/services/auth.service';
