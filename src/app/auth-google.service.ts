@@ -56,4 +56,9 @@ export class AuthGoogleService {
     return this.oauthService.getIdentityClaims();
   }
 
+  /** Return the raw Google access token */
+  getAccessToken(): string {
+    return this.oauthService.getAccessToken();
+  }
+
 }
