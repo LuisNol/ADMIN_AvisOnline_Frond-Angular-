@@ -109,6 +109,23 @@ export class AuthService implements OnDestroy {
     );
   }
 
+  /**
+   * Authenticate or register a user using a Google ID token.
+   */
+  loginWithGoogle(idToken: string): Observable<any> {
+    this.isLoadingSubject.next(true);
+    return this.http
+      .post(`${URL_SERVICIOS}/auth/google`, { id_token: idToken })
+      .pipe(
+        map((auth: any) => this.setAuthFromLocalStorage(auth)),
+        catchError((err) => {
+          console.error('err', err);
+          return of(undefined);
+        }),
+        finalize(() => this.isLoadingSubject.next(false))
+      );
+  }
+
   forgotPassword(email: string): Observable<boolean> {
     this.isLoadingSubject.next(true);
     return this.authHttpService

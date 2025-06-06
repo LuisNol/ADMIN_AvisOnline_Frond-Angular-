@@ -39,6 +39,7 @@ export class AuthGoogleService {
       if (profile) {
         localStorage.setItem('user', JSON.stringify(profile));
         localStorage.setItem('token', this.oauthService.getAccessToken());
+        localStorage.setItem('id_token', this.oauthService.getIdToken());
         return true;
       }
     }
@@ -54,6 +55,16 @@ export class AuthGoogleService {
 
   getProfile() {
     return this.oauthService.getIdentityClaims();
+  }
+
+  /** Return the raw Google access token */
+  getAccessToken(): string {
+    return this.oauthService.getAccessToken();
+  }
+
+  /** Return the Google ID token */
+  getIdToken(): string {
+    return this.oauthService.getIdToken();
   }
 
 }
