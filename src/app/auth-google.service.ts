@@ -6,7 +6,7 @@ import { AuthConfig, OAuthService } from 'angular-oauth2-oidc';
 })
 export class AuthGoogleService {
 
-  constructor(private oauthService: OAuthService) {
+  constructor(public oauthService: OAuthService) {
     this.initLogin();
   }
 
@@ -14,8 +14,11 @@ export class AuthGoogleService {
     const config: AuthConfig = {
       issuer: 'https://accounts.google.com',
       strictDiscoveryDocumentValidation: false,
-      clientId: '659951375693-9d3f97voqatunl9n0mhdmcbn3jbssttt.apps.googleusercontent.com',
+      clientId: '659951375693-30d2b3d30ug2ccucoi4hr6jbdhte108r.apps.googleusercontent.com',
+      
+      // auth-google.service.ts
       redirectUri: window.location.origin + '/auth/main',
+
       postLogoutRedirectUri: window.location.origin + '/auth/login',
       scope: 'openid profile email',
     };

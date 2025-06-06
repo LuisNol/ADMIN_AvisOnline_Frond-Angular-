@@ -1,13 +1,15 @@
+// src/app/modules/auth/services/auth.service.ts
+
 import { Injectable, OnDestroy } from '@angular/core';
 import { Observable, BehaviorSubject, of, Subscription } from 'rxjs';
-import { map, catchError, switchMap, finalize } from 'rxjs/operators';
+import { map, catchError, switchMap, finalize, tap } from 'rxjs/operators'; // añadimos tap
 import { UserModel } from '../models/user.model';
-import { AuthModel } from '../models/auth.model';
 import { AuthHTTPService } from './auth-http';
 import { environment } from 'src/environments/environment';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { URL_SERVICIOS } from 'src/app/config/config';
+import { PermissionService } from 'src/app/modules/auth/services/permission.service'; // ¡IMPORTANTE!
 
 export type UserType = UserModel | undefined;
 
@@ -18,7 +20,7 @@ export class AuthService implements OnDestroy {
   // private fields
   private unsubscribe: Subscription[] = [];
   private authLocalStorageToken = `${environment.appVersion}-${environment.USERDATA_KEY}`;
-  
+
   // public fields
   currentUser$: Observable<UserType>;
   isLoading$: Observable<boolean>;
@@ -40,6 +42,7 @@ export class AuthService implements OnDestroy {
     private authHttpService: AuthHTTPService,
     private router: Router,
     private http: HttpClient,
+    private permissionService: PermissionService // Inyectamos PermissionService
   ) {
     this.isLoadingSubject = new BehaviorSubject<boolean>(false);
     this.currentUserSubject = new BehaviorSubject<UserType>(undefined);
@@ -50,14 +53,21 @@ export class AuthService implements OnDestroy {
     this.unsubscribe.push(subscr);
   }
 
-  // public methods
-  login(email: string, password: string): Observable<any> {
+  // ------------------------------------------------------------
+  // LOGIN CON EMAIL/PASSWORD
+  // ------------------------------------------------------------
+  login(email: string, password: string): Observable<boolean|undefined> {
     this.isLoadingSubject.next(true);
     return this.http.post(`${URL_SERVICIOS}/auth/login`, { email, password }).pipe(
-      map((auth: any) => {
-        const result = this.setAuthFromLocalStorage(auth);
-        return result;
+      tap((auth: any) => {
+        // 1) Guardamos token y user
+        const ok = this.setAuthFromLocalStorage(auth);
+        if (ok) {
+          // 2) Recargamos permisos
+          this.permissionService.loadUserPermissions().subscribe();
+        }
       }),
+      map((auth: any) => !!(auth && auth.access_token)),
       catchError((err) => {
         console.error('err', err);
         return of(undefined);
@@ -66,42 +76,38 @@ export class AuthService implements OnDestroy {
     );
   }
 
-  logout() {
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
-    localStorage.removeItem('user_permissions');
-    this.router.navigate(['/auth/login'], {
-      queryParams: {},
-    });
-  }
-
-  getUserByToken(): Observable<any> {
-    const auth = this.getAuthFromLocalStorage();
-    if (!auth) {
-      return of(undefined);
-    }
-
+  // ------------------------------------------------------------
+  // LOGIN O REGISTRO CON GOOGLE (ID TOKEN)
+  // ------------------------------------------------------------
+  loginWithGoogle(idToken: string): Observable<boolean|undefined> {
     this.isLoadingSubject.next(true);
-    return of(auth).pipe(
-      map((user: any) => {
-        if (user) {
-          this.currentUserSubject.next(user);
-        } else {
-          this.logout();
-        }
-        return user;
-      }),
-      finalize(() => this.isLoadingSubject.next(false))
-    );
+    return this.http
+      .post(`${URL_SERVICIOS}/auth/google_login`, { id_token: idToken }) // backend espera id_token
+      .pipe(
+        tap((auth: any) => {
+          // 1) Guardar token y user
+          const ok = this.setAuthFromLocalStorage(auth);
+          if (ok) {
+            // 2) Recargamos permisos
+            this.permissionService.loadUserPermissions().subscribe();
+          }
+        }),
+        map((auth: any) => !!(auth && auth.access_token)),
+        catchError((err) => {
+          console.error('err', err);
+          return of(undefined);
+        }),
+        finalize(() => this.isLoadingSubject.next(false))
+      );
   }
 
-  // need create new user then login
+  // ------------------------------------------------------------
+  // REGISTRO (EMAIL + PASSWORD)
+  // ------------------------------------------------------------
   registration(user: UserModel): Observable<any> {
     this.isLoadingSubject.next(true);
     return this.authHttpService.createUser(user).pipe(
-      map(() => {
-        this.isLoadingSubject.next(false);
-      }),
+      tap(() => this.isLoadingSubject.next(false)),
       switchMap(() => this.login(user.email, user.password)),
       catchError((err) => {
         console.error('err', err);
@@ -111,24 +117,9 @@ export class AuthService implements OnDestroy {
     );
   }
 
-  /**
-   * Authenticate or register a user using a Google ID token.
-   */
-  loginWithGoogle(idToken: string): Observable<any> {
-    this.isLoadingSubject.next(true);
-    // en AuthService.loginWithGoogle():
-    return this.http.post(`${URL_SERVICIOS}/auth/google_login`, { id_token: idToken })
-
-      .pipe(
-        map((auth: any) => this.setAuthFromLocalStorage(auth)),
-        catchError((err) => {
-          console.error('err', err);
-          return of(undefined);
-        }),
-        finalize(() => this.isLoadingSubject.next(false))
-      );
-  }
-
+  // ------------------------------------------------------------
+  // FORGOT PASSWORD
+  // ------------------------------------------------------------
   forgotPassword(email: string): Observable<boolean> {
     this.isLoadingSubject.next(true);
     return this.authHttpService
@@ -136,12 +127,53 @@ export class AuthService implements OnDestroy {
       .pipe(finalize(() => this.isLoadingSubject.next(false)));
   }
 
-  // private methods
+  // ------------------------------------------------------------
+  // LOGOUT
+  // ------------------------------------------------------------
+  logout() {
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    localStorage.removeItem('user_permissions');
+    // Limpiamos permisos en el servicio
+    this.permissionService.clearPermissions();
+    this.currentUserSubject.next(undefined);
+    this.router.navigate(['/auth/login'], {
+      queryParams: {},
+    });
+  }
+
+  // ------------------------------------------------------------
+  // INTENTA LEER USUARIO DESDE LOCALSTORAGE AL INICIAR APP
+  // ------------------------------------------------------------
+  getUserByToken(): Observable<any> {
+    const auth = this.getAuthFromLocalStorage();
+    if (!auth) {
+      return of(undefined);
+    }
+
+    this.isLoadingSubject.next(true);
+    return of(auth).pipe(
+      tap((user: any) => {
+        if (user) {
+          this.currentUserSubject.next(user);
+          // Cargar permisos al iniciar la app si hay usuario
+          this.permissionService.loadUserPermissions().subscribe();
+        } else {
+          this.logout();
+        }
+      }),
+      finalize(() => this.isLoadingSubject.next(false))
+    );
+  }
+
+  // ------------------------------------------------------------
+  // MÉTODOS PRIVADOS DE UTILIDAD
+  // ------------------------------------------------------------
   private setAuthFromLocalStorage(auth: any): boolean {
-    // store authToken/refreshToken/expiresIn in local storage to keep user logged in between page refreshes
     if (auth && auth.access_token) {
       localStorage.setItem('user', JSON.stringify(auth.user));
       localStorage.setItem('token', auth.access_token);
+      this.currentUserSubject.next(auth.user);
       return true;
     }
     return false;
@@ -153,11 +185,9 @@ export class AuthService implements OnDestroy {
       if (!lsValue) {
         return undefined;
       }
-
       this.token = localStorage.getItem('token');
       this.user = JSON.parse(lsValue);
-      const authData = this.user;
-      return authData;
+      return this.user;
     } catch (error) {
       console.error(error);
       return undefined;
@@ -167,17 +197,4 @@ export class AuthService implements OnDestroy {
   ngOnDestroy() {
     this.unsubscribe.forEach((sb) => sb.unsubscribe());
   }
-}
-
-export interface LoginResponse {
-  success: boolean;
-  message: string;
-  token?: string;
-  user?: {
-    id: number;
-    full_name: string;
-    email: string;
-    avatar: string | null;
-  };
-  errors?: any;
 }

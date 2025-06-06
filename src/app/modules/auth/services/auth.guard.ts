@@ -1,22 +1,20 @@
 import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
+import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
 import { AuthService } from './auth.service';
 
 @Injectable({ providedIn: 'root' })
-export class AuthGuard  {
-  constructor(private authService: AuthService) {}
+export class AuthGuard implements CanActivate {
+  constructor(private authService: AuthService, private router: Router) {}
 
-  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-    if(!this.authService.user || !this.authService.token){
-      this.authService.logout();
-      return false;
+  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
+    // 1) Si existe currentUserValue (usuario logueado), permitimos acceso
+    if (this.authService.currentUserValue) {
+      return true;
     }
-    let token = this.authService.token;
-    let expiration = (JSON.parse(atob(token.split(".")[1]))).exp;
-    if(Math.floor((new Date().getTime()/1000)) >=  expiration){
-      this.authService.logout();
-      return false;
-    }
-    return true;
+
+    // 2) Si no hay usuario en currentUserValue, limpiamos estado y redirigimos
+    this.authService.logout();
+    this.router.navigate(['/auth/login']);
+    return false;
   }
 }
