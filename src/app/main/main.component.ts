@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthGoogleService } from '../auth-google.service';
+import { AuthService } from '../modules/auth/services/auth.service';
 import { PermissionService } from '../modules/auth/services/permission.service';
 
 @Component({
@@ -12,6 +13,7 @@ export class MainComponent implements OnInit {
 
   constructor(
     private authGoogleService: AuthGoogleService,
+    private authService: AuthService,
     private permissionService: PermissionService,
     private router: Router
   ) { }
@@ -19,10 +21,17 @@ export class MainComponent implements OnInit {
   ngOnInit(): void {
     const stored = this.authGoogleService.storeCredentials();
     if (stored) {
-      this.permissionService.loadUserPermissions().subscribe(
-        () => this.router.navigate(['/dashboard']),
-        () => this.router.navigate(['/dashboard'])
-      );
+      const token = this.authGoogleService.getAccessToken();
+      const profile = this.authGoogleService.getProfile();
+      this.authService.loginWithGoogle(token, profile).subscribe({
+        next: () => {
+          this.permissionService.loadUserPermissions().subscribe(
+            () => this.router.navigate(['/dashboard']),
+            () => this.router.navigate(['/dashboard'])
+          );
+        },
+        error: () => this.router.navigate(['/auth/login'])
+      });
     } else {
       this.router.navigate(['/auth/login']);
     }
