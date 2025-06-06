@@ -6,29 +6,29 @@ import { HttpClientInMemoryWebApiModule } from 'angular-in-memory-web-api';
 import { ClipboardModule } from 'ngx-clipboard';
 import { TranslateModule } from '@ngx-translate/core';
 import { InlineSVGModule } from 'ng-inline-svg-2';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
-import { AuthService } from './modules/auth/services/auth.service';
-import { environment } from 'src/environments/environment';
+import { NgbModule, NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
+import { OAuthModule } from 'angular-oauth2-oidc';
 import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
-// #fake-start#
-import { FakeAPIService } from './_fake/fake-api.service';
 import { ToastrModule } from 'ngx-toastr';
 import { CKEditorModule } from 'ckeditor4-angular';
-// #fake-end#
-import { NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
-import { AuthInterceptorProvider } from './core/interceptors/auth.interceptor';
+
+import { AppRoutingModule } from './app-routing.module';
+import { AppComponent } from './app.component';
+import { RegistrationComponent } from './modules/auth/components/registration/registration.component';
+
+
+import { AuthService } from './modules/auth/services/auth.service';
 import { PermissionService } from './modules/auth/services/permission.service';
+import { AuthInterceptorProvider } from './core/interceptors/auth.interceptor';
+import { FakeAPIService } from './_fake/fake-api.service';
+import { environment } from 'src/environments/environment';
 
 function appInitializer(authService: AuthService, permissionService: PermissionService) {
   return () => {
     return new Promise<void>((resolve) => {
-      // Primero cargamos el usuario
       authService.getUserByToken().subscribe({
         next: (user) => {
           if (user) {
-            // Si hay usuario, cargamos los permisos
             permissionService.loadUserPermissions().subscribe({
               complete: () => resolve()
             });
@@ -46,27 +46,31 @@ function appInitializer(authService: AuthService, permissionService: PermissionS
 }
 
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [
+    AppComponent,
+    
+  
+  ],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
     TranslateModule.forRoot(),
     HttpClientModule,
+    OAuthModule.forRoot(),
     ClipboardModule,
-    // #fake-start#
+
+    // Módulo para simular API en entorno de desarrollo
     environment.isMockEnabled
       ? HttpClientInMemoryWebApiModule.forRoot(FakeAPIService, {
-        passThruUnknownUrl: true,
-        dataEncapsulation: false,
-      })
+          passThruUnknownUrl: true,
+          dataEncapsulation: false,
+        })
       : [],
-    // #fake-end#
+
     AppRoutingModule,
     InlineSVGModule.forRoot(),
     NgbModule,
-     //
-     CKEditorModule,
-     //
+    CKEditorModule,
     SweetAlert2Module.forRoot(),
     ToastrModule.forRoot(),
     NgbPaginationModule,
@@ -83,6 +87,4 @@ function appInitializer(authService: AuthService, permissionService: PermissionS
   ],
   bootstrap: [AppComponent],
 })
-export class AppModule { }
-
-///hola
+export class AppModule {}

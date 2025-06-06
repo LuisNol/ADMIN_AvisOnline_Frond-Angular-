@@ -1,3 +1,5 @@
+// src/app/modules/auth/components/registration/registration.component.ts
+
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Subscription, Observable } from 'rxjs';
@@ -6,6 +8,7 @@ import { AuthService } from '../../services/auth.service';
 import { ConfirmPasswordValidator } from './confirm-password.validator';
 import { UserModel } from '../../models/user.model';
 import { first } from 'rxjs/operators';
+import { AuthGoogleService } from '../../../../auth-google.service';
 
 @Component({
   selector: 'app-registration',
@@ -15,19 +18,36 @@ import { first } from 'rxjs/operators';
 export class RegistrationComponent implements OnInit, OnDestroy {
   registrationForm: FormGroup;
   hasError: boolean = false;
-  registrationSuccess: boolean = false; // nueva bandera
+  registrationSuccess: boolean = false;
   isLoading$: Observable<boolean>;
   private unsubscribe: Subscription[] = [];
 
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private authGoogleService: AuthGoogleService
   ) {
     this.isLoading$ = this.authService.isLoading$;
     if (this.authService.currentUserValue) {
       this.router.navigate(['/']);
     }
+  }
+
+  /** Método para iniciar sesión con Google */
+  login() {
+    this.authGoogleService.login();
+  }
+
+  /** Si solo lo usas para debug, cámbialo a getIdentityClaims() */
+  showData() {
+    const data = JSON.stringify(this.authGoogleService.getIdentityClaims());
+    console.log(data);
+  }
+
+  logOut() {
+    this.authGoogleService.logout();
+    this.router.navigate(['login']);
   }
 
   ngOnInit(): void {
@@ -74,10 +94,10 @@ export class RegistrationComponent implements OnInit, OnDestroy {
       .pipe(first())
       .subscribe((user: UserModel) => {
         if (user) {
-          this.registrationSuccess = true; // Mostrar mensaje de éxito
+          this.registrationSuccess = true;
           setTimeout(() => {
             this.router.navigate(['/']);
-          }, 2000); // Espera 2 segundos para mostrar el mensaje
+          }, 2000);
         } else {
           this.hasError = true;
         }
