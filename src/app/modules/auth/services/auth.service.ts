@@ -18,7 +18,7 @@ export class AuthService implements OnDestroy {
   // private fields
   private unsubscribe: Subscription[] = [];
   private authLocalStorageToken = `${environment.appVersion}-${environment.USERDATA_KEY}`;
-
+  
   // public fields
   currentUser$: Observable<UserType>;
   isLoading$: Observable<boolean>;
@@ -116,8 +116,9 @@ export class AuthService implements OnDestroy {
    */
   loginWithGoogle(idToken: string): Observable<any> {
     this.isLoadingSubject.next(true);
-    return this.http
-      .post(`${URL_SERVICIOS}/auth/google`, { id_token: idToken })
+    // en AuthService.loginWithGoogle():
+    return this.http.post(`${URL_SERVICIOS}/auth/google_login`, { id_token: idToken })
+
       .pipe(
         map((auth: any) => this.setAuthFromLocalStorage(auth)),
         catchError((err) => {
@@ -166,4 +167,17 @@ export class AuthService implements OnDestroy {
   ngOnDestroy() {
     this.unsubscribe.forEach((sb) => sb.unsubscribe());
   }
+}
+
+export interface LoginResponse {
+  success: boolean;
+  message: string;
+  token?: string;
+  user?: {
+    id: number;
+    full_name: string;
+    email: string;
+    avatar: string | null;
+  };
+  errors?: any;
 }

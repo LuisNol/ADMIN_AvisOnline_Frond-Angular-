@@ -12,32 +12,20 @@ const routes: Routes = [
     path: '',
     component: AuthComponent,
     children: [
-      {
-        path: '',
-        redirectTo: 'login',
-        pathMatch: 'full',
-      },
-      {
-        path: 'login',
-        component: LoginComponent,
- 
-      },
-      {
-        path: 'registration',
-        component: RegistrationComponent,
-      },
-      {
-        path: 'forgot-password',
-        component: ForgotPasswordComponent,
-      },
-      {
-        path: 'logout',
-        component: LogoutComponent,
-      },
+      // 1. Redireccionar ruta vacía a 'login'
       { path: '', redirectTo: 'login', pathMatch: 'full' },
-      { path: '**', redirectTo: 'login', pathMatch: 'full' },
+
+      // 2. Rutas de autenticación
+      { path: 'login', component: LoginComponent },
+      { path: 'registration', component: RegistrationComponent },
+      { path: 'forgot-password', component: ForgotPasswordComponent },
+      { path: 'logout', component: LogoutComponent },
+
+      // 3. Ruta específica para el callback de Google (MainComponent)
       { path: 'main', component: MainComponent },
 
+      // 4. Wildcard para todo lo demás: redirige a 'login'
+      { path: '**', redirectTo: 'login', pathMatch: 'full' },
     ],
   },
 ];

@@ -15,13 +15,17 @@ export const routes: Routes = [
       import('./modules/errors/errors.module').then((m) => m.ErrorsModule),
   },
   {
+    path: 'main',
+    component: MainComponent,
+  },
+  {
     path: '',
     canActivate: [AuthGuard],
     loadChildren: () =>
       import('./_metronic/layout/layout.module').then((m) => m.LayoutModule),
   },
+  // El wildcard siempre al final:
   { path: '**', redirectTo: 'error/404' },
-  { path: 'main', component: MainComponent }
 ];
 
 @NgModule({
