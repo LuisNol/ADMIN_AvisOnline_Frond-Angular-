@@ -16,7 +16,7 @@ export type UserType = UserModel | undefined;
 })
 export class AuthService implements OnDestroy {
   // private fields
-  private unsubscribe: Subscription[] = []; // Read more: => https://brianflove.com/2016/12/11/anguar-2-unsubscribe-observables/
+  private unsubscribe: Subscription[] = [];
   private authLocalStorageToken = `${environment.appVersion}-${environment.USERDATA_KEY}`;
 
   // public fields
@@ -33,8 +33,9 @@ export class AuthService implements OnDestroy {
     this.currentUserSubject.next(user);
   }
 
-  user:any = null;
-  token:any = null;
+  user: any = null;
+  token: any = null;
+
   constructor(
     private authHttpService: AuthHTTPService,
     private router: Router,
@@ -44,6 +45,7 @@ export class AuthService implements OnDestroy {
     this.currentUserSubject = new BehaviorSubject<UserType>(undefined);
     this.currentUser$ = this.currentUserSubject.asObservable();
     this.isLoading$ = this.isLoadingSubject.asObservable();
+
     const subscr = this.getUserByToken().subscribe();
     this.unsubscribe.push(subscr);
   }
@@ -51,7 +53,7 @@ export class AuthService implements OnDestroy {
   // public methods
   login(email: string, password: string): Observable<any> {
     this.isLoadingSubject.next(true);
-    return this.http.post(URL_SERVICIOS+"/auth/login",{email, password}).pipe(
+    return this.http.post(`${URL_SERVICIOS}/auth/login`, { email, password }).pipe(
       map((auth: any) => {
         const result = this.setAuthFromLocalStorage(auth);
         return result;
@@ -110,13 +112,12 @@ export class AuthService implements OnDestroy {
   }
 
   /**
-   * Authenticate or register a user using a Google access token
-   * and optional profile information returned by Google.
+   * Authenticate or register a user using a Google ID token.
    */
-  loginWithGoogle(token: string, profile: any): Observable<any> {
+  loginWithGoogle(idToken: string): Observable<any> {
     this.isLoadingSubject.next(true);
     return this.http
-      .post(`${URL_SERVICIOS}/auth/google`, { token, profile })
+      .post(`${URL_SERVICIOS}/auth/google`, { id_token: idToken })
       .pipe(
         map((auth: any) => this.setAuthFromLocalStorage(auth)),
         catchError((err) => {
@@ -136,7 +137,7 @@ export class AuthService implements OnDestroy {
 
   // private methods
   private setAuthFromLocalStorage(auth: any): boolean {
-    // store auth authToken/refreshToken/epiresIn in local storage to keep user logged in between page refreshes
+    // store authToken/refreshToken/expiresIn in local storage to keep user logged in between page refreshes
     if (auth && auth.access_token) {
       localStorage.setItem('user', JSON.stringify(auth.user));
       localStorage.setItem('token', auth.access_token);
@@ -147,13 +148,13 @@ export class AuthService implements OnDestroy {
 
   private getAuthFromLocalStorage(): any | undefined {
     try {
-      const lsValue = localStorage.getItem("user");
+      const lsValue = localStorage.getItem('user');
       if (!lsValue) {
         return undefined;
       }
 
-      this.token = localStorage.getItem("token")
-      this.user =JSON.parse(lsValue);
+      this.token = localStorage.getItem('token');
+      this.user = JSON.parse(lsValue);
       const authData = this.user;
       return authData;
     } catch (error) {

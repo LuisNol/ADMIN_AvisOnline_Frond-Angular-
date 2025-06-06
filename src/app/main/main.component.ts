@@ -19,20 +19,30 @@ export class MainComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    // 1) Intentamos guardar las credenciales de Google en localStorage
     const stored = this.authGoogleService.storeCredentials();
+
     if (stored) {
-      const token = this.authGoogleService.getAccessToken();
-      const profile = this.authGoogleService.getProfile();
-      this.authService.loginWithGoogle(token, profile).subscribe({
+      // 2) Si existía un token de Google válido, lo recuperamos
+      const idToken = this.authGoogleService.getIdToken();
+
+      // 3) Llamamos al backend para que valide el ID token y nos devuelva
+      //    un token de nuestra propia API (por ejemplo, con Sanctum o JWT).
+      this.authService.loginWithGoogle(idToken).subscribe({
         next: () => {
+          // 4) Una vez logueado, cargamos permisos y redirigimos a /dashboard
           this.permissionService.loadUserPermissions().subscribe(
             () => this.router.navigate(['/dashboard']),
             () => this.router.navigate(['/dashboard'])
           );
         },
-        error: () => this.router.navigate(['/auth/login'])
+        error: () => {
+          // Si algo falla (token inválido, expirado, etc.) volvemos al login
+          this.router.navigate(['/auth/login']);
+        }
       });
     } else {
+      // No había credenciales de Google, mandamos al usuario a /auth/login
       this.router.navigate(['/auth/login']);
     }
   }

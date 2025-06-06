@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { AuthConfig, OAuthService } from 'angular-oauth2-oidc'
+import { AuthConfig, OAuthService } from 'angular-oauth2-oidc';
 
 @Injectable({
   providedIn: 'root'
@@ -18,7 +18,7 @@ export class AuthGoogleService {
       redirectUri: window.location.origin + '/auth/main',
       postLogoutRedirectUri: window.location.origin + '/auth/login',
       scope: 'openid profile email',
-    }
+    };
 
     this.oauthService.configure(config);
     this.oauthService.setupAutomaticSilentRefresh();
@@ -30,15 +30,16 @@ export class AuthGoogleService {
   }
 
   /**
- * Guarda el token y el perfil de Google en localStorage
- * para integrarlo con el sistema de autenticación existente.
- */
+   * Guarda el token y el perfil de Google en localStorage
+   * para integrarlo con el sistema de autenticación existente.
+   */
   storeCredentials(): boolean {
     if (this.oauthService.hasValidAccessToken()) {
       const profile: any = this.getProfile();
       if (profile) {
         localStorage.setItem('user', JSON.stringify(profile));
         localStorage.setItem('token', this.oauthService.getAccessToken());
+        localStorage.setItem('id_token', this.oauthService.getIdToken());
         return true;
       }
     }
@@ -50,15 +51,20 @@ export class AuthGoogleService {
     localStorage.removeItem('user');
     localStorage.removeItem('token');
     localStorage.removeItem('user_permissions');
+    localStorage.removeItem('id_token');
   }
 
   getProfile() {
     return this.oauthService.getIdentityClaims();
   }
 
-  /** Return the raw Google access token */
+  /** Devuelve el access token crudo de Google */
   getAccessToken(): string {
     return this.oauthService.getAccessToken();
   }
 
+  /** Devuelve el ID token de Google */
+  getIdToken(): string {
+    return this.oauthService.getIdToken();
+  }
 }
