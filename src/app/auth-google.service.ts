@@ -14,12 +14,8 @@ export class AuthGoogleService {
     const config: AuthConfig = {
       issuer: 'https://accounts.google.com',
       strictDiscoveryDocumentValidation: false,
-      clientId: '659951375693-30d2b3d30ug2ccucoi4hr6jbdhte108r.apps.googleusercontent.com',
-      
-      // auth-google.service.ts
-      redirectUri: window.location.origin + '/auth/main',
-
-      postLogoutRedirectUri: window.location.origin + '/auth/login',
+      clientId: '659951375693-nq31qci00e9b2lmhh6edevshunrfiduk.apps.googleusercontent.com',
+      redirectUri: window.location.origin + '/auth/google/callback',
       scope: 'openid profile email',
     };
 

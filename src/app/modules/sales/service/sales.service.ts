@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, BehaviorSubject, finalize } from 'rxjs';
+import { Observable, BehaviorSubject, finalize, catchError, throwError } from 'rxjs';
 import { AuthService } from '../../auth';
 import { URL_SERVICIOS } from 'src/app/config/config';
 
@@ -20,29 +20,57 @@ export class SalesService {
     this.isLoading$ = this.isLoadingSubject.asObservable();
   }
   
+  private getHeaders(): HttpHeaders {
+    const token = this.authservice.token || localStorage.getItem('token');
+    if (!token) {
+      console.warn('No hay token disponible para ventas');
+      return new HttpHeaders({
+        'Content-Type': 'application/json'
+      });
+    }
+    
+    return new HttpHeaders({
+      'Authorization': 'Bearer ' + token,
+      'X-User-Permission': 'manage-products',
+      'Content-Type': 'application/json'
+    });
+  }
+  
   listSales(page:number = 1,data:any) {
     this.isLoadingSubject.next(true);
-    let headers = new HttpHeaders({'Authorization': 'Bearer '+this.authservice.token});
+    let headers = this.getHeaders();
     let URL = URL_SERVICIOS+"/admin/sales/list?page="+page;
     return this.http.post(URL,data,{headers: headers}).pipe(
+      catchError((error) => {
+        console.error('Error al listar ventas:', error);
+        return throwError(() => error);
+      }),
       finalize(() => this.isLoadingSubject.next(false))
     );
   }
 
   configAll(){
     this.isLoadingSubject.next(true);
-    let headers = new HttpHeaders({'Authorization': 'Bearer '+this.authservice.token});
+    let headers = this.getHeaders();
     let URL = URL_SERVICIOS+"/admin/products/config"; 
     return this.http.get(URL,{headers: headers}).pipe(
+      catchError((error) => {
+        console.error('Error al obtener configuración:', error);
+        return throwError(() => error);
+      }),
       finalize(() => this.isLoadingSubject.next(false))
     );
   }
 
   configAllReport(){
     this.isLoadingSubject.next(true);
-    let headers = new HttpHeaders({'Authorization': 'Bearer '+this.authservice.token});
+    let headers = this.getHeaders();
     let URL = URL_SERVICIOS+"/admin/kpi/config"; 
     return this.http.get(URL,{headers: headers}).pipe(
+      catchError((error) => {
+        console.error('Error al obtener configuración de reportes:', error);
+        return throwError(() => error);
+      }),
       finalize(() => this.isLoadingSubject.next(false))
     );
   }

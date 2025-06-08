@@ -11,6 +11,11 @@ const routes: Routes = [
     component: DiscountComponent,
     children: [
       {
+        path: '',
+        redirectTo: 'list',
+        pathMatch: 'full'
+      },
+      {
         path: 'register',
         component: CreateDiscountComponent
       },

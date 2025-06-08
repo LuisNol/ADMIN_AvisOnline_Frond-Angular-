@@ -16,9 +16,9 @@ import { CustomValidators } from '../../../../shared/validators/custom-validator
 })
 export class RegistrationComponent implements OnInit, OnDestroy {
   registrationForm: FormGroup;
-  hasError = false;
-  registrationSuccess = false;
-  isLoading$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  hasError: boolean = false;
+  registrationSuccess: boolean = false;
+  isLoading$: Observable<boolean>;
   private unsubscribe: Subscription[] = [];
 
   // Agregado para visibilidad de contraseñas
@@ -40,8 +40,9 @@ export class RegistrationComponent implements OnInit, OnDestroy {
     this.authGoogleService.login();
   }
 
+  /** Si solo lo usas para debug, cámbialo a getIdentityClaims() */
   showData() {
-    const data = JSON.stringify(this.authGoogleService.getProfile());
+    const data = JSON.stringify(this.authGoogleService.getIdentityClaims());
     console.log(data);
   }
 
@@ -116,20 +117,19 @@ export class RegistrationComponent implements OnInit, OnDestroy {
         password: result.password,
       });
 
-      const registrationSubscr = this.authService
-        .registration(newUser)
-        .pipe(first())
-        .subscribe((user: UserModel) => {
-          this.isLoading$.next(false);
-          if (user) {
-            this.registrationSuccess = true;
-            setTimeout(() => {
-              this.router.navigate(['/']);
-            }, 2000);
-          } else {
-            this.hasError = true;
-          }
-        });
+    const registrationSubscr = this.authService
+      .registration(newUser)
+      .pipe(first())
+      .subscribe((user: UserModel) => {
+        if (user) {
+          this.registrationSuccess = true;
+          setTimeout(() => {
+            this.router.navigate(['/']);
+          }, 2000);
+        } else {
+          this.hasError = true;
+        }
+      });
 
       this.unsubscribe.push(registrationSubscr);
     } else {
@@ -180,4 +180,7 @@ export class RegistrationComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.unsubscribe.forEach((sb) => sb.unsubscribe());
   }
+
+
 }
+
