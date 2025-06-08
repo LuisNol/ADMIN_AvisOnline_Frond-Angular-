@@ -49,12 +49,18 @@ export class SalesListComponent {
   }
 
   configAll(){
-    this.salesService.configAll().subscribe((resp:any) => {
-      console.log(resp);
-      this.marcas = resp.brands;
-      this.categories_first = resp.categories_first;
-      this.categories_seconds = resp.categories_seconds;
-      this.categories_thirds = resp.categories_thirds;
+    this.salesService.configAll().subscribe({
+      next: (resp:any) => {
+        console.log('Configuración cargada:', resp);
+        this.marcas = resp.brands;
+        this.categories_first = resp.categories_first;
+        this.categories_seconds = resp.categories_seconds;
+        this.categories_thirds = resp.categories_thirds;
+      },
+      error: (error) => {
+        console.error('Error al cargar configuración:', error);
+        this.toastr.error("Error", "No se pudo cargar la configuración");
+      }
     })
   }
   listSales(page = 1){
@@ -68,14 +74,21 @@ export class SalesListComponent {
       end_date: this.end_date,
       method_payment: this.method_payment,
     }
-    this.salesService.listSales(page,data).subscribe((resp:any) => {
-      console.log(resp);
-      this.sales = resp.sales.data;
-      this.totalPages = resp.total;
-      this.currentPage = page;
-    },(err:any) => {
-      console.log(err);
-      this.toastr.error("API RESPONSE - COMUNIQUESE CON EL DESARROLLADOR",err.error.message);
+    this.salesService.listSales(page,data).subscribe({
+      next: (resp:any) => {
+        console.log('Respuesta de ventas:', resp);
+        this.sales = resp.sales.data;
+        this.totalPages = resp.total;
+        this.currentPage = page;
+      },
+      error: (err:any) => {
+        console.error('Error al cargar ventas:', err);
+        if (err.status === 403) {
+          this.toastr.error("Permisos", "No tienes permisos para ver las ventas");
+        } else {
+          this.toastr.error("Error", err.error?.message || "Error al cargar ventas");
+        }
+      }
     })
   }
   reset() {

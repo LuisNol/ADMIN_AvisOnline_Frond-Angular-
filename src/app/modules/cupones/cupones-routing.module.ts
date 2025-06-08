@@ -11,6 +11,11 @@ const routes: Routes = [
     component: CuponesComponent,
     children: [
       {
+        path: '',
+        redirectTo: 'list',
+        pathMatch: 'full'
+      },
+      {
         path: 'register',
         component: CreateCuponeComponent
       },

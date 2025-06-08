@@ -1,5 +1,3 @@
-// src/app/modules/auth/components/registration/registration.component.ts
-
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Subscription, Observable } from 'rxjs';
@@ -18,7 +16,7 @@ import { AuthGoogleService } from '../../../../auth-google.service';
 export class RegistrationComponent implements OnInit, OnDestroy {
   registrationForm: FormGroup;
   hasError: boolean = false;
-  registrationSuccess: boolean = false;
+  registrationSuccess: boolean = false; // nueva bandera
   isLoading$: Observable<boolean>;
   private unsubscribe: Subscription[] = [];
 
@@ -38,10 +36,8 @@ export class RegistrationComponent implements OnInit, OnDestroy {
   login() {
     this.authGoogleService.login();
   }
-
-  /** Si solo lo usas para debug, cámbialo a getIdentityClaims() */
-  showData() {
-    const data = JSON.stringify(this.authGoogleService.getIdentityClaims());
+    showData() {
+    const data = JSON.stringify(this.authGoogleService.getProfile());
     console.log(data);
   }
 
@@ -94,10 +90,10 @@ export class RegistrationComponent implements OnInit, OnDestroy {
       .pipe(first())
       .subscribe((user: UserModel) => {
         if (user) {
-          this.registrationSuccess = true;
+          this.registrationSuccess = true; // Mostrar mensaje de éxito
           setTimeout(() => {
             this.router.navigate(['/']);
-          }, 2000);
+          }, 2000); // Espera 2 segundos para mostrar el mensaje
         } else {
           this.hasError = true;
         }
@@ -109,4 +105,7 @@ export class RegistrationComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.unsubscribe.forEach((sb) => sb.unsubscribe());
   }
+
+
 }
+

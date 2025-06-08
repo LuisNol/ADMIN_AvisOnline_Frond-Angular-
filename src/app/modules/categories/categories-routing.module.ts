@@ -11,6 +11,11 @@ const routes: Routes = [
     component: CategoriesComponent,
     children:[
       {
+        path: '',
+        redirectTo: 'list',
+        pathMatch: 'full'
+      },
+      {
         path:'register',
         component: CreateCategorieComponent
       },

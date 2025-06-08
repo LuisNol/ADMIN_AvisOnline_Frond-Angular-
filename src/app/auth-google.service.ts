@@ -1,35 +1,26 @@
-// src/app/auth-google.service.ts
-
 import { Injectable } from '@angular/core';
 import { AuthConfig, OAuthService } from 'angular-oauth2-oidc';
-import { HttpClient } from '@angular/common/http';
-import { environment } from 'src/environments/environment';
-import { tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthGoogleService {
 
-  /** La URL completa del endpoint laravel para login/registro con Google */
-  private apiUrl = environment.apiUrl + '/auth/google';
-
-  constructor(
-    private oauthService: OAuthService,
-    private http: HttpClient
-  ) {
+  constructor(public oauthService: OAuthService) {
     this.initLogin();
   }
 
-  /** Configura OAuth2-OIDC para Google */
-  private initLogin() {
+  initLogin() {
     const config: AuthConfig = {
       issuer: 'https://accounts.google.com',
       strictDiscoveryDocumentValidation: false,
-      clientId: '659951375693-nq31qci00e9b2lmhh6edevshunrfiduk.apps.googleusercontent.com',
-      redirectUri: window.location.origin + '/auth/google/callback',
+      clientId: '659951375693-30d2b3d30ug2ccucoi4hr6jbdhte108r.apps.googleusercontent.com',
+      
+      // CORREGIR: Usar URLs explícitas para development
+      redirectUri: 'http://localhost:5000/auth/main',
+
+      postLogoutRedirectUri: 'http://localhost:5000/auth/login',
       scope: 'openid profile email',
-      responseType: 'id_token', // pedimos únicamente el id_token
     };
 
     this.oauthService.configure(config);
@@ -37,41 +28,46 @@ export class AuthGoogleService {
     this.oauthService.loadDiscoveryDocumentAndTryLogin();
   }
 
-  /** Dispara el flujo de login con Google */
   login() {
-    this.oauthService.initImplicitFlow();
-  }
-
-  /** Cierra sesión de Google + Angular */
-  logout() {
-    this.oauthService.logOut();
-  }
-
-  /** Devuelve las identityClaims (perfil) que envió Google */
-  getIdentityClaims(): any {
-    return this.oauthService.getIdentityClaims();
-  }
-
-  /** Devuelve el id_token JWT que Google nos devolvió */
-  getIdToken(): string | null {
-    return this.oauthService.getIdToken();
+    this.oauthService.initLoginFlow();
   }
 
   /**
-   * Envía el id_token al backend (Laravel) para que valide/registre al usuario.
-   * El backend responderá con su propio JWT (token del sistema) y datos de usuario.
+   * Guarda el token y el perfil de Google en localStorage
+   * para integrarlo con el sistema de autenticación existente.
    */
-  sendTokenToBackend() {
-    const idToken = this.getIdToken();
-    if (!idToken) {
-      throw new Error('No se encontró id_token después de autenticarse con Google');
+  storeCredentials(): boolean {
+    if (this.oauthService.hasValidAccessToken()) {
+      const profile: any = this.getProfile();
+      if (profile) {
+        localStorage.setItem('user', JSON.stringify(profile));
+        localStorage.setItem('token', this.oauthService.getAccessToken());
+        localStorage.setItem('id_token', this.oauthService.getIdToken());
+        return true;
+      }
     }
-    return this.http.post<any>(this.apiUrl, { id_token: idToken }).pipe(
-      tap(response => {
-        // Response esperado: { token: 'TU_JWT_DEL_BACKEND', user: { id, name, email, avatar } }
-        localStorage.setItem('appToken', response.token);
-        localStorage.setItem('appUser', JSON.stringify(response.user));
-      })
-    );
+    return false;
+  }
+
+  logout() {
+    this.oauthService.revokeTokenAndLogout();
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    localStorage.removeItem('user_permissions');
+    localStorage.removeItem('id_token');
+  }
+
+  getProfile() {
+    return this.oauthService.getIdentityClaims();
+  }
+
+  /** Devuelve el access token crudo de Google */
+  getAccessToken(): string {
+    return this.oauthService.getAccessToken();
+  }
+
+  /** Devuelve el ID token de Google */
+  getIdToken(): string {
+    return this.oauthService.getIdToken();
   }
 }

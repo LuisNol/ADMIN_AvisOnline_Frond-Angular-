@@ -11,6 +11,11 @@ const routes: Routes = [
     component: SlidersComponent,
     children: [
       {
+        path: '',
+        redirectTo: 'list',
+        pathMatch: 'full'
+      },
+      {
         path: 'register',
         component: CreateSlidersComponent,
       },
