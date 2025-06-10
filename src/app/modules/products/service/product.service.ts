@@ -46,7 +46,7 @@ export class ProductService {
       console.warn('Servicio no está completamente inicializado, usando valores por defecto');
       return new HttpHeaders({
         'Authorization': 'Bearer ' + token,
-        'X-User-Permission': 'manage-own-products',
+        'X-User-Permission': 'manage-own-announcements',
         'Content-Type': 'application/json'
       });
     }
@@ -54,15 +54,15 @@ export class ProductService {
     // Determinar el permiso correcto a usar basado en los permisos actuales
     let permissionToUse = '';
     
-    if (this.permissionService.hasPermission('manage-products')) {
-      permissionToUse = 'manage-products';
-      console.log('Usando permiso manage-products para encabezados');
-    } else if (this.permissionService.hasPermission('manage-own-products')) {
-      permissionToUse = 'manage-own-products';
-      console.log('Usando permiso manage-own-products para encabezados');
+    if (this.permissionService.hasPermission('manage-all-announcements')) {
+      permissionToUse = 'manage-all-announcements';
+      console.log('Usando permiso manage-all-announcements para encabezados');
+    } else if (this.permissionService.hasPermission('manage-own-announcements')) {
+      permissionToUse = 'manage-own-announcements';
+      console.log('Usando permiso manage-own-announcements para encabezados');
     } else {
       console.warn('No se encontró ningún permiso válido para productos, usando valor por defecto');
-      permissionToUse = 'manage-own-products'; // Valor por defecto seguro
+      permissionToUse = 'manage-own-announcements'; // Valor por defecto seguro
     }
     
     // Crear headers con el permiso adecuado

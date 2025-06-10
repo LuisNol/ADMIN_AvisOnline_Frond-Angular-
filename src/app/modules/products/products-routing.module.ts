@@ -16,25 +16,25 @@ const routes: Routes = [
         path: 'register',
         component: CreateProductComponent,
         canActivate: [PermissionGuard],
-        data: { permission: 'manage-own-products' }
+        data: { permission: 'manage-own-announcements' }
       },
       {
         path: 'list',
         component: LitsProductsComponent,
         canActivate: [PermissionGuard],
-        data: { permission: 'manage-own-products' }
+        data: { permission: 'manage-own-announcements' }
       },
       {
         path: 'list/edit/:id',
         component: EditProductComponent,
         canActivate: [PermissionGuard],
-        data: { permission: 'manage-own-products' }
+        data: { permission: 'manage-own-announcements' }
       },
       {
         path: 'list/variations-specifications/:id',
         component: CreateVariationSpecificationsComponent,
         canActivate: [PermissionGuard],
-        data: { permission: 'manage-own-products' }
+        data: { permission: 'manage-own-announcements' }
       }
     ],
   }

@@ -20,7 +20,6 @@ import { MixedWidget1Component } from './mixed/mixed-widget1/mixed-widget1.compo
 import { MixedWidget4Component } from './mixed/mixed-widget4/mixed-widget4.component';
 import { MixedWidget6Component } from './mixed/mixed-widget6/mixed-widget6.component';
 import { MixedWidget10Component } from './mixed/mixed-widget10/mixed-widget10.component';
-import { MixedWidget11Component } from './mixed/mixed-widget11/mixed-widget11.component';
 // Tiles
 import { TilesWidget1Component } from './tiles/tiles-widget1/tiles-widget1.component';
 import { TilesWidget3Component } from './tiles/tiles-widget3/tiles-widget3.component';
@@ -82,7 +81,6 @@ import { ListsWidget26Component } from './_new/lists/lists-widget26/lists-widget
 import { EngageWidget10Component } from './_new/engage/engage-widget10/engage-widget10.component';
 import { CardsWidget7Component } from './_new/cards/cards-widget7/cards-widget7.component';
 import { TablesWidget16Component } from './_new/tables/tables-widget16/tables-widget16.component';
-import { NewChartsWidget8Component } from './_new/charts/new-charts-widget8/new-charts-widget8.component';
 import { CardsWidget18Component } from './_new/cards/cards-widget18/cards-widget18.component';
 import { SharedModule } from "../../../shared/shared.module";
 import { HttpClientModule } from '@angular/common/http';
@@ -107,7 +105,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     MixedWidget4Component,
     MixedWidget6Component,
     MixedWidget10Component,
-    MixedWidget11Component,
     // Tiles,
     TilesWidget1Component,
     TilesWidget3Component,
@@ -166,7 +163,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     EngageWidget10Component,
     CardsWidget7Component,
     TablesWidget16Component,
-    NewChartsWidget8Component,
     CardsWidget18Component,
   ],
   imports: [
@@ -202,7 +198,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     MixedWidget4Component,
     MixedWidget6Component,
     MixedWidget10Component,
-    MixedWidget11Component,
     // Tiles,
     TilesWidget1Component,
     TilesWidget3Component,
@@ -262,9 +257,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     EngageWidget10Component,
     CardsWidget7Component,
     TablesWidget16Component,
-    NewChartsWidget8Component,
-    TablesWidget16Component,
-    CardsWidget18Component
+    CardsWidget18Component,
   ],
 })
 export class WidgetsModule {}

@@ -1,0 +1,32 @@
+// Estilos para el modal de confirmación de eliminación de usuarios
+.modal-content {
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 30px 0 rgba(82, 63, 105, 0.15);
+}
+
+.alert-light-warning {
+  background-color: #fff8dd;
+  border: 1px solid #ffeaa7;
+  color: #856404;
+}
+
+.btn-danger {
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(245, 101, 101, 0.3);
+  }
+}
+
+.btn-light-primary {
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-1px);
+  }
+}
+
+.text-danger {
+  color: #f56565 !important;
+} 

@@ -8,11 +8,12 @@ import { SharedModule } from 'src/app/_metronic/shared/shared.module';
 import { CrudModule } from 'src/app/modules/crud/crud.module';
 import { PermissionListingComponent } from './permission-listing/permission-listing.component';
 import { PermissionDetailsComponent } from './permission-details/permission-details.component';
+import { PermissionEditComponent } from './permission-edit/permission-edit.component';
 
 
 
 @NgModule({
-  declarations: [PermissionListingComponent, PermissionDetailsComponent],
+  declarations: [PermissionListingComponent, PermissionDetailsComponent, PermissionEditComponent],
   imports: [
     CommonModule,
     FormsModule,

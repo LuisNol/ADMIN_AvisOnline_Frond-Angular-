@@ -20,11 +20,6 @@ const Routing: Routes = [
     // data: { layout: 'dark-header' },
   },
   {
-    path: 'crafted/pages/wizards',
-    loadChildren: () => import('../modules/wizards/wizards.module').then((m) => m.WizardsModule),
-    // data: { layout: 'light-header' },
-  },
-  {
     path: 'crafted/widgets',
     loadChildren: () => import('../modules/widgets-examples/widgets-examples.module').then((m) => m.WidgetsExamplesModule),
     // data: { layout: 'light-header' },
@@ -52,32 +47,12 @@ const Routing: Routes = [
     loadChildren: () => import('../modules/categories/categories.module').then((m) => m.CategoriesModule),
   },
   {
-    path: 'attributes',
-    loadChildren: () => import('../modules/attributes/attributes.module').then((m) => m.AttributesModule),
-  },
-  {
     path: 'sliders',
     loadChildren: () => import('../modules/sliders/sliders.module').then((m) => m.SlidersModule),
   },
   {
     path: 'products',
     loadChildren: () => import('../modules/products/products.module').then((m) => m.ProductsModule),
-  },
-  {
-    path: 'brands',
-    loadChildren: () => import('../modules/brands/brands.module').then((m) => m.BrandsModule),
-  },
-  {
-    path: 'cupones',
-    loadChildren: () => import('../modules/cupones/cupones.module').then((m) => m.CuponesModule),
-  },
-  {
-    path: 'discount',
-    loadChildren: () => import('../modules/discount/discount.module').then((m) => m.DiscountModule),
-  },
-  {
-    path: 'sales',
-    loadChildren: () => import('../modules/sales/sales.module').then((m) => m.SalesModule),
   },
   {
     path: '',

@@ -31,7 +31,7 @@ export class SlidersService {
     
     return new HttpHeaders({
       'Authorization': 'Bearer ' + token,
-      'X-User-Permission': 'manage-products',
+      'X-User-Permission': 'manage-all-announcements',
       'Content-Type': 'application/json'
     });
   }

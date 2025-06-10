@@ -33,13 +33,13 @@ export class CategoriesService {
     
     const headers = new HttpHeaders({
       'Authorization': 'Bearer ' + token,
-      'X-User-Permission': 'manage-products',
+      'X-User-Permission': 'manage-all-announcements',
       'Content-Type': 'application/json'
     });
     
     console.log('📤 CATEGORIES SERVICE - Headers construidos:', {
       'Authorization': 'Bearer ' + token.substring(0, 20) + '...',
-      'X-User-Permission': 'manage-products',
+      'X-User-Permission': 'manage-all-announcements',
       'Content-Type': 'application/json'
     });
     

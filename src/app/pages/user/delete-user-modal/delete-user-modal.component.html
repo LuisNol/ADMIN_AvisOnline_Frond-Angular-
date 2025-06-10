@@ -1,0 +1,81 @@
+<!--begin::Modal content-->
+<div class="modal-content">
+    <!--begin::Modal header-->
+    <div class="modal-header" id="kt_modal_add_user_header">
+        <!--begin::Modal title-->
+        <h2 class="fw-bolder">Eliminar Usuario: {{ user.name }}</h2>
+        
+        <!--end::Modal title-->
+        <!--begin::Close-->
+        <div class="btn btn-icon btn-sm btn-active-icon-primary" data-kt-users-modal-action="close" (click)="modal.dismiss()">
+            <!--begin::Svg Icon | path: icons/duotune/arrows/arr061.svg-->
+            <span class="svg-icon svg-icon-1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <rect opacity="0.5" x="6" y="17.3137" width="16" height="2" rx="1" transform="rotate(-45 6 17.3137)" fill="currentColor" />
+                    <rect x="7.41422" y="6" width="16" height="2" rx="1" transform="rotate(45 7.41422 6)" fill="currentColor" />
+                </svg>
+            </span>
+            <!--end::Svg Icon-->
+        </div>
+        <!--end::Close-->
+    </div>
+    <!--end::Modal header-->
+    <!--begin::Modal body-->
+    <div class="modal-body scroll-y mx-5 mx-xl-15 my-7">
+        <!--begin::Form-->
+        <form id="kt_modal_add_user_form" class="form" action="#">
+            <!--begin::Alert-->
+            <div class="alert alert-light-warning d-flex align-items-center p-5 mb-10">
+                <i class="ki-duotone ki-information-5 fs-2hx text-warning me-4">
+                    <span class="path1"></span>
+                    <span class="path2"></span>
+                    <span class="path3"></span>
+                </i>
+                <div class="d-flex flex-column text-start">
+                    <h4 class="mb-1 text-dark">¿Estás seguro de eliminar este usuario?</h4>
+                    <span class="fw-semibold">Una vez eliminado, no se podrá revertir esta acción.</span>
+                </div>
+            </div>
+            <!--end::Alert-->
+            
+            <!--begin::Warning Text-->
+            <div class="fs-6 text-muted mb-8 text-center">
+                <strong class="text-danger">⚠️ Advertencia:</strong><br>
+                <span class="text-gray-700">
+                    Esta acción es <strong>permanente</strong> y no se puede deshacer.<br>
+                    Todos los datos del usuario se eliminarán de forma definitiva.
+                </span>
+            </div>
+            <!--end::Warning Text-->
+            
+            <div class="text-center pt-15">
+                <button type="reset" class="btn btn-light-primary me-3" (click)="modal.dismiss()">
+                    <i class="ki-duotone ki-arrow-left fs-3 me-2">
+                        <span class="path1"></span>
+                        <span class="path2"></span>
+                    </i>
+                    No, cancelar
+                </button>
+                <button type="button" (click)="delete()" class="btn btn-danger" data-kt-users-modal-action="submit">
+                    <span class="indicator-label" *ngIf="!isLoading">
+                        <i class="ki-duotone ki-trash fs-3 me-2">
+                            <span class="path1"></span>
+                            <span class="path2"></span>
+                            <span class="path3"></span>
+                            <span class="path4"></span>
+                            <span class="path5"></span>
+                        </i>
+                        Sí, eliminar usuario
+                    </span>
+                    <span class="indicator-progress" *ngIf="isLoading">
+                        <span class="spinner-border spinner-border-sm align-middle me-2"></span>
+                        Eliminando...
+                    </span>
+                </button>
+            </div>
+        </form>
+        <!--end::Form-->
+    </div>
+    <!--end::Modal body-->
+</div>
+<!--end::Modal content--> 
