@@ -1,0 +1,66 @@
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title">{{ roleId ? 'Editar Rol' : 'Crear Nuevo Rol' }}</h3>
+  </div>
+  
+  <form [formGroup]="roleForm" (ngSubmit)="onSubmit()">
+    <div class="card-body">
+      <!-- Nombre del rol -->
+      <div class="mb-5">
+        <label class="form-label required">Nombre del Rol</label>
+        <input type="text" class="form-control" formControlName="name" placeholder="Ej: Admin, Editor, Vendedor, etc.">
+        <div *ngIf="roleForm.get('name')?.invalid && (roleForm.get('name')?.dirty || roleForm.get('name')?.touched)" class="text-danger mt-2">
+          <small *ngIf="roleForm.get('name')?.hasError('required')">El nombre del rol es obligatorio</small>
+          <small *ngIf="roleForm.get('name')?.hasError('minlength')">El nombre debe tener al menos 3 caracteres</small>
+        </div>
+      </div>
+
+      <!-- Descripción -->
+      <div class="mb-5">
+        <label class="form-label">Descripción</label>
+        <textarea class="form-control" formControlName="description" rows="3" placeholder="Describe las responsabilidades de este rol..."></textarea>
+      </div>
+
+      <!-- Lista de permisos -->
+      <div class="mb-5">
+        <label class="form-label">Permisos</label>
+
+        <div *ngIf="isLoading" class="d-flex justify-content-center my-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+          </div>
+        </div>
+
+        <div *ngIf="!isLoading" class="permission-list">
+          <div *ngFor="let permission of permissions" class="permission-item">
+            <div class="form-check form-check-custom form-check-solid">
+              <input class="form-check-input" type="checkbox" 
+                     [id]="'permission_' + permission.id"
+                     [checked]="isPermissionSelected(permission.id)"
+                     (change)="togglePermission(permission.id)" />
+              <label class="form-check-label" [for]="'permission_' + permission.id">
+                {{ permission.name }}
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="!isLoading && permissions.length === 0" class="alert alert-warning">
+          No hay permisos disponibles en el sistema.
+        </div>
+      </div>
+    </div>
+
+    <div class="card-footer">
+      <button type="button" class="btn btn-light me-3" [routerLink]="['/apps/roles']">
+        Cancelar
+      </button>
+      <button type="submit" class="btn btn-primary" [disabled]="roleForm.invalid || isSubmitting">
+        <span *ngIf="!isSubmitting">Guardar</span>
+        <span *ngIf="isSubmitting" class="indicator-progress">
+          Guardando... <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+        </span>
+      </button>
+    </div>
+  </form>
+</div> 
