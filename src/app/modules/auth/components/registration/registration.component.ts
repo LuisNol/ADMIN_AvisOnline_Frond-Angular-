@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { Subscription, BehaviorSubject } from 'rxjs';
+import { Subscription, BehaviorSubject, Observable } from 'rxjs';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { ConfirmPasswordValidator } from './confirm-password.validator';
@@ -17,11 +17,12 @@ import { CustomValidators } from '../../../../shared/validators/custom-validator
 export class RegistrationComponent implements OnInit, OnDestroy {
   registrationForm: FormGroup;
   hasError: boolean = false;
-  registrationSuccess: boolean = false; // nueva bandera
-  isLoading$: Observable<boolean>;
+  registrationSuccess: boolean = false;
+  isLoadingSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  isLoading$: Observable<boolean> = this.isLoadingSubject.asObservable();
+
   private unsubscribe: Subscription[] = [];
 
-  // Agregado para visibilidad de contraseñas
   showPassword: boolean = false;
   showConfirmPassword: boolean = false;
 
@@ -39,7 +40,8 @@ export class RegistrationComponent implements OnInit, OnDestroy {
   login() {
     this.authGoogleService.login();
   }
-    showData() {
+
+  showData() {
     const data = JSON.stringify(this.authGoogleService.getProfile());
     console.log(data);
   }
@@ -101,7 +103,7 @@ export class RegistrationComponent implements OnInit, OnDestroy {
     this.registrationSuccess = false;
 
     if (this.registrationForm.valid) {
-      this.isLoading$.next(true);
+      this.isLoadingSubject.next(true); // inicia carga
 
       const result: { [key: string]: string } = {};
       Object.keys(this.f).forEach((key) => {
@@ -115,19 +117,26 @@ export class RegistrationComponent implements OnInit, OnDestroy {
         password: result.password,
       });
 
-    const registrationSubscr = this.authService
-      .registration(newUser)
-      .pipe(first())
-      .subscribe((user: UserModel) => {
-        if (user) {
-          this.registrationSuccess = true; // Mostrar mensaje de éxito
-          setTimeout(() => {
-            this.router.navigate(['/']);
-          }, 2000); // Espera 2 segundos para mostrar el mensaje
-        } else {
-          this.hasError = true;
-        }
-      });
+      const registrationSubscr = this.authService
+        .registration(newUser)
+        .pipe(first())
+        .subscribe({
+          next: (user: UserModel) => {
+            this.isLoadingSubject.next(false); // fin de carga
+            if (user) {
+              this.registrationSuccess = true;
+              setTimeout(() => {
+                this.router.navigate(['/']);
+              }, 2000);
+            } else {
+              this.hasError = true;
+            }
+          },
+          error: () => {
+            this.isLoadingSubject.next(false); // error = fin de carga
+            this.hasError = true;
+          }
+        });
 
       this.unsubscribe.push(registrationSubscr);
     } else {
@@ -166,7 +175,6 @@ export class RegistrationComponent implements OnInit, OnDestroy {
     return '';
   }
 
-  // Métodos para alternar visibilidad
   togglePasswordVisibility(): void {
     this.showPassword = !this.showPassword;
   }
@@ -178,7 +186,4 @@ export class RegistrationComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.unsubscribe.forEach((sb) => sb.unsubscribe());
   }
-
-
 }
-
