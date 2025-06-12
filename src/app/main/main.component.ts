@@ -11,9 +11,21 @@ import { UserModel } from '../modules/auth/models/user.model';
 @Component({
   selector: 'app-main',
   template: `
-    <div class="d-flex justify-content-center align-items-center" style="height: 80vh;">
-      <div class="spinner-border" role="status">
+    <div class="d-flex flex-column justify-content-center align-items-center" style="height: 80vh;">
+      <div class="text-center mb-5">
+        <img src="https://img.icons8.com/color/48/000000/google-logo.png" alt="Google" class="mb-3">
+        <h4 class="text-gray-800 fw-bold">Procesando autenticación con Google</h4>
+        <p class="text-muted">Por favor espera mientras te autenticamos...</p>
+      </div>
+      
+      <div class="spinner-border text-primary" role="status">
         <span class="visually-hidden">Cargando...</span>
+      </div>
+      
+      <div class="mt-5">
+        <small class="text-muted">Si esto toma demasiado tiempo, 
+          <a href="/auth/login" class="text-primary">haz clic aquí para volver al login</a>
+        </small>
       </div>
     </div>
   `
@@ -61,8 +73,10 @@ export class MainComponent implements OnInit {
           .subscribe(
             (logeado) => {
               if (logeado) {
+                console.log('✅ Usuario autenticado exitosamente con Google');
                 // usuario logueado correctamente (o registrado+logueado)
-                this.router.navigate(['/']);
+                // Usar window.location.href para forzar recarga completa y aplicar permisos
+                window.location.href = '/';
               } else {
                 // Si el backend devuelve error o usuario no se crea,
                 // lo mando a login con mensaje

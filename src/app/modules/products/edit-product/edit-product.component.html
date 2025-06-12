@@ -1,133 +1,401 @@
-<div class="card">
+<div class="card shadow-sm">
+    <!--begin::Card header-->
+    <div class="card-header bg-warning">
+        <div class="card-title">
+            <h3 class="fw-bold text-white">
+                <i class="fas fa-edit me-2"></i>
+                Editar Anuncio
+            </h3>
+            <p class="text-white-50 mb-0">Modifica la información de tu anuncio</p>
+        </div>
+        <div class="card-toolbar">
+            <span class="badge badge-light-warning fs-6">
+                <i class="fas fa-info-circle me-1"></i>
+                ID: {{ PRODUCT_SELECTED?.id }}
+            </span>
+        </div>
+    </div>
+
     <!--begin::Card body-->
     <span class="spinner-border spinner-border-sm align-middle ms-2" *ngIf="isLoading$ | async"></span>
-    <div class="card-body border-top p-9">
-        <div class="row mb-6">
-            <div class="col-lg-8 fv-row fv-plugins-icon-container">
-                <label class="fw-semibold fs-6 py-2">Titulo: (*)</label>
-                <input type="text" name="title" [(ngModel)]="title" class="form-control form-control-lg form-control-solid" placeholder="Por ejemplo:   The best note book collection 2023 ">
-            </div>
-            <div class="col-lg-4 fv-row fv-plugins-icon-container">
-                <label class="fw-semibold fs-6 py-2">Código: (*)</label>
-                <input type="text" name="sku" [(ngModel)]="sku" class="form-control form-control-lg form-control-solid" placeholder="Por ejemplo:   ZDR456 ">
-            </div>
-        </div>
-
-        <div class="row mb-6">
-            <div class="col-lg-4 fv-row fv-plugins-icon-container">
-                <label class="fw-semibold fs-6 py-2">Marcas: *</label>
-                <select class="form-control form-select-solid fw-bolder" name="marca" placeholder="Selec. Marca" [(ngModel)]="marca_id">
-                    <option value="">Selec.</option>
-                    <ng-container *ngFor="let item of marcas">
-                        <option [value]="item.id">{{ item.name }}</option>
-                    </ng-container>
-                </select>
-            </div>
-        </div>
-
-        <div class="row mb-6">
-            <div class="col-4">
-                <label class="fw-semibold fs-6 py-2">Departamento:(Primer Nivel *)</label>
-                <select class="form-control form-select-solid fw-bolder" name="departament" placeholder="Selec. Departamento" [(ngModel)]="categorie_first_id" (change)="changeDepartamento()">
-                    <option value="">Selec.</option>
-                    <ng-container *ngFor="let item of categories_first">
-                        <option [value]="item.id">{{ item.name }}</option>
-                    </ng-container>
-                </select>
-            </div>
-            <div class="col-4">
-                <label class="fw-semibold fs-6 py-2">Categoria:(Segundo Nivel (Opcional))</label>
-                <select class="form-control form-select-solid fw-bolder" name="categorie" placeholder="Selec. Categoria" [(ngModel)]="categorie_second_id" (change)="changeCategorie()">
-                    <option value="">Selec.</option>
-                    <ng-container *ngFor="let item of categories_seconds_backups">
-                        <option [value]="item.id">{{ item.name }}</option>
-                    </ng-container>
-                </select>
-            </div>
-            <div class="col-4">
-                <label class="fw-semibold fs-6 py-2">Sub Categoria:(Tercer Nivel (Opcional))</label>
-                <select class="form-control form-select-solid fw-bolder" name="categorie" placeholder="Selec. Categoria" [(ngModel)]="categorie_third_id">
-                    <option value="">Selec.</option>
-                    <ng-container *ngFor="let item of categories_thirds_backups">
-                        <option [value]="item.id">{{ item.name }}</option>
-                    </ng-container>
-                </select>
-            </div>
-        </div>
-
-        <div class="row mb-6">
-            <div class="col-lg-4 col-md-4 col-sm-12 my-2">
-                <label class="fw-semibold fs-6 py-2">Word: (*)</label>
-                <input type="text" name="word" (keyup.enter)="addItems()" [(ngModel)]="word" class="form-control form-control-lg form-control-solid" placeholder="Por ejemplo:   XXXXX ">
-            </div>
-            <div class="col-lg-5 col-md-5 col-sm-12 my-2" *ngIf="!isShowMultiselect">
-                <label class="fw-semibold fs-6 py-2">Tags: </label>
-                <ng-multiselect-dropdown
-                    [placeholder]="'custom placeholder'"
-                    [settings]="dropdownSettings"
-                    [data]="dropdownList"
-                    [(ngModel)]="selectedItems"
-                    (onSelect)="onItemSelect($event)"
-                    (onSelectAll)="onSelectAll($event)">
-                </ng-multiselect-dropdown>
-            </div>
-            <div class="col-3">
-                <label class="required fw-bold fs-6 mb-2">Selec. un Estado</label>
-                <select class="form-control form-select-solid fw-bolder" name="state" placeholder="Select" [(ngModel)]="state">
-                    <option value="1">Pendiente</option>
-                    <option value="2">Publico</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="row mb-6">
-            <div class="col-lg-6 col-md-6 col-sm-12 my-2">
-                <label class="form-label">Sube tu imagen: (*)</label>
-                <div class="custom-file">
-                    <input type="file" class="custom-file-input" id="customFile" accept=".jpeg, .bmp, .jpg, .png, .gif, .webp" (change)="processFile($event)">
-                    <label class="custom-file-label" for="customFile">Choose file</label>
+    <div class="card-body p-9">
+        
+        <!-- INFORMACIÓN BÁSICA DEL ANUNCIO -->
+        <div class="mb-10">
+            <div class="d-flex align-items-center mb-5">
+                <div class="symbol symbol-40px me-3">
+                    <div class="symbol-label bg-light-primary">
+                        <i class="fas fa-info-circle text-primary fs-4"></i>
+                    </div>
                 </div>
-                <div class="">
-                    <img class="img py-4" [src]="imagen_previsualiza" width="200" alt="">
+                <div>
+                    <h4 class="fw-bold mb-1">Información Básica</h4>
+                    <p class="text-muted mb-0">Datos principales de tu anuncio</p>
                 </div>
             </div>
 
-            <div class="col-lg-6 col-md-6 col-sm-12 my-2">
-                <div class="row">
-                    <div class="col-8">
-                        <label class="form-label">Sube tus imagenes: (*)</label>
-                        <div class="custom-file">
-                            <input type="file" class="custom-file-input" id="customFileOImagenes" accept=".jpeg, .bmp, .jpg, .png, .gif, .webp" (change)="processFileTwo($event)">
-                            <label class="custom-file-label" for="customFileOImagenes">Choose file</label>
-                        </div>
-                        <div class="">
-                            <img class="img py-4" [src]="imagen_add_previsualiza" width="100" alt="">
-                        </div>
+            <div class="row g-6">
+                <!-- TÍTULO -->
+                <div class="col-xl-8 col-lg-8">
+                    <label class="required form-label fw-bold">
+                        <i class="fas fa-heading text-primary me-2"></i>
+                        Título del Anuncio
+                    </label>
+                    <input type="text" name="title" [(ngModel)]="title" 
+                    class="form-control form-control-lg form-control-solid" 
+                    placeholder="Ej: iPhone 12 Pro Max 256GB en excelente estado">
+                    <div class="form-text">Describe tu producto de manera atractiva y clara</div>
+                </div>
+
+                <!-- SKU AUTO-GENERADO -->
+                <div class="col-xl-4 col-lg-4">
+                    <label class="form-label fw-bold text-muted">
+                        <i class="fas fa-barcode text-muted me-2"></i>
+                        Código SKU (Automático)
+                    </label>
+                    <div class="input-group">
+                        <input type="text" name="sku" [(ngModel)]="sku" 
+                        class="form-control form-control-lg form-control-solid bg-light" 
+                        placeholder="Se genera automáticamente" readonly>
+                        <button class="btn btn-light-primary" type="button" disabled
+                        title="Se genera automáticamente">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
                     </div>
-                    <div class="col-4">
-                        <button class="btn btn-primary btn-sm" (click)="addImagen()">+</button>
+                    <div class="form-text text-muted">Se crea automáticamente del título</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CATEGORÍA (OBLIGATORIO) -->
+        <div class="mb-10">
+            <div class="d-flex align-items-center mb-5">
+                <div class="symbol symbol-40px me-3">
+                    <div class="symbol-label bg-light-success">
+                        <i class="fas fa-layer-group text-success fs-4"></i>
                     </div>
-                    <div class="col-12">
-                        <div id="kt_table_users_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
-                            <div class="table-responsive w-100">
-                                <table class="table align-middle table-row-dashed fs-6 gy-5 dataTable no-footer" id="kt_advance_table_widget_1">
-                                    <thead>
-                                        <tr class="text-left">
-                                            <th>IMAGEN</th>
-                                            <th>ACCIÓN</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr *ngFor="let imagen_ of images_files; let i=index">
-                                            <td>
-                                                <img [src]="imagen_.imagen" width="60" alt="">
-                                            </td>
-                                            <td>
-                                                <button class="ml-5 btn btn-sm btn-danger" (click)="removeImages(imagen_.id)">X</button>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                </div>
+                <div>
+                    <h4 class="fw-bold mb-1">Categorización</h4>
+                    <p class="text-muted mb-0">Clasifica tu anuncio en la categoría correcta</p>
+                </div>
+            </div>
+
+            <div class="row g-6">
+                <!-- CATEGORÍA -->
+                <div class="col-xl-12 col-lg-12">
+                    <label class="required form-label fw-bold">
+                        <i class="fas fa-layer-group text-primary me-2"></i>
+                        Categoría del Anuncio
+                    </label>
+                    <select class="form-select form-select-lg form-select-solid"
+                            name="categoria" [(ngModel)]="categorie_first_id">
+                        <option value="">🏷️ Selecciona una categoría</option>
+                        <ng-container *ngFor="let item of categories_first">
+                            <option [value]="item.id">{{ item.name }}</option>
+                        </ng-container>
+                    </select>
+                    <div class="form-text">Elige la categoría que mejor describa tu producto</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PRECIO (OPCIONAL) -->
+        <div class="mb-10">
+            <div class="d-flex align-items-center mb-5">
+                <div class="symbol symbol-40px me-3">
+                    <div class="symbol-label bg-light-warning">
+                        <i class="fas fa-dollar-sign text-warning fs-4"></i>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="fw-bold mb-1">Información de Precio</h4>
+                    <p class="text-muted mb-0">Define el precio de tu producto (opcional)</p>
+                </div>
+            </div>
+
+            <div class="row g-6">
+                <!-- PRECIO -->
+                <div class="col-xl-6 col-lg-6">
+                    <label class="form-label fw-bold text-muted">
+                        <i class="fas fa-dollar-sign text-success me-2"></i>
+                        Precio en Soles (Opcional)
+                    </label>
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-text bg-light-success">
+                            <i class="fas fa-dollar-sign text-success"></i>
+                        </span>
+                        <input type="number" name="price_pen" [(ngModel)]="price_pen" 
+                        class="form-control form-control-lg form-control-solid" 
+                        placeholder="2500.00" min="0" step="0.01">
+                        <span class="input-group-text">PEN</span>
+                    </div>
+                    <div class="form-text text-muted">Deja vacío si prefieres "Precio a consultar"</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- UBICACIÓN Y DATOS DE CONTACTO (OPCIONALES) -->
+        <div class="mb-10">
+            <div class="d-flex align-items-center mb-5">
+                <div class="symbol symbol-40px me-3">
+                    <div class="symbol-label bg-light-info">
+                        <i class="fas fa-map-marker-alt text-info fs-4"></i>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="fw-bold mb-1">Ubicación y Contacto</h4>
+                    <p class="text-muted mb-0">Información de contacto (todos opcionales)</p>
+                </div>
+            </div>
+
+            <div class="row g-6">
+                <!-- UBICACIÓN -->
+                <div class="col-xl-6 col-lg-6">
+                    <label class="form-label fw-bold text-muted">
+                        <i class="fas fa-map-marker-alt text-warning me-2"></i>
+                        Ubicación (Opcional)
+                    </label>
+                    <input type="text" name="location" [(ngModel)]="location"
+                    class="form-control form-control-lg form-control-solid" 
+                    placeholder="Ej: Lima, San Isidro - Av. Javier Prado">
+                    <div class="form-text text-muted">Ciudad, distrito y referencia específica</div>
+                </div>
+
+                <!-- TELÉFONO -->
+                <div class="col-xl-3 col-lg-6">
+                    <label class="form-label fw-bold text-muted">
+                        <i class="fas fa-phone text-info me-2"></i>
+                        Teléfono (Opcional)
+                    </label>
+                    <input type="text" name="contact_phone" [(ngModel)]="contact_phone" 
+                    class="form-control form-control-lg form-control-solid" 
+                    placeholder="+51 999 888 777">
+                    <div class="form-text text-muted">Incluye código de país</div>
+                </div>
+
+                <!-- EMAIL -->
+                <div class="col-xl-3 col-lg-6">
+                    <label class="form-label fw-bold text-muted">
+                        <i class="fas fa-envelope text-info me-2"></i>
+                        Email (Opcional)
+                    </label>
+                    <input type="email" name="contact_email" [(ngModel)]="contact_email" 
+                    class="form-control form-control-lg form-control-solid" 
+                    placeholder="contacto@ejemplo.com">
+                    <div class="form-text text-muted">Email alternativo de contacto</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONFIGURACIÓN AVANZADA Y ESTADÍSTICAS -->
+        <div class="mb-10">
+            <div class="d-flex align-items-center mb-5">
+                <div class="symbol symbol-40px me-3">
+                    <div class="symbol-label bg-light-secondary">
+                        <i class="fas fa-chart-line text-secondary fs-4"></i>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="fw-bold mb-1">Estado y Estadísticas</h4>
+                    <p class="text-muted mb-0">Información del sistema y métricas del anuncio</p>
+                </div>
+            </div>
+
+            <div class="row g-6">
+                <!-- VISTAS DEL ANUNCIO -->
+                <div class="col-xl-6 col-lg-6">
+                    <label class="form-label fw-bold text-primary">
+                        <i class="fas fa-eye text-primary me-2"></i>
+                        Vistas del Anuncio (Solo Lectura)
+                    </label>
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-text bg-light-primary">
+                            <i class="fas fa-eye text-primary"></i>
+                        </span>
+                        <input type="number" [value]="views_count || 0" 
+                        class="form-control form-control-lg form-control-solid bg-light" readonly>
+                        <span class="input-group-text">vistas</span>
+                    </div>
+                    <div class="form-text text-primary">Número total de vistas del anuncio</div>
+                </div>
+
+                <!-- ESTADO DEL ANUNCIO -->
+                <div class="col-xl-6 col-lg-6">
+                    <label class="form-label fw-bold">
+                        <i class="fas fa-toggle-on text-success me-2"></i>
+                        Estado del Anuncio
+                    </label>
+                    <select class="form-select form-select-lg form-select-solid" 
+                    name="state" [(ngModel)]="state">
+                        <option value="1">✅ Activo</option>
+                        <option value="0">❌ Inactivo</option>
+                        <option value="2">⏸️ Pausado</option>
+                    </select>
+                    <div class="form-text">Estado de publicación del anuncio</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ETIQUETAS (OPCIONAL) -->
+        <div class="mb-10">
+            <div class="d-flex align-items-center mb-5">
+                <div class="symbol symbol-40px me-3">
+                    <div class="symbol-label bg-light-secondary">
+                        <i class="fas fa-hashtag text-secondary fs-4"></i>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="fw-bold mb-1">Etiquetas y Palabras Clave</h4>
+                    <p class="text-muted mb-0">Mejora la visibilidad de tu anuncio (opcional)</p>
+                </div>
+            </div>
+
+            <div class="row g-6">
+                <!-- AGREGAR ETIQUETAS -->
+                <div class="col-xl-8 col-lg-6">
+                    <label class="form-label fw-bold text-muted">
+                        <i class="fas fa-hashtag text-info me-2"></i>
+                        Etiquetas (Opcional)
+                    </label>
+                    <div class="input-group">
+                        <input type="text" name="word" [(ngModel)]="word" 
+                        class="form-control form-control-lg form-control-solid" 
+                        placeholder="Agregar etiqueta personalizada">
+                        <button class="btn btn-primary" type="button" (click)="addItems()">
+                            <i class="fas fa-plus"></i> Agregar
+                        </button>
+                        <button class="btn btn-success" type="button" disabled
+                        title="Función no disponible en edición">
+                            <i class="fas fa-magic"></i> Auto
+                        </button>
+                    </div>
+                    <div class="form-text text-muted">Se generan automáticamente del título y descripción</div>
+                    
+                    <!-- SELECTOR DE ETIQUETAS -->
+                    <div class="mt-3" *ngIf="!isShowMultiselect && selectedItems.length > 0">
+                        <ng-multiselect-dropdown
+                            [placeholder]="'Etiquetas generadas automáticamente'"
+                            [settings]="dropdownSettings"
+                            [data]="dropdownList"
+                            [(ngModel)]="selectedItems"
+                            (onSelect)="onItemSelect($event)"
+                            (onSelectAll)="onSelectAll($event)">
+                        </ng-multiselect-dropdown>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- IMAGEN PRINCIPAL (OBLIGATORIO) -->
+        <div class="mb-10">
+            <div class="d-flex align-items-center mb-5">
+                <div class="symbol symbol-40px me-3">
+                    <div class="symbol-label bg-light-danger">
+                        <i class="fas fa-image text-danger fs-4"></i>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="fw-bold mb-1">Imagen Principal</h4>
+                    <p class="text-muted mb-0">Imagen destacada de tu anuncio</p>
+                </div>
+            </div>
+
+            <div class="row g-6">
+                <div class="col-xl-6 col-lg-6">
+                    <label class="required form-label fw-bold">
+                        <i class="fas fa-upload text-danger me-2"></i>
+                        Cambiar Imagen Principal
+                    </label>
+                    <div class="custom-file">
+                        <input type="file" class="form-control form-control-lg" id="customFile" 
+                        accept="image/jpeg,image/jpg,image/png,image/gif,image/bmp,image/webp" 
+                        (change)="processFile($event)">
+                    </div>
+                    <div class="form-text">
+                        <i class="fas fa-info-circle text-primary me-1"></i>
+                        Formatos: JPG, PNG, GIF, WEBP. Máximo 5MB
+                    </div>
+                    <div class="form-text text-warning">
+                        <i class="fas fa-exclamation-triangle me-1"></i>
+                        Dejar vacío para mantener la imagen actual
+                    </div>
+                </div>
+                <div class="col-xl-6 col-lg-6">
+                    <div class="text-center">
+                        <div class="image-input image-input-outline" data-kt-image-input="true">
+                            <img class="img-fluid rounded border shadow-sm" [src]="imagen_previsualiza" 
+                            width="250" alt="Vista previa" style="max-height: 200px; object-fit: cover;">
+                        </div>
+                        <div class="form-text text-muted mt-2">Vista previa de la imagen</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DESCRIPCIÓN (OBLIGATORIO) -->
+        <div class="mb-10">
+            <div class="d-flex align-items-center mb-5">
+                <div class="symbol symbol-40px me-3">
+                    <div class="symbol-label bg-light-primary">
+                        <i class="fas fa-align-left text-primary fs-4"></i>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="fw-bold mb-1">Descripción Detallada</h4>
+                    <p class="text-muted mb-0">Describe tu producto de manera completa y atractiva</p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12">
+                    <label class="required form-label fw-bold">
+                        <i class="fas fa-file-alt text-primary me-2"></i>
+                        Descripción del Anuncio
+                    </label>
+                    <textarea class="form-control form-control-solid" rows="8" 
+                    name="description" [(ngModel)]="description" 
+                    placeholder="Describe detalladamente tu producto o servicio:
+• Estado del producto (nuevo, usado, como nuevo)
+• Características principales
+• Motivo de venta
+• Condiciones de entrega
+• Cualquier detalle importante"></textarea>
+                    <div class="form-text">
+                        <i class="fas fa-lightbulb text-warning me-1"></i>
+                        Una buena descripción genera más interés en tu anuncio
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- INFORMACIÓN ADICIONAL -->
+        <div class="notice d-flex bg-light-info rounded border-info border border-dashed p-6 mb-6">
+            <i class="fas fa-info-circle fs-2tx text-info me-4"></i>
+            <div class="d-flex flex-stack flex-grow-1">
+                <div class="fw-semibold">
+                    <h4 class="text-gray-900 fw-bold">Campos Obligatorios vs Opcionales</h4>
+                    <div class="fs-6 text-gray-700">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong class="text-danger">✅ OBLIGATORIOS:</strong>
+                                <ul class="list-unstyled mt-2">
+                                    <li><i class="fas fa-check text-danger me-2"></i>Título del anuncio</li>
+                                    <li><i class="fas fa-check text-danger me-2"></i>Categoría</li>
+                                    <li><i class="fas fa-check text-danger me-2"></i>Imagen principal</li>
+                                    <li><i class="fas fa-check text-danger me-2"></i>Descripción</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <strong class="text-muted">🔸 OPCIONALES:</strong>
+                                <ul class="list-unstyled mt-2">
+                                    <li><i class="fas fa-circle text-muted me-2" style="font-size: 6px;"></i>Precio</li>
+                                    <li><i class="fas fa-circle text-muted me-2" style="font-size: 6px;"></i>Ubicación</li>
+                                    <li><i class="fas fa-circle text-muted me-2" style="font-size: 6px;"></i>Contacto (teléfono/email)</li>
+
+                                    <li><i class="fas fa-circle text-muted me-2" style="font-size: 6px;"></i>Etiquetas</li>
+                                    <li><i class="fas fa-circle text-muted me-2" style="font-size: 6px;"></i>Estado y vistas</li>
+                                </ul>
                             </div>
                         </div>
                     </div>
@@ -135,30 +403,27 @@
             </div>
         </div>
 
-        <div class="row mb-6">
-            <div class="col-lg-8 fv-row fv-plugins-icon-container">
-                <label class="fs-6 fw-semibold mb-2">Descripción: </label>
-                <ckeditor [data]="description" (change)="onChange($event)"></ckeditor>
+        <!-- BOTONES DE ACCIÓN -->
+        <div class="d-flex justify-content-between">
+            <div>
+                <button type="button" class="btn btn-lg btn-light me-3" onclick="history.back()">
+                    <i class="fas fa-arrow-left"></i>
+                    Volver
+                </button>
+                <button type="button" class="btn btn-lg btn-light-danger" (click)="deleteProduct()">
+                    <i class="fas fa-trash-alt me-2"></i>
+                    Eliminar Anuncio
+                </button>
             </div>
-            <div class="col-lg-4 fv-row fv-plugins-icon-container">
-                <div class="row">
-                    <div class="col-12">
-                        <label class="fs-6 fw-semibold mb-2">Resumen: </label>
-                        <textarea class="form-control form-control-solid" rows="3" name="resumen" [(ngModel)]="resumen" placeholder="******"></textarea>
-                    </div>
-                    <!--
-                    <div class="col-12">
-                        <label class="fs-6 fw-semibold mb-2">Stock: </label>
-                        <input type="number" name="stock" [(ngModel)]="stock" class="form-control form-control-lg form-control-solid" placeholder="Por ejemplo:   20 PEN  ">
-                    </div>
-                    -->
-                </div>
-            </div>
-        </div>
-
-        <div class="row mb-6">
-            <div class="col-3">
-                <button class="btn btn-primary" (click)="save()">Guardar</button>
+            <div>
+                <button type="button" class="btn btn-lg btn-secondary me-3" (click)="showProduct()">
+                    <i class="fas fa-undo"></i>
+                    Restablecer
+                </button>
+                <button type="button" class="btn btn-lg btn-warning" (click)="save()">
+                    <i class="fas fa-save me-2"></i>
+                    Actualizar Anuncio
+                </button>
             </div>
         </div>
     </div>

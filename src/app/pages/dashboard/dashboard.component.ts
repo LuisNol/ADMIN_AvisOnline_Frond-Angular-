@@ -1,12 +1,15 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { NavigationEnd, Router } from '@angular/router';
+import { filter } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
 import { Subject, takeUntil } from 'rxjs';
 import { AuthService } from '../../modules/auth/services/auth.service';
 import { PermissionService } from '../../modules/auth/services/permission.service';
-import { 
+import { ProductService } from '../../modules/products/service/product.service';
+import {
   isValidObject, 
-  getSafeValue, 
   prepareSafeChartData, 
+  getSafeValue, 
   prepareSafeChartLabels,
   getSafeArray,
   initChartSafely
@@ -25,10 +28,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
   isAdmin: boolean = false;
   hasManageOwnProducts: boolean = false;
   
-  // Propiedades de anuncios para usuarios
+  // Propiedades para usuarios normales (clasificados)
   userAnnouncementsCount: number = 0;
-  maxAnnouncements: number = 10; // Límite por defecto
-  remainingAnnouncements: number = 0;
+  maxAnnouncements: number = 5; // CAMBIADO DE 10 A 5 
+  remainingAnnouncements: number = 5;
   
   // Propiedades de estadísticas (para admin)
   totalUsers: number = 0;
@@ -39,20 +42,54 @@ export class DashboardComponent implements OnInit, OnDestroy {
   // Estado de carga
   isLoading: boolean = false;
   
+  // ===== SUBSCRIPTIONS =====
+  private routerSubscription?: Subscription;
+  
   constructor(
     private router: Router,
     private authService: AuthService,
-    private permissionService: PermissionService
+    private permissionService: PermissionService,
+    private productService: ProductService,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
+    console.log('🚀 Dashboard inicializado');
+    this.isLoading = true;
+    
     this.initializeUserData();
     this.loadDashboardData();
+    
+    // Escuchar navegación del router
+    this.routerSubscription = this.router.events.pipe(
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd)
+    ).subscribe((event: NavigationEnd) => {
+      if (event.url === '/' || event.url.includes('/dashboard')) {
+        console.log('🔄 Navegación detectada, recargando dashboard...', event.url);
+        setTimeout(() => {
+          this.reloadDashboard();
+        }, 100);
+      }
+    });
+    
+    // Escuchar eventos de actualización de anuncios
+    window.addEventListener('announcementUpdated', () => {
+      console.log('📡 Evento de actualización de anuncio recibido');
+      setTimeout(() => this.loadUserAnnouncementsCount(), 500);
+    });
   }
-
+  
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    
+    // Limpiar listeners
+    window.removeEventListener('anuncio-created', this.handleAnuncioUpdate.bind(this));
+    window.removeEventListener('anuncio-deleted', this.handleAnuncioUpdate.bind(this));
+    
+    if (this.routerSubscription) {
+      this.routerSubscription.unsubscribe();
+    }
   }
 
   /**
@@ -65,6 +102,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.userName = currentUser.name || 'Usuario';
       this.isAdmin = this.permissionService.hasRole('Admin');
       this.hasManageOwnProducts = this.permissionService.hasPermission('manage-own-announcements');
+      
+      console.log('Usuario inicializado:', {
+        name: this.userName,
+        isAdmin: this.isAdmin,
+        hasManageOwnProducts: this.hasManageOwnProducts
+      });
+    } else {
+      console.warn('No hay usuario autenticado');
     }
   }
 
@@ -74,11 +119,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private loadDashboardData(): void {
     this.isLoading = true;
     
-    if (this.isAdmin) {
-      this.loadAdminDashboard();
-    } else {
-      this.loadUserDashboard();
-    }
+    // Esperar un momento para asegurar que los permisos estén cargados
+    setTimeout(() => {
+      if (this.isAdmin) {
+        this.loadAdminDashboard();
+      } else if (this.hasManageOwnProducts) {
+        this.loadUserDashboard();
+      } else {
+        console.warn('Usuario sin permisos para ver anuncios');
+        this.isLoading = false;
+      }
+    }, 100);
   }
 
   /**
@@ -101,15 +152,105 @@ export class DashboardComponent implements OnInit, OnDestroy {
    * Carga datos específicos para usuarios normales
    */
   private loadUserDashboard(): void {
-    // Aquí implementarías la llamada a la API para obtener el conteo de anuncios del usuario
-    // Por ahora usamos datos simulados
+    // Cargar datos reales del usuario desde la API
+    this.loadUserAnnouncementsCount();
+  }
+
+  /**
+   * Cargar conteo real de anuncios del usuario
+   */
+  private loadUserAnnouncementsCount(): void {
+    console.log('🔄 Cargando estadísticas del usuario...');
     
-    setTimeout(() => {
-      this.userAnnouncementsCount = 3;
-      this.maxAnnouncements = 10;
-      this.remainingAnnouncements = this.maxAnnouncements - this.userAnnouncementsCount;
-      this.isLoading = false;
-    }, 1000);
+    this.productService.getUserStats().subscribe({
+      next: (resp: any) => {
+        console.log('✅ Estadísticas del usuario obtenidas:', resp);
+        
+        if (resp.stats) {
+          // Asignar valores y forzar actualización
+          this.userAnnouncementsCount = Number(resp.stats.total_announcements) || 0;
+          this.maxAnnouncements = Number(resp.stats.max_allowed) || 5;
+          this.remainingAnnouncements = Number(resp.stats.remaining_slots) || 0;
+          
+          console.log('📊 Estadísticas aplicadas:', {
+            current: this.userAnnouncementsCount,
+            max: this.maxAnnouncements,
+            remaining: this.remainingAnnouncements
+          });
+          
+          // FORZAR CHANGE DETECTION
+          this.cdr.detectChanges();
+          
+        } else {
+          console.warn('⚠️ Respuesta sin datos de estadísticas');
+          this.setDefaultValues();
+        }
+        
+        this.isLoading = false;
+      },
+      error: (error: any) => {
+        console.error('❌ Error al cargar estadísticas del usuario:', error);
+        
+        // Si es error 401, el usuario no está autenticado
+        if (error.status === 401) {
+          console.warn('Usuario no autenticado, redirigiendo al login...');
+          this.setDefaultValues();
+          this.isLoading = false;
+        } else {
+          // Para otros errores, intentar método fallback
+          console.log('🔄 Intentando método fallback...');
+          this.loadUserAnnouncementsCountFallback();
+        }
+      }
+    });
+  }
+  
+  /**
+   * Establecer valores por defecto
+   */
+  private setDefaultValues(): void {
+    this.userAnnouncementsCount = 0;
+    this.maxAnnouncements = 5;
+    this.remainingAnnouncements = 5;
+    this.isLoading = false;
+    
+    // FORZAR CHANGE DETECTION
+    this.cdr.detectChanges();
+  }
+  
+  /**
+   * Método fallback para cargar anuncios (método anterior)
+   */
+  private loadUserAnnouncementsCountFallback(): void {
+    this.productService.listProducts(1, {}).subscribe({
+      next: (resp: any) => {
+        console.log('Usando método fallback para obtener anuncios del usuario:', resp);
+        // Si hay datos paginados
+        if (resp.products && resp.products.data) {
+          this.userAnnouncementsCount = resp.products.data.length;
+        } else if (resp.products) {
+          // Si no está paginado
+          this.userAnnouncementsCount = resp.products.length;
+        } else {
+          this.userAnnouncementsCount = 0;
+        }
+        
+        this.remainingAnnouncements = this.maxAnnouncements - this.userAnnouncementsCount;
+        this.isLoading = false;
+        
+        console.log('Conteo actualizado (fallback):', {
+          current: this.userAnnouncementsCount,
+          max: this.maxAnnouncements,
+          remaining: this.remainingAnnouncements
+        });
+      },
+      error: (error: any) => {
+        console.error('Error al cargar anuncios del usuario (fallback):', error);
+        this.userAnnouncementsCount = 0;
+        this.remainingAnnouncements = this.maxAnnouncements;
+        this.isLoading = false;
+      }
+    });
   }
 
   // Métodos de navegación para usuarios
@@ -119,7 +260,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       return;
     }
     
-    this.router.navigate(['/products/register']);
+    this.router.navigate(['/products/create-product']);
   }
 
   listMyAnnouncements(): void {
@@ -200,5 +341,43 @@ export class DashboardComponent implements OnInit, OnDestroy {
     if (percentage >= 90) return 'bg-danger';
     if (percentage >= 70) return 'bg-warning';
     return 'bg-success';
+  }
+
+  /**
+   * Recargar datos del dashboard (para usar después de crear/eliminar anuncios)
+   */
+  public reloadDashboard(): void {
+    if (!this.isAdmin) {
+      this.loadUserAnnouncementsCount();
+    }
+  }
+
+  /**
+   * Configurar listeners para eventos de anuncios
+   */
+  private setupAnuncioEventListeners(): void {
+    window.addEventListener('anuncio-created', this.handleAnuncioUpdate.bind(this));
+    window.addEventListener('anuncio-deleted', this.handleAnuncioUpdate.bind(this));
+  }
+  
+  /**
+   * Manejar actualización de anuncios
+   */
+  private handleAnuncioUpdate(): void {
+    console.log('Evento de anuncio detectado, actualizando dashboard...');
+    this.reloadDashboard();
+  }
+  
+  /**
+   * Verificar si hay actualizaciones pendientes desde localStorage
+   */
+  private checkForUpdates(): void {
+    const needsUpdate = localStorage.getItem('dashboard_needs_update');
+    if (needsUpdate === 'true') {
+      localStorage.removeItem('dashboard_needs_update');
+      setTimeout(() => {
+        this.reloadDashboard();
+      }, 500);
+    }
   }
 }

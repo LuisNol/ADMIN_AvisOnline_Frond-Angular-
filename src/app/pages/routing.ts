@@ -56,7 +56,7 @@ const Routing: Routes = [
   },
   {
     path: '',
-    redirectTo: '/products/list',
+    redirectTo: '/dashboard',
     pathMatch: 'full',
   },
   {

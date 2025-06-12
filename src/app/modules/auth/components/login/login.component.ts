@@ -6,6 +6,7 @@ import { UserModel } from '../../models/user.model';
 import { AuthService } from '../../services/auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PermissionService } from '../../services/permission.service';
+import { AuthGoogleService } from '../../../../auth-google.service';
 
 @Component({
   selector: 'app-login',
@@ -32,7 +33,8 @@ export class LoginComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private route: ActivatedRoute,
     private router: Router,
-    private permissionService: PermissionService
+    private permissionService: PermissionService,
+    private authGoogleService: AuthGoogleService
   ) {
     this.isLoading$ = this.authService.isLoading$;
     // redirect to home if already logged in
@@ -46,6 +48,13 @@ export class LoginComponent implements OnInit, OnDestroy {
     // get return url from route parameters or default to '/'
     this.returnUrl =
       this.route.snapshot.queryParams['returnUrl'.toString()] || '/';
+      
+    // Verificar si hay errores de Google en los query params
+    const googleError = this.route.snapshot.queryParams['googleError'];
+    if (googleError) {
+      this.hasError = true;
+      console.error('Error de autenticación con Google:', googleError);
+    }
   }
 
   // convenience getter for easy access to form fields
@@ -112,6 +121,11 @@ export class LoginComponent implements OnInit, OnDestroy {
         window.location.href = this.returnUrl;
       }
     );
+  }
+  
+  /** Método para iniciar sesión con Google */
+  loginWithGoogle() {
+    this.authGoogleService.login();
   }
 
   ngOnDestroy() {

@@ -119,7 +119,7 @@ export class ProductService {
     
     return this.http.get(URL, { headers: headers }).pipe(
       tap(response => {
-        console.log('Respuesta exitosa en configAll:', response);
+        console.log('Respuesta exitosa en configAll (AvisOnline):', response);
       }),
       catchError(this.handleError),
       finalize(() => this.isLoadingSubject.next(false))
@@ -128,10 +128,28 @@ export class ProductService {
 
   createProducts(data: any) {
     this.isLoadingSubject.next(true);
-    let headers = this.getHeaders();
+    
+    // Para FormData con archivos, NO incluir Content-Type
+    const token = this.authservice.token || localStorage.getItem('token');
+    
+    let permissionToUse = '';
+    if (this.permissionService.hasPermission('manage-all-announcements')) {
+      permissionToUse = 'manage-all-announcements';
+    } else if (this.permissionService.hasPermission('manage-own-announcements')) {
+      permissionToUse = 'manage-own-announcements';
+    } else {
+      permissionToUse = 'manage-own-announcements';
+    }
+    
+    const headers = new HttpHeaders({
+      'Authorization': 'Bearer ' + token,
+      'X-User-Permission': permissionToUse
+      // NO establecer Content-Type para FormData
+    });
+    
     let URL = URL_SERVICIOS + "/admin/products"; 
     
-    console.log('Intentando crear producto con permiso:', headers.get('X-User-Permission'));
+    console.log('Intentando crear producto con permiso:', permissionToUse);
     
     return this.http.post(URL, data, { headers: headers }).pipe(
       tap(response => {
@@ -164,7 +182,25 @@ export class ProductService {
 
   updateProducts(product_id: string, data: any) {
     this.isLoadingSubject.next(true);
-    let headers = this.getHeaders();
+    
+    // Para FormData con archivos, NO incluir Content-Type
+    const token = this.authservice.token || localStorage.getItem('token');
+    
+    let permissionToUse = '';
+    if (this.permissionService.hasPermission('manage-all-announcements')) {
+      permissionToUse = 'manage-all-announcements';
+    } else if (this.permissionService.hasPermission('manage-own-announcements')) {
+      permissionToUse = 'manage-own-announcements';
+    } else {
+      permissionToUse = 'manage-own-announcements';
+    }
+    
+    const headers = new HttpHeaders({
+      'Authorization': 'Bearer ' + token,
+      'X-User-Permission': permissionToUse
+      // NO establecer Content-Type para FormData
+    });
+    
     let URL = URL_SERVICIOS + "/admin/products/" + product_id; 
     
     return this.http.post(URL, data, { headers: headers }).pipe(
@@ -192,7 +228,25 @@ export class ProductService {
 
   imagenAdd(data: any) {
     this.isLoadingSubject.next(true);
-    let headers = this.getHeaders();
+    
+    // Para FormData con archivos, NO incluir Content-Type
+    const token = this.authservice.token || localStorage.getItem('token');
+    
+    let permissionToUse = '';
+    if (this.permissionService.hasPermission('manage-all-announcements')) {
+      permissionToUse = 'manage-all-announcements';
+    } else if (this.permissionService.hasPermission('manage-own-announcements')) {
+      permissionToUse = 'manage-own-announcements';
+    } else {
+      permissionToUse = 'manage-own-announcements';
+    }
+    
+    const headers = new HttpHeaders({
+      'Authorization': 'Bearer ' + token,
+      'X-User-Permission': permissionToUse
+      // NO establecer Content-Type para FormData
+    });
+    
     let URL = URL_SERVICIOS + "/admin/products/imagens"; 
     
     return this.http.post(URL, data, { headers: headers }).pipe(
@@ -212,6 +266,23 @@ export class ProductService {
     return this.http.delete(URL, { headers: headers }).pipe(
       tap(response => {
         console.log('Respuesta exitosa al eliminar imagen:', response);
+      }),
+      catchError(this.handleError),
+      finalize(() => this.isLoadingSubject.next(false))
+    );
+  }
+
+  /**
+   * Obtener estadísticas del usuario actual
+   */
+  getUserStats() {
+    this.isLoadingSubject.next(true);
+    let headers = this.getHeaders();
+    let URL = URL_SERVICIOS + "/admin/products/user/stats"; 
+    
+    return this.http.get(URL, { headers: headers }).pipe(
+      tap(response => {
+        console.log('Respuesta exitosa en getUserStats:', response);
       }),
       catchError(this.handleError),
       finalize(() => this.isLoadingSubject.next(false))
