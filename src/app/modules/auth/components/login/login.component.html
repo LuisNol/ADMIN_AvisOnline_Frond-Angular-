@@ -169,7 +169,7 @@
   <div class="d-grid mb-8">
     <button type="submit" 
             id="kt_sign_in_submit" 
-            class="btn btn-primary btn-lg fw-bold py-4" 
+            class="btn btn-primary btn-lg fw-bold py-4 shadow-sm"
             [disabled]="loginForm.invalid || (isLoading$ | async)">
       
       <ng-container *ngIf="isLoading$ | async">
@@ -190,16 +190,15 @@
   <!--end::Action-->
 
   <!--begin::Sign up-->
-  <div class="text-center">
-    <div class="text-gray-500 fw-semibold fs-6 mb-6">
-      ¿Aún no tienes una cuenta?
+  <div class="d-flex justify-content-center mb-10">
+    <div class="text-center">
+      <div class="text-gray-500 fw-semibold fs-6 mb-4">¿Aún no tienes una cuenta?</div>
+      <a routerLink="/auth/registration" 
+         class="btn btn-outline-primary btn-outline-dashed px-8 py-3 rounded-pill shadow-sm fw-bold fs-5">
+        <i class="ki-outline ki-user-plus fs-2 me-2"></i>
+        Crear cuenta nueva
+      </a>
     </div>
-    
-    <a routerLink="/auth/registration" 
-       class="btn btn-flex btn-outline btn-outline-dashed btn-outline-primary btn-active-light-primary w-100 px-6 py-3">
-      <i class="ki-outline ki-user-plus fs-2 me-2"></i>
-      <span class="fw-bold fs-5">Crear cuenta nueva</span>
-    </a>
   </div>
   <!--end::Sign up-->
 
