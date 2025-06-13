@@ -9,6 +9,8 @@
       <div class="d-flex flex-column">
         <h4 class="mb-1 text-warning">Acceso Limitado</h4>
         <span>{{ limitedAccessMessage || 'Tienes permisos Limitados para crear tus anuncios, puedes crear solo tres.' }}</span>
+        <span *ngIf="remainingAttempts > 0">Te quedan {{ remainingAttempts }} anuncios por crear.</span>
+        <span *ngIf="remainingAttempts == 0">Ya no puedes crear anuncios.</span>
         <div class="mt-3">
           <a routerLink="/products/list" class="btn btn-light-warning btn-sm me-2">Ver mis productos</a>
           <a routerLink="/products/register" class="btn btn-warning btn-sm">Crear nuevo producto</a>

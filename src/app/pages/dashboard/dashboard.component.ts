@@ -3,6 +3,7 @@ import { ModalConfig, ModalComponent } from '../../_metronic/partials';
 import { SalesService } from 'src/app/modules/sales/service/sales.service';
 import { getSafeArray, getSafeValue, initChartSafely, isValidObject } from './dashboard-helpers';
 import { PermissionService } from 'src/app/modules/auth/services/permission.service';
+import { ProductLimitService } from 'src/app/modules/products/service/product-limit.service';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 
@@ -65,16 +66,27 @@ export class DashboardComponent implements OnInit {
   hasFullAccess: boolean = false;
   hasLimitedAccess: boolean = false;
   limitedAccessMessage: string = '';
+  remainingAttempts: number = 0;
   
   constructor(
    public salesService: SalesService,
    private permissionService: PermissionService,
    private router: Router,
-   private toastr: ToastrService
+   private toastr: ToastrService,
+   private productLimit: ProductLimitService
   ) {}
 
   async openModal() {
     return await this.modalComponent.open();
+  }
+
+  fetchRemainingAttempts() {
+    this.productLimit.getRemainingAttempts().subscribe(count => {
+      this.remainingAttempts = count;
+      if (count <= 0) {
+        this.limitedAccessMessage = 'Ya no puedes crear m\u00e1s anuncios. Actualiza tu plan.';
+      }
+    });
   }
 
   ngOnInit(): void {
@@ -85,6 +97,10 @@ export class DashboardComponent implements OnInit {
     
     this.hasFullAccess = isAdmin || hasManageProducts;
     this.hasLimitedAccess = !this.hasFullAccess && hasManageOwnProducts;
+
+    if (this.hasLimitedAccess) {
+      this.fetchRemainingAttempts();
+    }
 
     if (!this.hasFullAccess && !this.hasLimitedAccess) {
       this.toastr.error('No tienes permisos para acceder al dashboard', 'Error de permisos');
@@ -110,6 +126,7 @@ export class DashboardComponent implements OnInit {
           this.hasFullAccess = false;
           this.limitedAccessMessage = resp.message || 'Acceso limitado al dashboard';
           this.toastr.info(this.limitedAccessMessage);
+          this.fetchRemainingAttempts();
         }
         
         // meses , año y mes
