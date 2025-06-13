@@ -157,7 +157,10 @@
         </div>
         <div class="row mb-6">
             <div class="col-3">
-                <button class="btn btn-primary" (click)="save()">Guardar</button>
+                <button class="btn btn-primary" (click)="save()" [disabled]="!canCreate">Guardar</button>
+            </div>
+            <div class="col-9" *ngIf="!canCreate">
+                <app-alert [message]="limitMessage"></app-alert>
             </div>
         </div>
 
