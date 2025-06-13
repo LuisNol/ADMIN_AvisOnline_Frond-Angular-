@@ -48,18 +48,9 @@ export class ProductService {
       console.warn('Servicio no está completamente inicializado, usando valores por defecto');
       const headersData: any = {
         'Authorization': 'Bearer ' + token,
-<<<<<<< HEAD
         'X-User-Permission': 'manage-own-announcements',
         'Content-Type': 'application/json'
-      });
-=======
-        'X-User-Permission': 'manage-own-products'
       };
-      if (!isFormData) {
-        headersData['Content-Type'] = 'application/json';
-      }
-      return new HttpHeaders(headersData);
->>>>>>> c172c0906610bd2b0782d2850e9c672d85f23cdc
     }
     
     // Determinar el permiso correcto a usar basado en los permisos actuales
@@ -142,7 +133,6 @@ export class ProductService {
 
   createProducts(data: any) {
     this.isLoadingSubject.next(true);
-<<<<<<< HEAD
     
     // Para FormData con archivos, NO incluir Content-Type
     const token = this.authservice.token || localStorage.getItem('token');
@@ -162,9 +152,6 @@ export class ProductService {
       // NO establecer Content-Type para FormData
     });
     
-=======
-    let headers = this.getHeaders(true);
->>>>>>> c172c0906610bd2b0782d2850e9c672d85f23cdc
     let URL = URL_SERVICIOS + "/admin/products"; 
     
     console.log('Intentando crear producto con permiso:', permissionToUse);
@@ -200,7 +187,6 @@ export class ProductService {
 
   updateProducts(product_id: string, data: any) {
     this.isLoadingSubject.next(true);
-<<<<<<< HEAD
     
     // Para FormData con archivos, NO incluir Content-Type
     const token = this.authservice.token || localStorage.getItem('token');
@@ -220,9 +206,6 @@ export class ProductService {
       // NO establecer Content-Type para FormData
     });
     
-=======
-    let headers = this.getHeaders(true);
->>>>>>> c172c0906610bd2b0782d2850e9c672d85f23cdc
     let URL = URL_SERVICIOS + "/admin/products/" + product_id; 
     
     return this.http.post(URL, data, { headers: headers }).pipe(
@@ -250,7 +233,6 @@ export class ProductService {
 
   imagenAdd(data: any) {
     this.isLoadingSubject.next(true);
-<<<<<<< HEAD
     
     // Para FormData con archivos, NO incluir Content-Type
     const token = this.authservice.token || localStorage.getItem('token');
@@ -270,9 +252,6 @@ export class ProductService {
       // NO establecer Content-Type para FormData
     });
     
-=======
-    let headers = this.getHeaders(true);
->>>>>>> c172c0906610bd2b0782d2850e9c672d85f23cdc
     let URL = URL_SERVICIOS + "/admin/products/imagens"; 
     
     return this.http.post(URL, data, { headers: headers }).pipe(
@@ -298,7 +277,6 @@ export class ProductService {
     );
   }
 
-<<<<<<< HEAD
   /**
    * Obtener estadísticas del usuario actual
    */
@@ -314,11 +292,5 @@ export class ProductService {
       catchError(this.handleError),
       finalize(() => this.isLoadingSubject.next(false))
     );
-=======
-  countMyProducts() {
-    let headers = this.getHeaders();
-    let URL = URL_SERVICIOS + '/admin/products/user-count';
-    return this.http.get<{count:number}>(URL, { headers });
->>>>>>> c172c0906610bd2b0782d2850e9c672d85f23cdc
   }
 }

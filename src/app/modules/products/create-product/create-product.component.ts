@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
 import { ProductService } from '../service/product.service';
 import { ToastrService } from 'ngx-toastr';
 import { IDropdownSettings } from 'ng-multiselect-dropdown';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-create-product',
@@ -11,39 +11,37 @@ import { IDropdownSettings } from 'ng-multiselect-dropdown';
 })
 export class CreateProductComponent {
 
-  title:string = '';
-  sku:string = '';
-  resumen:string = '';
-  price_pen:number = 0;
-  price_usd:number = 0;
-  description:string = '';
-  imagen_previsualiza:any = "https://preview.keenthemes.com/metronic8/demo1/assets/media/svg/illustrations/easy/2.svg";
-  file_imagen:any = null;
-  marca_id:string = '';
-  marcas:any = []
+  // ===== CAMPOS PRINCIPALES AVISONLINE =====
+  title: string = '';
+  sku: string = '';
+  price_pen: number = 0;
+  description: string = '';
+  imagen_previsualiza: any = "https://preview.keenthemes.com/metronic8/demo1/assets/media/svg/illustrations/easy/2.svg";
+  file_imagen: any = null;
+  
+  // ===== CAMPOS ESPECÍFICOS PARA ANUNCIOS =====
+  location: string = '';
+  contact_phone: string = '';
+  contact_email: string = '';
+  expires_at: string = '';
+  
+  // ===== CATEGORÍA (SOLO PRIMER NIVEL) =====
+  categorie_first_id: string = '';
+  categories_first: any = [];
+  
+  // ===== TAGS/ETIQUETAS =====
+  dropdownList: any = [];
+  selectedItems: any = [];
+  dropdownSettings: IDropdownSettings = {};
+  word: string = '';
+  isShowMultiselect: Boolean = false;
 
-  isLoading$:any;
-
-  categorie_first_id:string = '';
-  categorie_second_id:string = '';
-  categorie_third_id:string = '';
-  categories_first:any = [];
-  categories_seconds:any = [];
-  categories_seconds_backups:any = [];
-  categories_thirds:any = [];
-  categories_thirds_backups:any = [];
-
-  dropdownList:any = [];
-  selectedItems:any = [];
-  dropdownSettings:IDropdownSettings = {};
-  word:string = '';
-
-  isShowMultiselect:Boolean = false;
+  isLoading$: any;
   
   // Array de tipos de archivo de imagen permitidos
   private allowedImageTypes: string[] = [
     'image/jpeg',
-    'image/jpg',
+    'image/jpg', 
     'image/png',
     'image/gif',
     'image/bmp',
@@ -53,8 +51,9 @@ export class CreateProductComponent {
   constructor(
     public productService: ProductService,
     private toastr: ToastrService,
+    private router: Router,
   ) {
-
+    
   }
 
   ngOnInit(): void {
@@ -76,14 +75,6 @@ export class CreateProductComponent {
     this.expires_at = defaultExpirationDate.toISOString().split('T')[0];
     
     this.configAll();
-    this.productLimit.canCreateProduct().subscribe(can => {
-      this.canCreate = can;
-      if (!can) {
-
-        this.limitMessage = 'Has alcanzado el límite para crear productos. Por favor actualiza tu plan.';
-
-      }
-    });
   }
 
   // ===== GENERACIÓN AUTOMÁTICA DE SKU =====
@@ -95,7 +86,7 @@ export class CreateProductComponent {
         .replace(/[^A-Z0-9\s]/g, '') // Remover caracteres especiales
         .replace(/\s+/g, '') // Remover espacios
         .substring(0, 6); // Tomar solo los primeros 6 caracteres
-
+      
       // Agregar números aleatorios al final
       const randomNumbers = Math.floor(Math.random() + 1000) + 1;
       this.sku = baseSku + randomNumbers.toString().padStart(4, '0');
@@ -137,8 +128,8 @@ export class CreateProductComponent {
     // Agregar las nuevas palabras clave
     palabrasUnicas.forEach(palabra => {
       let time_date = new Date().getTime() + Math.random();
-      let newItem = {
-        item_id: time_date,
+      let newItem = { 
+        item_id: time_date, 
         item_text: palabra,
         auto_generated: true // Marcar como generada automáticamente
       };
@@ -167,35 +158,33 @@ export class CreateProductComponent {
     this.generateKeywords();
   }
 
-  configAll(){
+  // ===== CONFIGURACIÓN DE CATEGORÍAS =====
+  configAll() {
     this.productService.configAll().subscribe({
-      next: (resp:any) => {
-        console.log('Configuración crear productos cargada:', resp);
-        this.marcas = resp.brands;
-        this.categories_first = resp.categories_first;
-        this.categories_seconds = resp.categories_seconds;
-        this.categories_thirds = resp.categories_thirds;
+      next: (resp: any) => {
+        console.log('Configuración crear anuncios cargada:', resp);
+        this.categories_first = resp.categories || [];
       },
       error: (error) => {
-        console.error('Error al cargar configuración en crear producto:', error);
+        console.error('Error al cargar configuración en crear anuncio:', error);
         this.toastr.error("Error", "No se pudo cargar la configuración necesaria");
       }
     })
   }
 
-  addItems(){
-    console.log("Intentando agregar item:", this.word);
+  // ===== GESTIÓN DE TAGS =====
+  addItems() {
+    console.log("Intentando agregar tag:", this.word);
     if (!this.word || this.word.trim() === '') {
       this.toastr.error("Validación", "Debe ingresar una etiqueta");
       return;
     }
-
+    
     this.isShowMultiselect = true;
     let time_date = new Date().getTime();
     this.dropdownList.push({ item_id: time_date, item_text: this.word });
     this.selectedItems.push({ item_id: time_date, item_text: this.word });
-    console.log("Item agregado correctamente:", this.word);
-    console.log("Lista actualizada:", this.selectedItems);
+    console.log("Tag agregada correctamente:", this.word);
     
     setTimeout(() => {
       this.word = '';
@@ -204,14 +193,15 @@ export class CreateProductComponent {
     }, 100);
   }
 
-  processFile($event:any){
-    if(!$event.target.files || !$event.target.files[0]) {
-      this.toastr.error("Validación","No se seleccionó ninguna imagen");
+  // ===== MANEJO DE IMAGEN =====
+  processFile($event: any) {
+    if (!$event.target.files || !$event.target.files[0]) {
+      this.toastr.error("Validación", "No se seleccionó ninguna imagen");
       return;
     }
-
+    
     const file = $event.target.files[0];
-
+    
     // Validar que el archivo sea del tipo correcto
     if (!this.allowedImageTypes.includes(file.type.toLowerCase())) {
       this.toastr.error("Validación", `Tipo de archivo no válido. Solo se permiten: ${this.allowedImageTypes.join(', ').replace(/image\//g, '').toUpperCase()}`);
@@ -226,7 +216,7 @@ export class CreateProductComponent {
       $event.target.value = '';
       return;
     }
-
+    
     this.file_imagen = file;
     console.log('Archivo de imagen seleccionado:', {
       name: file.name,
@@ -247,21 +237,11 @@ export class CreateProductComponent {
     }, 50);
   }
 
-  changeDepartamento(){
-    this.categories_seconds_backups = this.categories_seconds.filter((item:any) => 
-    item.categorie_second_id == this.categorie_first_id
-    )
-  }
-  changeCategorie(){
-    this.categories_thirds_backups = this.categories_thirds.filter((item:any) => 
-    item.categorie_second_id == this.categorie_second_id
-    )
-  }
-
+  // ===== EDITOR DE TEXTO =====
   public onChange(event: any) {
     this.description = event.editor.getData();
   }
-
+  
   onItemSelect(item: any) {
     console.log(item);
   }
@@ -270,100 +250,154 @@ export class CreateProductComponent {
     console.log(items);
   }
 
-  save(){
+  // ===== VALIDACIONES DE EMAIL Y TELÉFONO =====
+  validateEmail(email: string): boolean {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailPattern.test(email);
+  }
+
+  validatePhone(phone: string): boolean {
+    const phonePattern = /^[+]?[0-9\s\-\(\)]{7,15}$/;
+    return phonePattern.test(phone);
+  }
+
+  // ===== GUARDAR ANUNCIO =====
+  save() {
     console.log("Verificando campos del formulario...");
     
-    // Comprobamos cada campo individualmente y mostramos su estado
-    console.log("Título:", this.title ? "OK" : "FALTA", this.title);
-    console.log("SKU:", this.sku ? "OK" : "FALTA", this.sku);
-    console.log("Price USD:", this.price_usd ? "OK" : "FALTA", this.price_usd);
-    console.log("Price PEN:", this.price_pen ? "OK" : "FALTA", this.price_pen);
-    console.log("Marca ID:", this.marca_id ? "OK" : "FALTA", this.marca_id);
-    console.log("Imagen:", this.file_imagen ? "OK" : "FALTA");
-    console.log("Categoría First ID:", this.categorie_first_id ? "OK" : "FALTA", this.categorie_first_id);
-    console.log("Descripción:", this.description ? "OK" : "FALTA", this.description);
-    console.log("Resumen:", this.resumen ? "OK" : "FALTA", this.resumen);
-    console.log("SelectedItems:", this.selectedItems.length > 0 ? "OK" : "FALTA", this.selectedItems);
-    
-    if(!this.title || !this.sku ||  !this.marca_id
-      || !this.file_imagen|| !this.categorie_first_id|| !this.description|| !this.resumen|| (this.selectedItems.length == 0)){
-      this.toastr.error("Validación","Los campos con el * son obligatorio");
-      console.error("Faltan campos requeridos en el formulario");
+    // Validaciones básicas requeridas (solo 4 campos obligatorios)
+    if (!this.title || !this.file_imagen || !this.categorie_first_id || !this.description) {
+      this.toastr.error("Validación", "Los campos con * son obligatorios: Título, Imagen, Categoría y Descripción");
+      return;
+    }
+
+    // Validaciones específicas de formato
+    if (this.contact_email && !this.validateEmail(this.contact_email)) {
+      this.toastr.error("Validación", "El formato del email de contacto no es válido");
+      return;
+    }
+
+    if (this.contact_phone && !this.validatePhone(this.contact_phone)) {
+      this.toastr.error("Validación", "El formato del teléfono no es válido (7-15 dígitos)");
+      return;
+    }
+
+    if (this.price_pen && this.price_pen <= 0) {
+      this.toastr.error("Validación", "El precio debe ser mayor a 0");
       return;
     }
 
     console.log("Todos los campos son válidos. Preparando FormData...");
 
     let formData = new FormData();
-    formData.append("title",this.title);
-    formData.append("sku",this.sku);
-    formData.append("price_usd",this.price_usd+"0");
-    formData.append("price_pen",this.price_pen+"0");
-    formData.append("brand_id",this.marca_id);
-    formData.append("portada",this.file_imagen);
-    formData.append("categorie_first_id",this.categorie_first_id);
-    if(this.categorie_second_id){
-      formData.append("categorie_second_id",this.categorie_second_id);
+    formData.append("title", this.title);
+    formData.append("sku", this.sku);
+    formData.append("portada", this.file_imagen);
+    formData.append("categorie_first_id", this.categorie_first_id);
+    formData.append("description", this.description);
+    
+    // Campos opcionales
+    if (this.price_pen && this.price_pen > 0) {
+      formData.append("price_pen", this.price_pen.toString());
     }
-    if(this.categorie_third_id){
-      formData.append("categorie_third_id",this.categorie_third_id);
+    if (this.location) {
+      formData.append("location", this.location);
     }
-    formData.append("description",this.description);
-    formData.append("resumen",this.resumen);
-    formData.append("multiselect",JSON.stringify(this.selectedItems));
+    
+    // Más campos opcionales
+    if (this.contact_phone) {
+      formData.append("contact_phone", this.contact_phone);
+    }
+    if (this.contact_email) {
+      formData.append("contact_email", this.contact_email);
+    }
+    // Siempre enviar fecha de expiración (15 días por defecto)
+    formData.append("expires_at", this.expires_at);
+    
+    // Tags
+    if (this.selectedItems.length > 0) {
+      formData.append("tags", JSON.stringify(this.selectedItems));
+    }
 
-    console.log("FormData preparado. Enviando solicitud para crear producto...");
+    console.log("FormData preparado. Enviando solicitud para crear anuncio...");
+    
+    // Debug: Verificar contenido del FormData
+    console.log('Contenido del FormData:');
+    console.log('- title:', this.title);
+    console.log('- sku:', this.sku);
+    console.log('- portada (archivo):', this.file_imagen ? this.file_imagen.name + ' (' + this.file_imagen.size + ' bytes)' : 'ninguno');
+    console.log('- categorie_first_id:', this.categorie_first_id);
+    console.log('- description:', this.description ? this.description.substring(0, 50) + '...' : 'vacío');
     
     this.productService.createProducts(formData).subscribe({
       next: (resp: any) => {
         console.log("Respuesta del servidor:", resp);
         
-        if(resp.message == 403){
+        if (resp.message == 403) {
           this.toastr.error("Error de permisos", resp.message_text);
-          console.error("Error 403: ", resp.message_text);
         } else if (resp.message == 500) {
           this.toastr.error("Error del servidor", resp.message_text);
-          console.error("Error 500: ", resp.message_text);
         } else if (resp.message == 400) {
           this.toastr.error("Error de validación", resp.message_text);
-          console.error("Error 400: ", resp.message_text);
         } else {
-          // Resetear formulario
-          this.title = '';
-          this.file_imagen = null;
-          this.sku = '';
-          this.price_usd = 0;
-          this.price_pen = 0;
-          this.marca_id = '';
-          this.categorie_first_id = '';
-          this.categorie_second_id = '';
-          this.categorie_third_id = '';
-          this.description = '';
-          this.resumen = '';
-          this.selectedItems = [];
-    
-          this.imagen_previsualiza = "https://preview.keenthemes.com/metronic8/demo1/assets/media/svg/illustrations/easy/2.svg";
-          this.toastr.success("Éxito","El producto se registró correctamente");
-          console.log("Producto creado exitosamente con ID: ", resp.product_id);
+          // Resetear formulario después de éxito
+          this.resetForm();
+          this.toastr.success("Éxito", "El anuncio se registró correctamente");
+          console.log("Anuncio creado exitosamente");
+          
+          // Emitir evento para actualizar dashboard si existe
+          this.notifyDashboardUpdate();
+          
+          // Redirigir al listado después de 1 segundo
+          setTimeout(() => {
+            this.router.navigate(['/products/list']);
+          }, 1000);
         }
       },
       error: (error: any) => {
-        console.error("Error al crear producto:", error);
+        console.error("Error al crear anuncio:", error);
         
         if (error.status === 403) {
-          this.toastr.error("Error de permisos", "No tienes permiso para crear productos");
-          console.error("Error 403 en la respuesta del servidor");
+          this.toastr.error("Error de permisos", "No tienes permiso para crear anuncios");
         } else if (error.error && error.error.message_text) {
           this.toastr.error("Error", error.error.message_text);
-          console.error("Error con mensaje específico: ", error.error.message_text);
         } else {
-          this.toastr.error("Error", "Ha ocurrido un error al crear el producto");
-          console.error("Error desconocido al crear el producto");
+          this.toastr.error("Error", "Ha ocurrido un error al crear el anuncio");
         }
-      });
+      }
     });
-
-
   }
 
+  // ===== RESETEAR FORMULARIO =====
+  resetForm() {
+    this.title = '';
+    this.sku = '';
+    this.price_pen = 0;
+    this.description = '';
+    this.location = '';
+    this.contact_phone = '';
+    this.contact_email = '';
+    this.file_imagen = null;
+    this.categorie_first_id = '';
+    this.selectedItems = [];
+    this.dropdownList = [];
+    
+    // Resetear fecha de expiración (15 días)
+    const defaultExpirationDate = new Date();
+    defaultExpirationDate.setDate(defaultExpirationDate.getDate() + 15);
+    this.expires_at = defaultExpirationDate.toISOString().split('T')[0];
+    
+    this.imagen_previsualiza = "https://preview.keenthemes.com/metronic8/demo1/assets/media/svg/illustrations/easy/2.svg";
+  }
+
+  /**
+   * Notificar al dashboard para actualizar el contador
+   */
+  private notifyDashboardUpdate(): void {
+    // Usar localStorage para comunicar entre componentes
+    localStorage.setItem('dashboard_needs_update', 'true');
+    
+    // También emitir evento personalizado
+    window.dispatchEvent(new CustomEvent('anuncio-created'));
+  }
 }

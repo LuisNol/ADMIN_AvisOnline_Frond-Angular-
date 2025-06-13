@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs/operators';
@@ -15,16 +14,6 @@ import {
   getSafeArray,
   initChartSafely
 } from './dashboard-helpers';
-=======
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { ModalConfig, ModalComponent } from '../../_metronic/partials';
-import { SalesService } from 'src/app/modules/sales/service/sales.service';
-import { getSafeArray, getSafeValue, initChartSafely, isValidObject } from './dashboard-helpers';
-import { PermissionService } from 'src/app/modules/auth/services/permission.service';
-import { ProductLimitService } from 'src/app/modules/products/service/product-limit.service';
-import { Router } from '@angular/router';
-import { ToastrService } from 'ngx-toastr';
->>>>>>> c172c0906610bd2b0782d2850e9c672d85f23cdc
 
 @Component({
   selector: 'app-dashboard',
@@ -34,7 +23,6 @@ import { ToastrService } from 'ngx-toastr';
 export class DashboardComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   
-<<<<<<< HEAD
   // Propiedades del usuario
   userName: string = '';
   isAdmin: boolean = false;
@@ -65,40 +53,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef,
   ) {}
 
-=======
-  // Controlar el acceso limitado para usuarios con manage-own-products
-  hasFullAccess: boolean = false;
-  hasLimitedAccess: boolean = false;
-  limitedAccessMessage: string = '';
-  remainingAttempts: number = 0;
-  
-  constructor(
-   public salesService: SalesService,
-   private permissionService: PermissionService,
-   private router: Router,
-   private toastr: ToastrService,
-   private productLimit: ProductLimitService
-  ) {}
-
-  async openModal() {
-    return await this.modalComponent.open();
-  }
-
-  fetchRemainingAttempts() {
-    this.productLimit.getRemainingAttempts().subscribe(count => {
-      this.remainingAttempts = count;
-      if (count <= 0) {
-        this.limitedAccessMessage = 'Ya no puedes crear m\u00e1s anuncios. Actualiza tu plan.';
-      }
-    });
-  }
-
->>>>>>> c172c0906610bd2b0782d2850e9c672d85f23cdc
   ngOnInit(): void {
     console.log('🚀 Dashboard inicializado');
     this.isLoading = true;
     
-<<<<<<< HEAD
     this.initializeUserData();
     this.loadDashboardData();
     
@@ -111,68 +69,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         setTimeout(() => {
           this.reloadDashboard();
         }, 100);
-=======
-    this.hasFullAccess = isAdmin || hasManageProducts;
-    this.hasLimitedAccess = !this.hasFullAccess && hasManageOwnProducts;
-
-    if (this.hasLimitedAccess) {
-      this.fetchRemainingAttempts();
-    }
-
-    if (!this.hasFullAccess && !this.hasLimitedAccess) {
-      this.toastr.error('No tienes permisos para acceder al dashboard', 'Error de permisos');
-      this.router.navigate(['/products/list']);
-      return;
-    }
-
-    const toastMsg = localStorage.getItem('dashboardToast');
-    if (toastMsg) {
-      this.toastr.info(toastMsg);
-      localStorage.removeItem('dashboardToast');
-    }
-    
-   this.isLoading$ = this.salesService.isLoading$;
-   
-   this.salesService.configAllReport().subscribe({
-      next: (resp: any) => {
-        console.log(resp);
-        
-        // Verificar si tiene acceso limitado (desde el backend)
-        if (resp.limited_access) {
-          this.hasLimitedAccess = true;
-          this.hasFullAccess = false;
-          this.limitedAccessMessage = resp.message || 'Acceso limitado al dashboard';
-          this.toastr.info(this.limitedAccessMessage);
-          this.fetchRemainingAttempts();
-        }
-        
-        // meses , año y mes
-        this.meses = getSafeArray(resp.meses);
-        this.year_current = getSafeValue(resp, 'year', '2025');
-        this.month_current = getSafeValue(resp, 'month', '01');
-        // 
-        this.year_1 = getSafeValue(resp, 'year', '2025');
-        this.month_1 = getSafeValue(resp, 'month', '01');
-        this.year_2 = getSafeValue(resp, 'year', '2025');
-        this.month_2 = getSafeValue(resp, 'month', '01');
-        this.year_3 = getSafeValue(resp, 'year', '2025');
-        this.year_4 = getSafeValue(resp, 'year', '2025');
-        this.month_4 = getSafeValue(resp, 'month', '01');
-        this.year_5 = getSafeValue(resp, 'year', '2025');
-        this.month_5 = getSafeValue(resp, 'month', '01');
-        
-        // Solo cargar informes si tiene acceso completo
-        if (this.hasFullAccess) {
-          this.loadAllReports();
-        }
-      },
-      error: (error) => {
-        console.error('Error al cargar configuración del dashboard:', error);
-        if (error.status === 403) {
-          this.toastr.error('No tienes permisos para acceder al dashboard', 'Error de permisos');
-          this.router.navigate(['/products/list']);
-        }
->>>>>>> c172c0906610bd2b0782d2850e9c672d85f23cdc
       }
     });
     

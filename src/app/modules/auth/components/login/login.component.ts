@@ -5,11 +5,7 @@ import { first, finalize } from 'rxjs/operators';
 import { AuthService } from '../../services/auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PermissionService } from '../../services/permission.service';
-<<<<<<< HEAD
 import { AuthGoogleService } from '../../../../auth-google.service';
-=======
-import { AuthGoogleService } from '../../../../auth-google.service'; // Agregado
->>>>>>> c172c0906610bd2b0782d2850e9c672d85f23cdc
 
 @Component({
   selector: 'app-login',
@@ -37,11 +33,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private permissionService: PermissionService,
-<<<<<<< HEAD
     private authGoogleService: AuthGoogleService
-=======
-    private authGoogleService: AuthGoogleService // Agregado
->>>>>>> c172c0906610bd2b0782d2850e9c672d85f23cdc
   ) {
     this.isLoading$ = this.authService.isLoading$;
 
@@ -52,7 +44,6 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.initForm();
-<<<<<<< HEAD
     // get return url from route parameters or default to '/'
     this.returnUrl =
       this.route.snapshot.queryParams['returnUrl'.toString()] || '/';
@@ -63,9 +54,6 @@ export class LoginComponent implements OnInit, OnDestroy {
       this.hasError = true;
       console.error('Error de autenticación con Google:', googleError);
     }
-=======
-    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
->>>>>>> c172c0906610bd2b0782d2850e9c672d85f23cdc
   }
 
   get f() {
