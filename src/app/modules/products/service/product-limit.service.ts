@@ -22,4 +22,11 @@ export class ProductLimitService {
       catchError(() => of(true))
     );
   }
+
+    return this.productService.countMyProducts().pipe(
+      map(resp => 3 - resp.count),
+      catchError(() => of(3))
+    );
+  }
+
 }

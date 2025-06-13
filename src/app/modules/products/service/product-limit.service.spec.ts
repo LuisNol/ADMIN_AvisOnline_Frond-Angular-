@@ -55,4 +55,15 @@ describe('ProductLimitService', () => {
       done();
     });
   });
+
+
+  it('should return remaining attempts for client', (done) => {
+    product.response = { count: 1 };
+    service.getRemainingAttempts().subscribe(val => {
+      expect(val).toBe(2);
+      done();
+    });
+  });
+
+ 
 });
