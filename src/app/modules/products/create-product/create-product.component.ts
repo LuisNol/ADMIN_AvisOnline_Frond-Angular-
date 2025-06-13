@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { ProductService } from '../service/product.service';
 import { ToastrService } from 'ngx-toastr';
 import { IDropdownSettings } from 'ng-multiselect-dropdown';
+import { ProductLimitService } from '../service/product-limit.service';
 
 @Component({
   selector: 'app-create-product',
@@ -38,6 +39,9 @@ export class CreateProductComponent {
   word:string = '';
 
   isShowMultiselect:Boolean = false;
+
+  canCreate = true;
+  limitMessage = '';
   
   // Array de tipos de archivo de imagen permitidos
   private allowedImageTypes: string[] = [
@@ -52,8 +56,9 @@ export class CreateProductComponent {
   constructor(
     public productService: ProductService,
     private toastr: ToastrService,
+    private productLimit: ProductLimitService,
   ) {
-    
+
   }
 
   ngOnInit(): void {
@@ -78,6 +83,12 @@ export class CreateProductComponent {
       allowSearchFilter: true
     };
     this.configAll();
+    this.productLimit.canCreateProduct().subscribe(can => {
+      this.canCreate = can;
+      if (!can) {
+        this.limitMessage = 'Has alcanzado el límite de 3 productos.';
+      }
+    });
   }
 
   // Función para generar SKU automáticamente basado en el título
@@ -257,6 +268,10 @@ export class CreateProductComponent {
   }
 
   save(){
+    if(!this.canCreate){
+      this.toastr.error('Límite alcanzado', this.limitMessage);
+      return;
+    }
     console.log("Verificando campos del formulario...");
     
     // Comprobamos cada campo individualmente y mostramos su estado
