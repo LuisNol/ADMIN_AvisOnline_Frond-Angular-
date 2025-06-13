@@ -4,7 +4,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthGoogleService } from '../auth-google.service';
 import { AuthService } from '../modules/auth/services/auth.service';
-import { first } from 'rxjs/operators';
+import { first, switchMap } from 'rxjs/operators';
 import { UserModel } from '../modules/auth/models/user.model';
 
 
@@ -39,7 +39,7 @@ export class MainComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // 1. Intentar “parsear” el hash (callback) que Google puso en la URL
+    // 1. Intentar "parsear" el hash (callback) que Google puso en la URL
     this.authGoogle.oauthService.loadDiscoveryDocumentAndTryLogin()
       .then(() => {
         // 2. Una vez que OAuthService haya consumido el hash y almacenado tokens en memory,
@@ -66,10 +66,18 @@ export class MainComponent implements OnInit {
           password: '' // el back-end decide si lo ignora
         });
 
-        // 5. Llamo al endpoint de “loginWithGoogle”: backend debe recibir id_token
-        const idToken = this.authGoogle.getIdToken();
-        this.authService.loginWithGoogle(idToken)
-          .pipe(first())
+        // 5. Obtener un ID token válido (refrescándolo si es necesario) y luego llamar al backend
+        this.authGoogle.getValidIdToken()
+          .pipe(
+            switchMap((idToken) => {
+              if (!idToken) {
+                throw new Error('No se pudo obtener un token válido de Google');
+              }
+              console.log('🔑 Enviando token válido al backend...');
+              return this.authService.loginWithGoogle(idToken);
+            }),
+            first()
+          )
           .subscribe(
             (logeado) => {
               if (logeado) {
@@ -86,10 +94,41 @@ export class MainComponent implements OnInit {
               }
             },
             (err) => {
-              console.error('Error backend Google login:', err);
-              this.router.navigate(['/auth/login'], {
-                queryParams: { googleError: 'Error en servidor al validar token de Google' }
-              });
+              console.error('❌ Error backend Google login:', err);
+              
+              // Si el error es específicamente de token expirado, intentar un refresh forzado
+              if (err.status === 401 || err.error?.error?.includes('Token') || err.error?.error?.includes('expired')) {
+                console.log('🔄 Intentando refresh forzado del token...');
+                this.authGoogle.forceRefreshToken().subscribe(
+                  (refreshSuccess) => {
+                    if (refreshSuccess) {
+                      console.log('✅ Token refrescado, reintentando login...');
+                      // Reintentar el login con el token refrescado
+                      const newIdToken = this.authGoogle.getIdToken();
+                      this.authService.loginWithGoogle(newIdToken)
+                        .pipe(first())
+                        .subscribe(
+                          (retryLogeado) => {
+                            if (retryLogeado) {
+                              console.log('✅ Login exitoso después del refresh');
+                              window.location.href = '/';
+                            } else {
+                              this.handleLoginError('Falló el reintento después del refresh');
+                            }
+                          },
+                          (retryErr) => {
+                            console.error('❌ Error en reintento después del refresh:', retryErr);
+                            this.handleLoginError('Error en reintento después del refresh');
+                          }
+                        );
+                    } else {
+                      this.handleLoginError('No se pudo refrescar el token de Google');
+                    }
+                  }
+                );
+              } else {
+                this.handleLoginError('Error en servidor al validar token de Google');
+              }
             }
           );
       })
@@ -97,5 +136,11 @@ export class MainComponent implements OnInit {
         console.error('Error al cargar DiscoveryDocument/tryLogin:', err);
         this.router.navigate(['/auth/login']);
       });
+  }
+
+  private handleLoginError(message: string) {
+    this.router.navigate(['/auth/login'], {
+      queryParams: { googleError: message }
+    });
   }
 }

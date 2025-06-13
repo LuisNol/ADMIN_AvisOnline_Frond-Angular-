@@ -81,20 +81,42 @@ export class AuthService implements OnDestroy {
   // ------------------------------------------------------------
   loginWithGoogle(idToken: string): Observable<boolean|undefined> {
     this.isLoadingSubject.next(true);
+    
+    // Validar que el idToken no esté vacío
+    if (!idToken || idToken.trim() === '') {
+      console.error('❌ ID Token de Google está vacío o es inválido');
+      this.isLoadingSubject.next(false);
+      return of(undefined);
+    }
+
+    console.log('🔑 Enviando ID Token al backend Laravel...');
+    
     return this.http
       .post(`${URL_SERVICIOS}/auth/google_login`, { id_token: idToken }) // backend espera id_token
       .pipe(
         tap((auth: any) => {
+          console.log('✅ Respuesta exitosa del backend:', auth);
           // 1) Guardar token y user
           const ok = this.setAuthFromLocalStorage(auth);
           if (ok) {
+            console.log('✅ Token de Laravel guardado en localStorage');
             // 2) Recargamos permisos
             this.permissionService.loadUserPermissions().subscribe();
           }
         }),
         map((auth: any) => !!(auth && auth.access_token)),
         catchError((err) => {
-          console.error('err', err);
+          console.error('❌ Error en loginWithGoogle:', err);
+          
+          // Log más detallado del error
+          if (err.status === 401) {
+            console.error('❌ Error 401: Token de Google inválido o expirado');
+          } else if (err.status === 422) {
+            console.error('❌ Error 422: Datos de validación incorrectos');
+          } else if (err.status === 500) {
+            console.error('❌ Error 500: Error interno del servidor');
+          }
+          
           return of(undefined);
         }),
         finalize(() => this.isLoadingSubject.next(false))

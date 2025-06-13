@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AuthConfig, OAuthService } from 'angular-oauth2-oidc';
+import { Observable, from, of } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -21,6 +23,12 @@ export class AuthGoogleService {
 
       postLogoutRedirectUri: 'http://localhost:5000/auth/login',
       scope: 'openid profile email',
+      
+      // Configuraciones adicionales para refresh automático
+      silentRefreshRedirectUri: 'http://localhost:5000/silent-refresh.html',
+      useSilentRefresh: true,
+      silentRefreshTimeout: 5000,
+      timeoutFactor: 0.75, // Refrescar cuando quede 25% del tiempo
     };
 
     this.oauthService.configure(config);
@@ -69,5 +77,115 @@ export class AuthGoogleService {
   /** Devuelve el ID token de Google */
   getIdToken(): string {
     return this.oauthService.getIdToken();
+  }
+
+  /**
+   * Verifica si el token actual es válido y no está expirado
+   */
+  isTokenValid(): boolean {
+    return this.oauthService.hasValidIdToken() && this.oauthService.hasValidAccessToken();
+  }
+
+  /**
+   * Obtiene un ID token válido, refrescándolo si es necesario
+   */
+  getValidIdToken(): Observable<string | null> {
+    // Si el token actual es válido, lo devolvemos
+    if (this.isTokenValid()) {
+      const idToken = this.getIdToken();
+      if (idToken) {
+        console.log('✅ Token de Google válido, usando token actual');
+        return of(idToken);
+      }
+    }
+
+    console.log('⚠️ Token de Google expirado o inválido, intentando refrescar...');
+    
+    // Intentar refresh silencioso
+    return from(this.oauthService.silentRefresh()).pipe(
+      map(() => {
+        if (this.isTokenValid()) {
+          const refreshedToken = this.getIdToken();
+          console.log('✅ Token de Google refrescado exitosamente');
+          // Actualizar localStorage con el nuevo token
+          localStorage.setItem('id_token', refreshedToken);
+          return refreshedToken;
+        }
+        throw new Error('No se pudo refrescar el token');
+      }),
+      catchError((error) => {
+        console.error('❌ Error al refrescar token de Google:', error);
+        return of(null);
+      })
+    );
+  }
+
+  /**
+   * Fuerza un refresh del token
+   */
+  forceRefreshToken(): Observable<boolean> {
+    return from(this.oauthService.silentRefresh()).pipe(
+      map(() => {
+        const success = this.isTokenValid();
+        if (success) {
+          this.storeCredentials(); // Actualizar localStorage
+          console.log('✅ Token refrescado y guardado exitosamente');
+        }
+        return success;
+      }),
+      catchError((error) => {
+        console.error('❌ Error al forzar refresh del token:', error);
+        return of(false);
+      })
+    );
+  }
+
+  /**
+   * Verifica si el usuario tiene una sesión activa con Google
+   */
+  hasActiveSession(): boolean {
+    return this.oauthService.hasValidAccessToken() && this.oauthService.hasValidIdToken();
+  }
+
+  /**
+   * Intenta restaurar la sesión desde localStorage o refresh silencioso
+   */
+  tryRestoreSession(): Observable<boolean> {
+    // Primero verificar si ya tenemos tokens válidos
+    if (this.hasActiveSession()) {
+      console.log('✅ Sesión de Google ya activa');
+      return of(true);
+    }
+
+    // Intentar cargar desde discovery document y hacer login silencioso
+    return from(this.oauthService.loadDiscoveryDocumentAndTryLogin()).pipe(
+      switchMap(() => {
+        if (this.hasActiveSession()) {
+          console.log('✅ Sesión restaurada desde discovery document');
+          return of(true);
+        }
+        
+        // Si no funciona, intentar refresh silencioso
+        console.log('🔄 Intentando refresh silencioso...');
+        return from(this.oauthService.silentRefresh()).pipe(
+          map(() => {
+            const success = this.hasActiveSession();
+            if (success) {
+              console.log('✅ Sesión restaurada con refresh silencioso');
+              this.storeCredentials();
+            }
+            return success;
+          }),
+          catchError(() => {
+            console.log('❌ No se pudo restaurar la sesión de Google');
+            return of(false);
+          })
+        );
+      }),
+      catchError(() => {
+        console.log('❌ Error al cargar discovery document');
+        return of(false);
+      })
+    );
   }
 }
