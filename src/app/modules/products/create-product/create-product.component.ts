@@ -4,7 +4,9 @@ import { ProductService } from '../service/product.service';
 import { ToastrService } from 'ngx-toastr';
 import { IDropdownSettings } from 'ng-multiselect-dropdown';
 import { ProductLimitService } from '../service/product-limit.service';
+
 import { PermissionService } from 'src/app/modules/auth/services/permission.service';
+
 
 @Component({
   selector: 'app-create-product',
@@ -59,8 +61,10 @@ export class CreateProductComponent {
     public productService: ProductService,
     private toastr: ToastrService,
     private productLimit: ProductLimitService,
+
     private permissionService: PermissionService,
     private router: Router,
+
   ) {
 
   }
@@ -90,7 +94,9 @@ export class CreateProductComponent {
     this.productLimit.canCreateProduct().subscribe(can => {
       this.canCreate = can;
       if (!can) {
+        
         this.limitMessage = 'Has alcanzado el límite para crear productos. Por favor actualiza tu plan.';
+
       }
     });
   }
@@ -273,8 +279,10 @@ export class CreateProductComponent {
 
   save(){
     if(!this.canCreate){
+
       this.toastr.error('Ya no tienes acceso',
         'Usted alcanzó el límite para crear sus anuncios, por favor actualice su plan.');
+
       return;
     }
     console.log("Verificando campos del formulario...");
@@ -318,8 +326,9 @@ export class CreateProductComponent {
     formData.append("resumen",this.resumen);
     formData.append("multiselect",JSON.stringify(this.selectedItems));
 
-    console.log("FormData preparado. Enviando solicitud para crear producto...");
-    
+          this.productLimit.getRemainingAttempts().subscribe(remaining => {
+              this.toastr.error('Usted alcanzó el límite para crear sus anuncios, por favor actualice su plan.');
+              this.toastr.info(`Te quedan ${remaining} intentos para crear un anuncio.`);
     this.productService.createProducts(formData).subscribe({
       next: (resp: any) => {
         console.log("Respuesta del servidor:", resp);
