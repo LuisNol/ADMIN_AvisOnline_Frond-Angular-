@@ -6,6 +6,7 @@ import { LitsProductsComponent } from './lits-products/lits-products.component';
 import { EditProductComponent } from './edit-product/edit-product.component';
 import { CreateVariationSpecificationsComponent } from './attributes/create-variation-specifications/create-variation-specifications.component';
 import { PermissionGuard } from 'src/app/core/guards/permission.guard';
+import { ProductLimitGuard } from 'src/app/core/guards/product-limit.guard';
 
 const routes: Routes = [
   {
@@ -15,7 +16,7 @@ const routes: Routes = [
       {
         path: 'register',
         component: CreateProductComponent,
-        canActivate: [PermissionGuard],
+        canActivate: [PermissionGuard, ProductLimitGuard],
         data: { permission: 'manage-own-products' }
       },
       {

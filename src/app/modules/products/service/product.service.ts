@@ -215,7 +215,7 @@ export class ProductService {
   deleteImageProduct(imagen_id: string) {
     this.isLoadingSubject.next(true);
     let headers = this.getHeaders();
-    let URL = URL_SERVICIOS + "/admin/products/imagens/" + imagen_id; 
+    let URL = URL_SERVICIOS + "/admin/products/imagens/" + imagen_id;
     
     return this.http.delete(URL, { headers: headers }).pipe(
       tap(response => {
@@ -224,5 +224,11 @@ export class ProductService {
       catchError(this.handleError),
       finalize(() => this.isLoadingSubject.next(false))
     );
+  }
+
+  countMyProducts() {
+    let headers = this.getHeaders();
+    let URL = URL_SERVICIOS + '/admin/products/user-count';
+    return this.http.get<{count:number}>(URL, { headers });
   }
 }
