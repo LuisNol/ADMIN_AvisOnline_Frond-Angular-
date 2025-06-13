@@ -3,7 +3,6 @@ import {KeeniconComponent} from './keenicon/keenicon.component';
 import {CommonModule} from "@angular/common";
 import { AlertComponent } from '../../shared/components/alert/alert.component';
 
-
 @NgModule({
   declarations: [
     KeeniconComponent,
