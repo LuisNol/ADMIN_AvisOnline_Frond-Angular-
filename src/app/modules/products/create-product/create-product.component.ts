@@ -15,42 +15,42 @@ import { PermissionService } from 'src/app/modules/auth/services/permission.serv
 })
 export class CreateProductComponent {
 
-  title:string = '';
-  sku:string = '';
-  resumen:string = '';
-  price_pen:number = 0;
-  price_usd:number = 0;
-  description:string = '';
-  imagen_previsualiza:any = "https://preview.keenthemes.com/metronic8/demo1/assets/media/svg/illustrations/easy/2.svg";
-  file_imagen:any = null;
-  marca_id:string = '';
-  marcas:any = []
+  title: string = '';
+  sku: string = '';
+  resumen: string = '';
+  price_pen: number = 0;
+  price_usd: number = 0;
+  description: string = '';
+  imagen_previsualiza: any = "https://preview.keenthemes.com/metronic8/demo1/assets/media/svg/illustrations/easy/2.svg";
+  file_imagen: any = null;
+  marca_id: string = '';
+  marcas: any = []
 
-  isLoading$:any;
+  isLoading$: any;
 
-  categorie_first_id:string = '';
-  categorie_second_id:string = '';
-  categorie_third_id:string = '';
-  categories_first:any = [];
-  categories_seconds:any = [];
-  categories_seconds_backups:any = [];
-  categories_thirds:any = [];
-  categories_thirds_backups:any = [];
+  categorie_first_id: string = '';
+  categorie_second_id: string = '';
+  categorie_third_id: string = '';
+  categories_first: any = [];
+  categories_seconds: any = [];
+  categories_seconds_backups: any = [];
+  categories_thirds: any = [];
+  categories_thirds_backups: any = [];
 
-  dropdownList:any = [];
-  selectedItems:any = [];
-  dropdownSettings:IDropdownSettings = {};
-  word:string = '';
+  dropdownList: any = [];
+  selectedItems: any = [];
+  dropdownSettings: IDropdownSettings = {};
+  word: string = '';
 
-  isShowMultiselect:Boolean = false;
+  isShowMultiselect: Boolean = false;
 
   canCreate = true;
   limitMessage = '';
-  
+
   // Array de tipos de archivo de imagen permitidos
   private allowedImageTypes: string[] = [
     'image/jpeg',
-    'image/jpg', 
+    'image/jpg',
     'image/png',
     'image/gif',
     'image/bmp',
@@ -94,7 +94,7 @@ export class CreateProductComponent {
     this.productLimit.canCreateProduct().subscribe(can => {
       this.canCreate = can;
       if (!can) {
-        
+
         this.limitMessage = 'Has alcanzado el límite para crear productos. Por favor actualiza tu plan.';
 
       }
@@ -110,7 +110,7 @@ export class CreateProductComponent {
         .replace(/[^A-Z0-9\s]/g, '') // Remover caracteres especiales
         .replace(/\s+/g, '') // Remover espacios
         .substring(0, 6); // Tomar solo los primeros 6 caracteres
-      
+
       // Agregar números aleatorios al final
       const randomNumbers = Math.floor(Math.random() * 999) + 1;
       this.sku = baseSku + randomNumbers.toString().padStart(3, '0');
@@ -153,8 +153,8 @@ export class CreateProductComponent {
     // Agregar las nuevas palabras clave
     palabrasUnicas.forEach(palabra => {
       let time_date = new Date().getTime() + Math.random();
-      let newItem = { 
-        item_id: time_date, 
+      let newItem = {
+        item_id: time_date,
         item_text: palabra,
         auto_generated: true // Marcar como generada automáticamente
       };
@@ -186,8 +186,8 @@ export class CreateProductComponent {
     this.generateKeywords();
   }
 
-  configAll(){
-    this.productService.configAll().subscribe((resp:any) => {
+  configAll() {
+    this.productService.configAll().subscribe((resp: any) => {
       console.log(resp);
       this.marcas = resp.brands;
       this.categories_first = resp.categories_first;
@@ -196,20 +196,20 @@ export class CreateProductComponent {
     })
   }
 
-  addItems(){
+  addItems() {
     console.log("Intentando agregar item:", this.word);
     if (!this.word || this.word.trim() === '') {
       this.toastr.error("Validación", "Debe ingresar una palabra clave");
       return;
     }
-    
+
     this.isShowMultiselect = true;
     let time_date = new Date().getTime();
     this.dropdownList.push({ item_id: time_date, item_text: this.word });
     this.selectedItems.push({ item_id: time_date, item_text: this.word });
     console.log("Item agregado correctamente:", this.word);
     console.log("Lista actualizada:", this.selectedItems);
-    
+
     setTimeout(() => {
       this.word = '';
       this.isShowMultiselect = false;
@@ -217,16 +217,16 @@ export class CreateProductComponent {
     }, 100);
   }
 
-  processFile($event:any){
-    if(!$event.target.files || !$event.target.files[0]) {
-      this.toastr.error("Validación","No se seleccionó ninguna imagen");
+  processFile($event: any) {
+    if (!$event.target.files || !$event.target.files[0]) {
+      this.toastr.error("Validación", "No se seleccionó ninguna imagen");
       return;
     }
-    
+
     const file = $event.target.files[0];
-    
+
     // Validar que el archivo sea del tipo correcto
-    if(!this.allowedImageTypes.includes(file.type.toLowerCase())){
+    if (!this.allowedImageTypes.includes(file.type.toLowerCase())) {
       this.toastr.error("Validación", `Tipo de archivo no válido. Solo se permiten: ${this.allowedImageTypes.join(', ').replace(/image\//g, '').toUpperCase()}`);
       // Limpiar el input
       $event.target.value = '';
@@ -235,12 +235,12 @@ export class CreateProductComponent {
 
     // Validar tamaño del archivo (opcional - 5MB máximo)
     const maxSize = 5 * 1024 * 1024; // 5MB en bytes
-    if(file.size > maxSize) {
+    if (file.size > maxSize) {
       this.toastr.error("Validación", "El archivo es demasiado grande. Tamaño máximo: 5MB");
       $event.target.value = '';
       return;
     }
-    
+
     this.file_imagen = file;
     let reader = new FileReader();
     reader.readAsDataURL(this.file_imagen);
@@ -248,28 +248,28 @@ export class CreateProductComponent {
     this.isLoadingView();
   }
 
-  isLoadingView(){
+  isLoadingView() {
     this.productService.isLoadingSubject.next(true);
     setTimeout(() => {
       this.productService.isLoadingSubject.next(false);
     }, 50);
   }
 
-  changeDepartamento(){
-    this.categories_seconds_backups = this.categories_seconds.filter((item:any) => 
-    item.categorie_second_id == this.categorie_first_id
+  changeDepartamento() {
+    this.categories_seconds_backups = this.categories_seconds.filter((item: any) =>
+      item.categorie_second_id == this.categorie_first_id
     )
   }
-  changeCategorie(){
-    this.categories_thirds_backups = this.categories_thirds.filter((item:any) => 
-    item.categorie_second_id == this.categorie_second_id
+  changeCategorie() {
+    this.categories_thirds_backups = this.categories_thirds.filter((item: any) =>
+      item.categorie_second_id == this.categorie_second_id
     )
   }
 
   public onChange(event: any) {
     this.description = event.editor.getData();
   }
-  
+
   onItemSelect(item: any) {
     console.log(item);
   }
@@ -277,8 +277,8 @@ export class CreateProductComponent {
     console.log(items);
   }
 
-  save(){
-    if(!this.canCreate){
+  save() {
+    if (!this.canCreate) {
 
       this.toastr.error('Ya no tienes acceso',
         'Usted alcanzó el límite para crear sus anuncios, por favor actualice su plan.');
@@ -286,7 +286,7 @@ export class CreateProductComponent {
       return;
     }
     console.log("Verificando campos del formulario...");
-    
+
     // Comprobamos cada campo individualmente y mostramos su estado
     console.log("Título:", this.title ? "OK" : "FALTA", this.title);
     console.log("SKU:", this.sku ? "OK" : "FALTA", this.sku);
@@ -298,10 +298,10 @@ export class CreateProductComponent {
     console.log("Descripción:", this.description ? "OK" : "FALTA", this.description);
     console.log("Resumen:", this.resumen ? "OK" : "FALTA", this.resumen);
     console.log("SelectedItems:", this.selectedItems.length > 0 ? "OK" : "FALTA", this.selectedItems);
-    
-    if(!this.title || !this.sku ||  !this.marca_id
-      || !this.file_imagen|| !this.categorie_first_id|| !this.description|| !this.resumen|| (this.selectedItems.length == 0)){
-      this.toastr.error("Validación","Los campos con el * son obligatorio");
+
+    if (!this.title || !this.sku || !this.marca_id
+      || !this.file_imagen || !this.categorie_first_id || !this.description || !this.resumen || (this.selectedItems.length == 0)) {
+      this.toastr.error("Validación", "Los campos con el * son obligatorio");
       console.error("Faltan campos requeridos en el formulario");
       return;
     }
@@ -309,88 +309,79 @@ export class CreateProductComponent {
     console.log("Todos los campos requeridos están completados. Preparando FormData...");
 
     let formData = new FormData();
-    formData.append("title",this.title);
-    formData.append("sku",this.sku);
-    formData.append("price_usd",this.price_usd+"0");
-    formData.append("price_pen",this.price_pen+"0");
-    formData.append("brand_id",this.marca_id);
-    formData.append("portada",this.file_imagen);
-    formData.append("categorie_first_id",this.categorie_first_id);
-    if(this.categorie_second_id){
-      formData.append("categorie_second_id",this.categorie_second_id);
+    formData.append("title", this.title);
+    formData.append("sku", this.sku);
+    formData.append("price_usd", this.price_usd + "0");
+    formData.append("price_pen", this.price_pen + "0");
+    formData.append("brand_id", this.marca_id);
+    formData.append("portada", this.file_imagen);
+    formData.append("categorie_first_id", this.categorie_first_id);
+    if (this.categorie_second_id) {
+      formData.append("categorie_second_id", this.categorie_second_id);
     }
-    if(this.categorie_third_id){
-      formData.append("categorie_third_id",this.categorie_third_id);
+    if (this.categorie_third_id) {
+      formData.append("categorie_third_id", this.categorie_third_id);
     }
-    formData.append("description",this.description);
-    formData.append("resumen",this.resumen);
-    formData.append("multiselect",JSON.stringify(this.selectedItems));
+    formData.append("description", this.description);
+    formData.append("resumen", this.resumen);
+    formData.append("multiselect", JSON.stringify(this.selectedItems));
 
-          this.productLimit.getRemainingAttempts().subscribe(remaining => {
-              this.toastr.error('Usted alcanzó el límite para crear sus anuncios, por favor actualice su plan.');
-              this.toastr.info(`Te quedan ${remaining} intentos para crear un anuncio.`);
-    this.productService.createProducts(formData).subscribe({
-      next: (resp: any) => {
-        console.log("Respuesta del servidor:", resp);
-        
-        if(resp.message == 403){
-          this.toastr.error("Error de permisos", resp.message_text);
-          console.error("Error 403: ", resp.message_text);
-        } else if (resp.message == 500) {
-          this.toastr.error("Error del servidor", resp.message_text);
-          console.error("Error 500: ", resp.message_text);
-        } else if (resp.message == 400) {
-          this.toastr.error("Error de validación", resp.message_text);
-          console.error("Error 400: ", resp.message_text);
-        } else {
-          // Resetear formulario
-          this.title = '';
-          this.file_imagen = null;
-          this.sku = '';
-          this.price_usd = 0;
-          this.price_pen = 0;
-          this.marca_id = '';
-          this.categorie_first_id = '';
-          this.categorie_second_id = '';
-          this.categorie_third_id = '';
-          this.description = '';
-          this.resumen = '';
-          this.selectedItems = [];
+    this.productLimit.getRemainingAttempts().subscribe(remaining => {
 
-          this.imagen_previsualiza = "https://preview.keenthemes.com/metronic8/demo1/assets/media/svg/illustrations/easy/2.svg";
-          this.toastr.success("Éxito","El producto se registró correctamente");
+      this.productService.createProducts(formData).subscribe({
+        next: (resp: any) => {
+          console.log("Respuesta del servidor:", resp);
 
-          this.productLimit.getRemainingAttempts().subscribe(remaining => {
-            if (remaining <= 0) {
-              this.canCreate = false;
-              this.limitMessage = 'Has alcanzado el límite para crear productos. Por favor actualiza tu plan.';
-              this.toastr.error('Usted alcanzó el límite para crear sus anuncios, por favor actualice su plan.');
-              localStorage.setItem('dashboardToast', 'Has alcanzado el límite de productos.');
-            } else if (!this.permissionService.hasRole('Admin')) {
-              this.toastr.info(`Te quedan ${remaining} intentos para crear un anuncio.`);
-              localStorage.setItem('dashboardToast', `Te quedan ${remaining} intentos para crear un anuncio.`);
-            }
+          if (resp.message == 403) {
+            this.toastr.error("Error de permisos", resp.message_text);
+            console.error("Error 403: ", resp.message_text);
+          } else if (resp.message == 500) {
+            this.toastr.error("Error del servidor", resp.message_text);
+            console.error("Error 500: ", resp.message_text);
+          } else if (resp.message == 400) {
+            this.toastr.error("Error de validación", resp.message_text);
+            console.error("Error 400: ", resp.message_text);
+          } else {
+            // Resetear formulario
+            this.title = '';
+            this.file_imagen = null;
+            this.sku = '';
+            this.price_usd = 0;
+            this.price_pen = 0;
+            this.marca_id = '';
+            this.categorie_first_id = '';
+            this.categorie_second_id = '';
+            this.categorie_third_id = '';
+            this.description = '';
+            this.resumen = '';
+            this.selectedItems = [];
+
+            this.imagen_previsualiza = "https://preview.keenthemes.com/metronic8/demo1/assets/media/svg/illustrations/easy/2.svg";
+            this.toastr.success("Éxito", "El producto se registró correctamente");
+            // 3. REDIRIGIR DESPUÉS DEL ÉXITO
             this.router.navigate(['/dashboard']);
-          });
 
-          console.log("Producto creado exitosamente con ID: ", resp.product_id);
+          }
+        },
+        error: (error: any) => {
+          console.error("Error al crear producto:", error);
+
+          if (error.status === 403) {
+            this.toastr.error('Porfavor actualize su plan', 'Limite alcanzado para subir Anuncios');
+            console.error("Error 403 en la respuesta del servidor");
+          } else if (error.error && error.error.message_text) {
+            this.toastr.error("Error", error.error.message_text);
+            console.error("Error con mensaje específico: ", error.error.message_text);
+          } else {
+            this.toastr.error("Error", "Ha ocurrido un error al crear el producto");
+            console.error("Error desconocido al crear el producto");
+            // 3. REDIRIGIR DESPUÉS DEL ÉXITO
+            this.router.navigate(['/dashboard']);
+          }
         }
-      },
-      error: (error: any) => {
-        console.error("Error al crear producto:", error);
-        
-        if (error.status === 403) {
-          this.toastr.error("Error de permisos", "No tienes permiso para crear productos");
-          console.error("Error 403 en la respuesta del servidor");
-        } else if (error.error && error.error.message_text) {
-          this.toastr.error("Error", error.error.message_text);
-          console.error("Error con mensaje específico: ", error.error.message_text);
-        } else {
-          this.toastr.error("Error", "Ha ocurrido un error al crear el producto");
-          console.error("Error desconocido al crear el producto");
-        }
-      }
+      });
     });
-  }
 
+
+  }
 }

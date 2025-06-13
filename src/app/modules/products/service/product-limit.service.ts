@@ -6,27 +6,41 @@ import { ProductService } from './product.service';
 
 @Injectable({ providedIn: 'root' })
 export class ProductLimitService {
+  private readonly MAX_PRODUCTS = 3;
+
   constructor(
     private permissionService: PermissionService,
     private productService: ProductService
   ) {}
 
+  /**
+   * Devuelve true si el usuario puede crear un producto.
+   * - Administradores siempre pueden (rol 'Admin').
+   * - Usuarios normales hasta MAX_PRODUCTS.
+   */
   canCreateProduct(): Observable<boolean> {
-    // Si es admin siempre puede crear
     if (this.permissionService.hasRole('Admin')) {
       return of(true);
     }
 
     return this.productService.countMyProducts().pipe(
-      map(resp => resp.count < 3),
-      catchError(() => of(true))
+      map(resp => resp.count < this.MAX_PRODUCTS),
+      catchError(() => of(true)) // en caso de error, permitir creación
     );
   }
+
+  /**
+   * Devuelve cuántos intentos le quedan al usuario para crear productos.
+   * - Para administradores, devolvemos MAX_PRODUCTS para que la UI no muestre un número negativo.
+   */
+  getRemainingAttempts(): Observable<number> {
+    if (this.permissionService.hasRole('Admin')) {
+      return of(this.MAX_PRODUCTS);
+    }
 
     return this.productService.countMyProducts().pipe(
-      map(resp => 3 - resp.count),
-      catchError(() => of(3))
+      map(resp => Math.max(this.MAX_PRODUCTS - resp.count, 0)),
+      catchError(() => of(this.MAX_PRODUCTS))
     );
   }
-
 }
