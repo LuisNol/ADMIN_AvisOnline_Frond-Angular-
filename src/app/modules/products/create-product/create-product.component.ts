@@ -166,18 +166,12 @@ export class CreateProductComponent {
   }
 
   configAll(){
-    this.productService.configAll().subscribe({
-      next: (resp:any) => {
-        console.log('Configuración crear productos cargada:', resp);
-        this.marcas = resp.brands;
-        this.categories_first = resp.categories_first;
-        this.categories_seconds = resp.categories_seconds;
-        this.categories_thirds = resp.categories_thirds;
-      },
-      error: (error) => {
-        console.error('Error al cargar configuración en crear producto:', error);
-        this.toastr.error("Error", "No se pudo cargar la configuración necesaria");
-      }
+    this.productService.configAll().subscribe((resp:any) => {
+      console.log(resp);
+      this.marcas = resp.brands;
+      this.categories_first = resp.categories_first;
+      this.categories_seconds = resp.categories_seconds;
+      this.categories_thirds = resp.categories_thirds;
     })
   }
 

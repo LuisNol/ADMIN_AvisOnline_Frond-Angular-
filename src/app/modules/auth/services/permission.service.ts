@@ -25,14 +25,14 @@ export class PermissionService {
   private permissionsLogged = new Set<string>();
   private rolesLogged = new Set<string>();
 
-  // Permisos por defecto en caso de error (RESTRINGIDOS)
+  // Permisos por defecto en caso de error
   private defaultPermissions: PermissionResponse = {
     permissions: {
-      'manage-users': false,
-      'manage-products': false, 
+      'manage-users': true,
+      'manage-products': true, 
       'manage-own-products': true
     },
-    roles: ['Usuario']
+    roles: ['Admin']
   };
 
   constructor(private http: HttpClient) {
@@ -105,17 +105,17 @@ export class PermissionService {
           return hasPermission;
         } catch (e) {
           console.error('Error al leer permisos:', e);
-          return false; // Por defecto denegar para seguridad
+          return true; // Por defecto permitir para no bloquear la UI
         }
       }
       
       // Log solo una vez por permiso
       if (!this.permissionsLogged.has(permission)) {
         this.permissionsLogged.add(permission);
-        console.log(`No hay permisos guardados, por defecto: false para ${permission}`);
+        console.log(`No hay permisos guardados, por defecto: true para ${permission}`);
       }
       
-      return false; // Por defecto denegar para seguridad
+      return true; // Por defecto permitir para no bloquear la UI
     }
     
     const hasPermission = permissions.permissions[permission] || false;
@@ -147,17 +147,17 @@ export class PermissionService {
           return hasRole;
         } catch (e) {
           console.error('Error al leer roles:', e);
-          return false; // Por defecto denegar para seguridad
+          return true; // Por defecto permitir para no bloquear la UI
         }
       }
       
       // Log solo una vez por rol
       if (!this.rolesLogged.has(role)) {
         this.rolesLogged.add(role);
-        console.log(`No hay roles guardados, por defecto: false para ${role}`);
+        console.log(`No hay roles guardados, por defecto: true para ${role}`);
       }
       
-      return false; // Por defecto denegar para seguridad
+      return true; // Por defecto permitir para no bloquear la UI
     }
     
     const hasRole = permissions.roles.includes(role);

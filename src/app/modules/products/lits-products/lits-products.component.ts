@@ -45,18 +45,12 @@ export class LitsProductsComponent {
   }
 
   configAll(){
-    this.productService.configAll().subscribe({
-      next: (resp:any) => {
-        console.log('Configuración productos cargada:', resp);
-        this.marcas = resp.brands;
-        this.categories_first = resp.categories_first;
-        this.categories_seconds = resp.categories_seconds;
-        this.categories_thirds = resp.categories_thirds;
-      },
-      error: (error) => {
-        console.error('Error al cargar configuración de productos:', error);
-        this.toastr.error("Error", "No se pudo cargar la configuración de productos");
-      }
+    this.productService.configAll().subscribe((resp:any) => {
+      console.log(resp);
+      this.marcas = resp.brands;
+      this.categories_first = resp.categories_first;
+      this.categories_seconds = resp.categories_seconds;
+      this.categories_thirds = resp.categories_thirds;
     })
   }
   listProducts(page = 1){
@@ -67,21 +61,14 @@ export class LitsProductsComponent {
       categorie_second_id: this.categorie_second_id,
       categorie_third_id: this.categorie_third_id,
     }
-    this.productService.listProducts(page,data).subscribe({
-      next: (resp:any) => {
-        console.log('Respuesta de productos:', resp);
-        this.products = resp.products.data;
-        this.totalPages = resp.total;
-        this.currentPage = page;
-      },
-      error: (err:any) => {
-        console.error('Error al cargar productos:', err);
-        if (err.status === 403) {
-          this.toastr.error("Permisos", "No tienes permisos para ver los productos");
-        } else {
-          this.toastr.error("Error", err.error?.message || "Error al cargar productos");
-        }
-      }
+    this.productService.listProducts(page,data).subscribe((resp:any) => {
+      console.log(resp);
+      this.products = resp.products.data;
+      this.totalPages = resp.total;
+      this.currentPage = page;
+    },(err:any) => {
+      console.log(err);
+      this.toastr.error("API RESPONSE - COMUNIQUESE CON EL DESARROLLADOR",err.error.message);
     })
   }
     

@@ -2,8 +2,8 @@
 <div id="kt_app_sidebar_menu_scroll" class="scroll-y my-5 mx-3" data-kt-scroll="true" data-kt-scroll-activate="true" data-kt-scroll-height="auto" data-kt-scroll-dependencies="#kt_app_sidebar_logo, #kt_app_sidebar_footer" data-kt-scroll-wrappers="#kt_app_sidebar_menu" data-kt-scroll-offset="5px" data-kt-scroll-save-state="true">
   <!--begin::Menu-->
   <div class="menu menu-column menu-rounded menu-sub-indention fw-semibold fs-6" id="#kt_app_sidebar_menu" data-kt-menu="true" data-kt-menu-expand="false">
-    <!-- Dashboard - solo para admin o usuarios con manage-products -->
-    <div *ngIf="hasRole('Admin') || hasPermission('manage-products')" class="menu-item">
+    <!-- Dashboard -->
+    <div class="menu-item">
       <a class="menu-link without-sub" routerLink="/dashboard" routerLinkActive="active">
         <span class="menu-icon">
           <app-keenicon name="element-11" class="fs-2"></app-keenicon>
@@ -39,63 +39,53 @@
       </div>
     </div>
 
-    <!-- Gestión de Cupones - para admin -->
+    <!-- Cupones - para admin -->
     <div *ngIf="hasRole('Admin')" class="menu-item menu-accordion" data-kt-menu-trigger="click" routerLinkActive="here show">
       <span class="menu-link">
         <span class="menu-icon">
           <app-keenicon name="abstract-26" class="fs-2"></app-keenicon>
         </span>
         <span class="menu-title"
-              data-link="/cupones/list">Gestión de Cupones
+              data-link="/cupones/list">Cupones
         </span>
         <span class="menu-arrow"></span>
       </span>
       <div class="menu-sub menu-sub-accordion" routerLinkActive="menu-active-bg">
         <div class="menu-item">
           <a class="menu-link without-sub" routerLinkActive="active" routerLink="/cupones/list">
-            <span class="menu-bullet">
+            <span
+              class="menu-bullet">
               <span class="bullet bullet-dot"></span>
             </span>
-            <span class="menu-title">Listar Cupones</span>
-          </a>
-        </div>
-        <div class="menu-item">
-          <a class="menu-link without-sub" routerLinkActive="active" routerLink="/cupones/register">
-            <span class="menu-bullet">
-              <span class="bullet bullet-dot"></span>
+            <span
+              class="menu-title">Listado
             </span>
-            <span class="menu-title">Crear Cupón</span>
           </a>
         </div>
       </div>
     </div>
 
-    <!-- Gestión de Descuentos - para admin -->
+    <!-- Descuentos - para admin -->
     <div *ngIf="hasRole('Admin')" class="menu-item menu-accordion" data-kt-menu-trigger="click" routerLinkActive="here show">
       <span class="menu-link">
         <span class="menu-icon">
           <app-keenicon name="abstract-15" class="fs-2"></app-keenicon>
         </span>
         <span class="menu-title"
-              data-link="/discount/list">Gestión de Descuentos
+              data-link="/discount/list">Descuentos
         </span>
         <span class="menu-arrow"></span>
       </span>
       <div class="menu-sub menu-sub-accordion" routerLinkActive="menu-active-bg">
         <div class="menu-item">
           <a class="menu-link without-sub" routerLinkActive="active" routerLink="/discount/list">
-            <span class="menu-bullet">
+            <span
+              class="menu-bullet">
               <span class="bullet bullet-dot"></span>
             </span>
-            <span class="menu-title">Listar Descuentos</span>
-          </a>
-        </div>
-        <div class="menu-item">
-          <a class="menu-link without-sub" routerLinkActive="active" routerLink="/discount/register">
-            <span class="menu-bullet">
-              <span class="bullet bullet-dot"></span>
+            <span
+              class="menu-title">Listado
             </span>
-            <span class="menu-title">Crear Descuento</span>
           </a>
         </div>
       </div>
@@ -164,7 +154,7 @@
             <span class="menu-bullet">
               <span class="bullet bullet-dot"></span>
             </span>
-            <span class="menu-title">Listar Productos</span>
+            <span class="menu-title">Productos</span>
           </a>
         </div>
         <div class="menu-item">
@@ -175,97 +165,47 @@
             <span class="menu-title">Crear Producto</span>
           </a>
         </div>
-      </div>
-    </div>
-
-    <!-- Gestión de Categorías - Solo para administradores -->
-    <div *ngIf="hasRole('Admin') || hasPermission('manage-products')" class="menu-item menu-accordion" data-kt-menu-trigger="click" routerLinkActive="here show">
-      <span class="menu-link">
-        <span class="menu-icon">
-          <app-keenicon name="category" class="fs-2"></app-keenicon>
-        </span>
-        <span class="menu-title"
-              data-link="/categories/list">Gestión de Categorías
-        </span>
-        <span class="menu-arrow"></span>
-      </span>
-      <div class="menu-sub menu-sub-accordion" routerLinkActive="menu-active-bg">
-        <div class="menu-item">
-          <a class="menu-link without-sub" routerLinkActive="active" routerLink="/categories/list">
+        <!-- Solo mostrar estas opciones para administradores -->
+        <div *ngIf="hasRole('Admin') || hasPermission('manage-products')" class="menu-item">
+          <a class="menu-link without-sub" routerLinkActive="active" routerLink="/categories">
             <span class="menu-bullet">
               <span class="bullet bullet-dot"></span>
             </span>
-            <span class="menu-title">Listar Categorías</span>
+            <span class="menu-title">Categorías</span>
           </a>
         </div>
-        <div class="menu-item">
-          <a class="menu-link without-sub" routerLinkActive="active" routerLink="/categories/register">
+        <div *ngIf="hasRole('Admin') || hasPermission('manage-products')" class="menu-item">
+          <a class="menu-link without-sub" routerLinkActive="active" routerLink="/brands">
             <span class="menu-bullet">
               <span class="bullet bullet-dot"></span>
             </span>
-            <span class="menu-title">Crear Categoría</span>
+            <span class="menu-title">Marcas</span>
           </a>
         </div>
       </div>
     </div>
 
-    <!-- Gestión de Marcas - Solo para administradores -->
-    <div *ngIf="hasRole('Admin') || hasPermission('manage-products')" class="menu-item menu-accordion" data-kt-menu-trigger="click" routerLinkActive="here show">
-      <span class="menu-link">
-        <span class="menu-icon">
-          <app-keenicon name="tag" class="fs-2"></app-keenicon>
-        </span>
-        <span class="menu-title"
-              data-link="/brands/list">Gestión de Marcas
-        </span>
-        <span class="menu-arrow"></span>
-      </span>
-      <div class="menu-sub menu-sub-accordion" routerLinkActive="menu-active-bg">
-        <div class="menu-item">
-          <a class="menu-link without-sub" routerLinkActive="active" routerLink="/brands/list">
-            <span class="menu-bullet">
-              <span class="bullet bullet-dot"></span>
-            </span>
-            <span class="menu-title">Listar Marcas</span>
-          </a>
-        </div>
-        <div class="menu-item">
-          <a class="menu-link without-sub" routerLinkActive="active" routerLink="/brands/list">
-            <span class="menu-bullet">
-              <span class="bullet bullet-dot"></span>
-            </span>
-            <span class="menu-title">Crear Marca</span>
-          </a>
-        </div>
-      </div>
-    </div>
-
-    <!-- Gestión de Sliders - para admin -->
+    <!-- Sliders - para admin -->
     <div *ngIf="hasRole('Admin')" class="menu-item menu-accordion" data-kt-menu-trigger="click" routerLinkActive="here show">
       <span class="menu-link">
         <span class="menu-icon">
           <app-keenicon name="picture" class="fs-2"></app-keenicon>
         </span>
         <span class="menu-title"
-              data-link="/sliders/list">Gestión de Sliders
+              data-link="/sliders/list">Sliders
         </span>
         <span class="menu-arrow"></span>
       </span>
       <div class="menu-sub menu-sub-accordion" routerLinkActive="menu-active-bg">
         <div class="menu-item">
           <a class="menu-link without-sub" routerLinkActive="active" routerLink="/sliders/list">
-            <span class="menu-bullet">
+            <span
+              class="menu-bullet">
               <span class="bullet bullet-dot"></span>
             </span>
-            <span class="menu-title">Listar Sliders</span>
-          </a>
-        </div>
-        <div class="menu-item">
-          <a class="menu-link without-sub" routerLinkActive="active" routerLink="/sliders/register">
-            <span class="menu-bullet">
-              <span class="bullet bullet-dot"></span>
+            <span
+              class="menu-title">Listado
             </span>
-            <span class="menu-title">Crear Slider</span>
           </a>
         </div>
       </div>

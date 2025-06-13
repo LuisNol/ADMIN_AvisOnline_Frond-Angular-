@@ -16,10 +16,10 @@ export class AuthGoogleService {
       strictDiscoveryDocumentValidation: false,
       clientId: '659951375693-30d2b3d30ug2ccucoi4hr6jbdhte108r.apps.googleusercontent.com',
       
-      // CORREGIR: Usar URLs explícitas para development
-      redirectUri: 'http://localhost:5000/auth/main',
+      // auth-google.service.ts
+      redirectUri: window.location.origin + '/auth/main',
 
-      postLogoutRedirectUri: 'http://localhost:5000/auth/login',
+      postLogoutRedirectUri: window.location.origin + '/auth/login',
       scope: 'openid profile email',
     };
 

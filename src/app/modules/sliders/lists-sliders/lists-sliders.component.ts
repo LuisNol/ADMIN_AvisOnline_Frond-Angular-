@@ -30,19 +30,11 @@ export class ListsSlidersComponent {
   }
 
   listSliders(page = 1){
-    this.sliderService.listSliders(page,this.search).subscribe({
-      next: (resp:any) => {
-        console.log('Respuesta de sliders:', resp);
-        this.sliders = resp.sliders;
-        this.totalPages = resp.total;
-        this.currentPage = page;
-      },
-      error: (error) => {
-        console.error('Error al cargar sliders:', error);
-        if (error.status === 403) {
-          console.error('Error de permisos para sliders');
-        }
-      }
+    this.sliderService.listSliders(page,this.search).subscribe((resp:any) => {
+      console.log(resp);
+      this.sliders = resp.sliders;
+      this.totalPages = resp.total;
+      this.currentPage = page;
     })
   }
     

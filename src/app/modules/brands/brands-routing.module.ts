@@ -8,7 +8,7 @@ const routes: Routes = [
     path: '',
     component: BrandsComponent,
     children: [
-      {
+            {
         path: '',
         redirectTo: 'list',
         pathMatch: 'full'
