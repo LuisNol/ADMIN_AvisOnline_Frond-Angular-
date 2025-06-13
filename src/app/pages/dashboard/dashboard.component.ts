@@ -85,17 +85,11 @@ export class DashboardComponent implements OnInit {
     
     this.hasFullAccess = isAdmin || hasManageProducts;
     this.hasLimitedAccess = !this.hasFullAccess && hasManageOwnProducts;
-
+    
     if (!this.hasFullAccess && !this.hasLimitedAccess) {
       this.toastr.error('No tienes permisos para acceder al dashboard', 'Error de permisos');
       this.router.navigate(['/products/list']);
       return;
-    }
-
-    const toastMsg = localStorage.getItem('dashboardToast');
-    if (toastMsg) {
-      this.toastr.info(toastMsg);
-      localStorage.removeItem('dashboardToast');
     }
     
    this.isLoading$ = this.salesService.isLoading$;
