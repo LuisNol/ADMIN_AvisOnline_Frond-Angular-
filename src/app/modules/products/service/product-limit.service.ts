@@ -23,13 +23,4 @@ export class ProductLimitService {
     );
   }
 
-  getRemainingAttempts(): Observable<number> {
-    if (this.permissionService.hasRole('Admin')) {
-      return of(Infinity);
-    }
-    return this.productService.countMyProducts().pipe(
-      map(resp => 3 - resp.count),
-      catchError(() => of(3))
-    );
-  }
 }

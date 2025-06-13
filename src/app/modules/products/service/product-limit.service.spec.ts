@@ -56,19 +56,4 @@ describe('ProductLimitService', () => {
     });
   });
 
-  it('should return remaining attempts for client', (done) => {
-    product.response = { count: 1 };
-    service.getRemainingAttempts().subscribe(val => {
-      expect(val).toBe(2);
-      done();
-    });
-  });
-
-  it('should return Infinity for admin', (done) => {
-    permission.admin = true;
-    service.getRemainingAttempts().subscribe(val => {
-      expect(val).toBe(Infinity);
-      done();
-    });
-  });
 });
