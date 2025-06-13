@@ -44,7 +44,9 @@ describe('CreateProductComponent UI', () => {
     fixture.detectChanges();
     const button: HTMLButtonElement = fixture.nativeElement.querySelector('button');
     expect(button.disabled).toBeTrue();
+
     expect(fixture.nativeElement.textContent).toContain('Has alcanzado el límite de 3 productos.');
+
   });
 
   it('admin should enable button always', () => {

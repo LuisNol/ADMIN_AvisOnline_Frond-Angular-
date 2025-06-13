@@ -1,8 +1,11 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 import { ProductService } from '../service/product.service';
 import { ToastrService } from 'ngx-toastr';
 import { IDropdownSettings } from 'ng-multiselect-dropdown';
 import { ProductLimitService } from '../service/product-limit.service';
+
+import { PermissionService } from 'src/app/modules/auth/services/permission.service';
 
 @Component({
   selector: 'app-create-product',
@@ -57,6 +60,11 @@ export class CreateProductComponent {
     public productService: ProductService,
     private toastr: ToastrService,
     private productLimit: ProductLimitService,
+
+    private permissionService: PermissionService,
+    private router: Router,
+
+
   ) {
 
   }
@@ -86,7 +94,9 @@ export class CreateProductComponent {
     this.productLimit.canCreateProduct().subscribe(can => {
       this.canCreate = can;
       if (!can) {
-        this.limitMessage = 'Has alcanzado el límite de 3 productos.';
+
+        this.limitMessage = 'Has alcanzado el límite para crear productos. Por favor actualiza tu plan.';
+
       }
     });
   }
@@ -269,7 +279,10 @@ export class CreateProductComponent {
 
   save(){
     if(!this.canCreate){
-      this.toastr.error('Límite alcanzado', this.limitMessage);
+
+      this.toastr.error('Ya no tienes acceso',
+        'Usted alcanzó el límite para crear sus anuncios, por favor actualice su plan.');
+
       return;
     }
     console.log("Verificando campos del formulario...");
@@ -342,9 +355,22 @@ export class CreateProductComponent {
           this.description = '';
           this.resumen = '';
           this.selectedItems = [];
-    
+
           this.imagen_previsualiza = "https://preview.keenthemes.com/metronic8/demo1/assets/media/svg/illustrations/easy/2.svg";
           this.toastr.success("Éxito","El producto se registró correctamente");
+
+          this.productService.countMyProducts().subscribe(cnt => {
+            const remaining = 3 - cnt.count;
+            if (remaining <= 0) {
+              this.canCreate = false;
+              this.limitMessage = 'Has alcanzado el límite para crear productos. Por favor actualiza tu plan.';
+              localStorage.setItem('dashboardToast', 'Has alcanzado el límite de productos.');
+            } else if (!this.permissionService.hasRole('Admin')) {
+              localStorage.setItem('dashboardToast', `Te quedan ${remaining} intentos para crear un anuncio.`);
+            }
+            this.router.navigate(['/dashboard']);
+          });
+
           console.log("Producto creado exitosamente con ID: ", resp.product_id);
         }
       },
