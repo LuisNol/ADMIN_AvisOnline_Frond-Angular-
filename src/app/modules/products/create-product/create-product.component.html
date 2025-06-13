@@ -25,14 +25,14 @@
                       
         </div>
         <div class="row mb-6">
-            <!--   
+              
             <div class="col-lg-4 fv-row fv-plugins-icon-container">
-                <label class="fw-semibold fs-6 py-2">Precio Pen: (*)</label>
+                <label class="fw-semibold fs-6 py-2">Precio del producto: (*)</label>
                 <input type="number" name="price_pen" [(ngModel)]="price_pen" 
                 class="form-control form-control-lg form-control-solid" 
                 placeholder="Por ejemplo:   20 PEN  ">
             </div>
-            
+            <!-- 
             <div class="col-lg-4 fv-row fv-plugins-icon-container">
                 <label class="fw-semibold fs-6 py-2">Precio Usd: (*)</label>
                 <input type="number" name="price_usd" [(ngModel)]="price_usd" 
@@ -41,7 +41,7 @@
             </div>
              -->
             <div class="col-lg-4 fv-row fv-plugins-icon-container">
-                <label class="fw-semibold fs-6 py-2">Marcas: *</label>
+                <label class="fw-semibold fs-6 py-2">Sector  *</label>
                 <select
                         class="form-control form-select-solid fw-bolder"
                         name="marca"
@@ -57,7 +57,7 @@
         </div>
         <div class="row mb-6">
             <div class="col-4">
-                <label class="fw-semibold fs-6 py-2">Departamento:(Primer Nivel *)</label>
+                <label class="fw-semibold fs-6 py-2">Categoria del Producto:</label>
                 <select
                         class="form-control form-select-solid fw-bolder"
                         name="departament"
@@ -72,7 +72,7 @@
                     </select>
             </div>
             <div class="col-4">
-                <label class="fw-semibold fs-6 py-2">Categoria:(Segundo Nivel (Opcional))</label>
+                <label class="fw-semibold fs-6 py-2">Rubro:</label>
                 <select
                     class="form-control form-select-solid fw-bolder"
                     name="categorie"
@@ -86,20 +86,7 @@
                     </ng-container>
                 </select>
             </div>
-            <div class="col-4">
-                <label class="fw-semibold fs-6 py-2">Sub Categoria:(Tercer Nivel (Opcional))</label>
-                <select
-                    class="form-control form-select-solid fw-bolder"
-                    name="categorie"
-                    placeholder="Selec. Categoria"
-                    [(ngModel)]="categorie_third_id"
-                >
-                    <option value="">Selec.</option>
-                    <ng-container *ngFor="let item of categories_thirds_backups">
-                        <option [value]="item.id">{{ item.name }}</option>
-                    </ng-container>
-                </select>
-            </div>
+
         </div>
         <div class="row mb-6">
             <div class="col-lg-4 col-md-4 col-sm-12 my-2">
@@ -144,13 +131,9 @@
             </div>
         </div>
         <div class="row mb-6">
-            <div class="col-lg-8 fv-row fv-plugins-icon-container">
-                <label class="fs-6 fw-semibold mb-2">Descripción: (*)</label>
-                <textarea class="form-control form-control-solid" rows="6" 
-                name="description" [(ngModel)]="description" (ngModelChange)="onDescriptionChange()" placeholder="Ingresa la descripción del producto"></textarea>
-            </div>
+ 
             <div class="col-lg-4 fv-row fv-plugins-icon-container">
-                <label class="fs-6 fw-semibold mb-2">Resumen: (*)</label>
+                <label class="fs-6 fw-semibold mb-2">Descripcion del Producto: (*)</label>
                 <textarea class="form-control form-control-solid" rows="3" 
                 name="resumen" [(ngModel)]="resumen" (ngModelChange)="onResumenChange()" placeholder="******"></textarea>
             </div>

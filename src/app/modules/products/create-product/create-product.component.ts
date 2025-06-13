@@ -300,8 +300,8 @@ export class CreateProductComponent {
     console.log("SelectedItems:", this.selectedItems.length > 0 ? "OK" : "FALTA", this.selectedItems);
 
     if (!this.title || !this.sku || !this.marca_id
-      || !this.file_imagen || !this.categorie_first_id || !this.description || !this.resumen || (this.selectedItems.length == 0)) {
-      this.toastr.error("Validación", "Los campos con el * son obligatorio");
+      || !this.file_imagen || !this.categorie_first_id ||  !this.resumen || (this.selectedItems.length == 0)) {
+      
       console.error("Faltan campos requeridos en el formulario");
       return;
     }
@@ -322,7 +322,8 @@ export class CreateProductComponent {
     if (this.categorie_third_id) {
       formData.append("categorie_third_id", this.categorie_third_id);
     }
-    formData.append("description", this.description);
+    formData.append('description', this.description || '');
+
     formData.append("resumen", this.resumen);
     formData.append("multiselect", JSON.stringify(this.selectedItems));
 
