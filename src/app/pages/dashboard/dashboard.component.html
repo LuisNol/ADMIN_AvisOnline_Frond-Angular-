@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!-- Dashboard AvisOnline -->
 <div class="container-fluid">
   <!-- Sección de Bienvenida -->
@@ -15,6 +16,71 @@
               <p class="text-white-50 mt-2" *ngIf="isAdmin">
                 Panel de administración completo
               </p>
+=======
+<!--begin::Row-->
+<div class="row g-5 g-xl-10 mb-5" *ngIf="hasLimitedAccess">
+  <div class="col-12">
+    <div class="alert alert-warning d-flex align-items-center p-5">
+      <i class="ki-duotone ki-shield-tick fs-2hx text-warning me-4">
+        <span class="path1"></span>
+        <span class="path2"></span>
+      </i>
+      <div class="d-flex flex-column">
+        <h4 class="mb-1 text-warning">Acceso Limitado</h4>
+        <span>{{ limitedAccessMessage || 'Tienes permisos Limitados para crear tus anuncios, puedes crear solo tres.' }}</span>
+
+        <div class="mt-3">
+          <a routerLink="/products/list" class="btn btn-light-warning btn-sm me-2">Ver mis productos</a>
+          <a routerLink="/products/register" class="btn btn-warning btn-sm">Crear nuevo producto</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--begin::Row-->
+<div class="row g-5 g-xl-10" *ngIf="hasFullAccess">
+  <!--begin::Col-->
+  <span class="spinner-border spinner-border-sm align-middle ms-2" *ngIf="isLoading$ | async"></span>
+  <div class="col-md-7 col-lg-7 col-xl-7 col-xxl-7 mb-md-5 mb-xl-10">
+    <div class="row">
+      <div class="col-7 mb-md-5 mb-xl-10">
+        
+        <div class="card card-flush h-xl-100">
+          <!--begin::Header-->
+          <div class="card-header py-7">
+            <!--begin::Statistics-->
+            <div class="m-0">
+              <!--begin::Heading-->
+              <div class="d-flex align-items-center mb-2">
+                <!--begin::Title-->
+                <span class="fw-bold text-gray-800 me-2 lh-1 ls-n2" style="font-size: x-large;">{{ sales_for_year_for_country }} PEN</span>
+                <!--end::Title-->
+                <!--begin::Label-->
+                <ng-container *ngIf="percentage_sale_for_country >= 0">
+                  <span class="badge badge-light-success fs-base">
+                  <i class="ki-duotone ki-arrow-up fs-5 text-success ms-n1">
+                    <span class="path1"></span>
+                    <span class="path2"></span>
+                  </i>{{ percentage_sale_for_country }}%</span>
+                </ng-container>
+
+                <ng-container *ngIf="percentage_sale_for_country < 0">
+                  <span class="badge badge-light-danger fs-base">
+                  <i class="ki-duotone ki-arrow-down fs-5 text-danger ms-n1">
+                    <span class="path1"></span>
+                    <span class="path2"></span>
+                  </i>{{ percentage_sale_for_country }}%</span>
+                </ng-container>
+                
+
+                <!--end::Label-->
+              </div>
+              <!--end::Heading-->
+              <!--begin::Description-->
+              <span class="fs-6 fw-semibold text-gray-500">Ventas X Pais</span>
+              <!--end::Description-->
+>>>>>>> c172c0906610bd2b0782d2850e9c672d85f23cdc
             </div>
             <div class="col-lg-6 text-end">
               <i class="ki-duotone ki-home fs-4x text-white-50">
@@ -105,6 +171,7 @@
     </div>
   </div>
 
+<<<<<<< HEAD
   <!-- Panel de Administración -->
   <div class="row" *ngIf="isAdmin">
     <div class="col-12 mb-5">
@@ -220,3 +287,19 @@
     </div>
   </div>
 </div>
+=======
+  <!--begin::Col-->
+  
+</div>
+<!--end::Row-->
+
+<!-- begin::Row -->
+<div class="row gy-5 gx-xl-8">
+  
+  
+</div>
+<!-- end::Row -->
+
+
+
+>>>>>>> c172c0906610bd2b0782d2850e9c672d85f23cdc
