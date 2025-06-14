@@ -260,7 +260,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       return;
     }
     
-    this.router.navigate(['/products/create-product']);
+    this.router.navigate(['/products/register']);
   }
 
   listMyAnnouncements(): void {

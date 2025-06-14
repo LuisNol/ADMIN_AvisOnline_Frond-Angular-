@@ -1,0 +1,246 @@
+/* ESTILOS PERSONALIZADOS PARA FORMULARIO DE CREAR ANUNCIO */
+
+.bg-gradient-primary {
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+}
+
+.badge-circle {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-weight: 600;
+}
+
+.form-floating {
+  position: relative;
+}
+
+.form-floating > .form-control:focus,
+.form-floating > .form-control:not(:placeholder-shown) {
+  padding-top: 1.625rem;
+  padding-bottom: 0.625rem;
+}
+
+.form-floating > label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  padding: 1rem 0.75rem;
+  overflow: hidden;
+  text-align: start;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  pointer-events: none;
+  border: 1px solid transparent;
+  transform-origin: 0 0;
+  transition: opacity 0.1s ease-in-out, transform 0.1s ease-in-out;
+  color: #6c757d;
+}
+
+.form-floating > .form-control:focus ~ label,
+.form-floating > .form-control:not(:placeholder-shown) ~ label {
+  opacity: 0.65;
+  transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+  color: #007bff;
+}
+
+.form-floating > .form-select:focus ~ label,
+.form-floating > .form-select:not([value=""]) ~ label {
+  opacity: 0.65;
+  transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+  color: #007bff;
+}
+
+.card {
+  transition: all 0.2s ease-in-out;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
+}
+
+.form-control:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.form-select:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.btn-light-primary:hover {
+  background-color: #007bff;
+  border-color: #007bff;
+  color: white;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.border-dashed {
+  border-style: dashed !important;
+}
+
+/* Mejoras responsive */
+@media (max-width: 768px) {
+  .card-header {
+    padding: 1rem !important;
+  }
+  
+  .card-body {
+    padding: 1rem !important;
+  }
+  
+  .badge-circle {
+    width: 2rem;
+    height: 2rem;
+    font-size: 0.875rem;
+  }
+}
+
+/* Animaciones suaves */
+.form-control,
+.form-select,
+.btn {
+  transition: all 0.15s ease-in-out;
+}
+
+/* Estilos para el upload de imagen */
+.image-upload-area {
+  transition: all 0.3s ease;
+}
+
+.image-upload-area:hover {
+  background-color: rgba(0, 123, 255, 0.05);
+  border-color: #007bff !important;
+}
+
+/* Progress indicators */
+.badge-circle.badge-primary {
+  background-color: #007bff;
+  color: white;
+}
+
+.badge-circle.badge-success {
+  background-color: #28a745;
+  color: white;
+}
+
+.badge-circle.badge-info {
+  background-color: #17a2b8;
+  color: white;
+}
+
+.badge-circle.badge-warning {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+.badge-circle.badge-secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
+.badge-circle.badge-light {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  border: 2px solid #dee2e6;
+}
+
+/* Contenedor fijo para evitar vibración de botones */
+.dropdown-container {
+  min-height: 60px !important;
+  position: relative !important;
+  margin-bottom: 1rem !important;
+}
+
+.dropdown-wrapper {
+  position: relative !important;
+  z-index: 1000 !important;
+}
+
+/* Fix para dropdown de etiquetas - abrir hacia ARRIBA para evitar superposición */
+:host ::ng-deep .ng-multiselect-dropdown {
+  position: relative !important;
+  
+  .dropdown-list {
+    z-index: 10000 !important;
+    position: absolute !important;
+    bottom: 100% !important; /* Cambio clave: abrir hacia arriba */
+    top: auto !important; /* Asegurar que no use top */
+    left: 0 !important;
+    right: 0 !important;
+    max-height: 200px !important;
+    overflow-y: auto !important;
+    background: white !important;
+    border: 1px solid #dee2e6 !important;
+    border-radius: 0.375rem !important;
+    box-shadow: 0 -0.5rem 1rem rgba(0, 0, 0, 0.15) !important; /* Sombra hacia arriba */
+    margin-bottom: 0.5rem !important; /* Margen hacia arriba */
+    transform: translateY(-2px) !important; /* Pequeño ajuste hacia arriba */
+  }
+  
+  .dropdown-btn {
+    border: 1px solid #ced4da !important;
+    border-radius: 0.375rem !important;
+    padding: 0.75rem !important;
+    background: white !important;
+    width: 100% !important;
+    min-height: 48px !important;
+  }
+  
+  .dropdown-btn:focus {
+    border-color: #007bff !important;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
+  }
+  
+  .dropdown-btn:hover {
+    border-color: #007bff !important;
+  }
+}
+
+/* Sección de resumen y acciones separada */
+.container-fluid {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  padding: 2rem 0;
+  margin-top: 3rem !important;
+  
+  .card {
+    border: none !important;
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1) !important;
+  }
+}
+
+/* Espaciado para dropdown de etiquetas */
+.dropdown-container {
+  margin-bottom: 2rem !important; /* Espacio extra para dropdown hacia arriba */
+}
+
+/* Fix para botones - asegurar que el texto sea visible */
+.btn {
+  white-space: nowrap !important;
+  
+  .fas, .fa {
+    margin-right: 0.5rem !important;
+  }
+}
+
+.btn-light-secondary {
+  background-color: #f8f9fa !important;
+  border-color: #f8f9fa !important;
+  color: #6c757d !important;
+  
+  &:hover {
+    background-color: #e9ecef !important;
+    border-color: #e9ecef !important;
+    color: #495057 !important;
+  }
+}

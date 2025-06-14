@@ -1,358 +1,325 @@
-<div class="card shadow-sm">
-    <!--begin::Card header-->
-    <div class="card-header bg-primary">
-        <div class="card-title">
-            <h3 class="fw-bold text-white">
-                <i class="fas fa-plus-circle me-2"></i>
-                Crear Nuevo Anuncio
-            </h3>
-            <p class="text-white-50 mb-0">Publica tu producto o servicio en AvisOnline</p>
-        </div>
-    </div>
-
-    <!--begin::Card body-->
-    <span class="spinner-border spinner-border-sm align-middle ms-2" *ngIf="isLoading$ | async"></span>
-    <div class="card-body p-9">
-        
-        <!-- INFORMACIÓN BÁSICA DEL ANUNCIO -->
-        <div class="mb-10">
-            <div class="d-flex align-items-center mb-5">
-                <div class="symbol symbol-40px me-3">
-                    <div class="symbol-label bg-light-primary">
-                        <i class="fas fa-info-circle text-primary fs-4"></i>
-                    </div>
-                </div>
-                <div>
-                    <h4 class="fw-bold mb-1">Información Básica</h4>
-                    <p class="text-muted mb-0">Datos principales de tu anuncio</p>
-                </div>
-            </div>
-
-            <div class="row g-6">
-                <!-- TÍTULO -->
-                <div class="col-xl-8 col-lg-8">
-                    <label class="required form-label fw-bold">
-                        <i class="fas fa-heading text-primary me-2"></i>
-                        Título del Anuncio
-                    </label>
-                    <input type="text" name="title" [(ngModel)]="title" (ngModelChange)="onTitleChange()" 
-                    class="form-control form-control-lg form-control-solid" 
-                    placeholder="Ej: iPhone 12 Pro Max 256GB en excelente estado">
-                    <div class="form-text">Describe tu producto de manera atractiva y clara</div>
-                </div>
-
-                <!-- SKU AUTO-GENERADO -->
-                <div class="col-xl-4 col-lg-4">
-                    <label class="form-label fw-bold text-muted">
-                        <i class="fas fa-barcode text-muted me-2"></i>
-                        Código SKU (Automático)
-                    </label>
-                    <div class="input-group">
-                        <input type="text" name="sku" [(ngModel)]="sku" 
-                        class="form-control form-control-lg form-control-solid bg-light" 
-                        placeholder="Se genera automáticamente" readonly>
-                        <button class="btn btn-light-primary" type="button" (click)="generateSku()" 
-                        title="Regenerar código">
-                            <i class="fas fa-sync-alt"></i>
-                        </button>
-                    </div>
-                    <div class="form-text text-muted">Se crea automáticamente del título</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- CATEGORÍA (OBLIGATORIO) -->
-        <div class="mb-10">
-            <div class="d-flex align-items-center mb-5">
-                <div class="symbol symbol-40px me-3">
-                    <div class="symbol-label bg-light-success">
-                        <i class="fas fa-layer-group text-success fs-4"></i>
-                    </div>
-                </div>
-                <div>
-                    <h4 class="fw-bold mb-1">Categorización</h4>
-                    <p class="text-muted mb-0">Clasifica tu anuncio en la categoría correcta</p>
-                </div>
-            </div>
-
-            <div class="row g-6">
-                <!-- CATEGORÍA -->
-                <div class="col-xl-12 col-lg-12">
-                    <label class="required form-label fw-bold">
-                        <i class="fas fa-layer-group text-primary me-2"></i>
-                        Categoría del Anuncio
-                    </label>
-                    <select class="form-select form-select-lg form-select-solid"
-                            name="categoria" [(ngModel)]="categorie_first_id">
-                        <option value="">🏷️ Selecciona una categoría</option>
-                        <ng-container *ngFor="let item of categories_first">
-                            <option [value]="item.id">{{ item.name }}</option>
-                        </ng-container>
-                    </select>
-                    <div class="form-text">Elige la categoría que mejor describa tu producto</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- PRECIO (OPCIONAL) -->
-        <div class="mb-10">
-            <div class="d-flex align-items-center mb-5">
-                <div class="symbol symbol-40px me-3">
-                    <div class="symbol-label bg-light-warning">
-                        <i class="fas fa-dollar-sign text-warning fs-4"></i>
-                    </div>
-                </div>
-                <div>
-                    <h4 class="fw-bold mb-1">Información de Precio</h4>
-                    <p class="text-muted mb-0">Define el precio de tu producto (opcional)</p>
-                </div>
-            </div>
-
-            <div class="row g-6">
-                <!-- PRECIO -->
-                <div class="col-xl-6 col-lg-6">
-                    <label class="form-label fw-bold text-muted">
-                        <i class="fas fa-dollar-sign text-success me-2"></i>
-                        Precio en Soles (Opcional)
-                    </label>
-                    <div class="input-group input-group-lg">
-                        <span class="input-group-text bg-light-success">
-                            <i class="fas fa-dollar-sign text-success"></i>
-                        </span>
-                        <input type="number" name="price_pen" [(ngModel)]="price_pen" 
-                        class="form-control form-control-lg form-control-solid" 
-                        placeholder="2500.00" min="0" step="0.01">
-                        <span class="input-group-text">PEN</span>
-                    </div>
-                    <div class="form-text text-muted">Deja vacío si prefieres "Precio a consultar"</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- UBICACIÓN Y DATOS DE CONTACTO (OPCIONALES) -->
-        <div class="mb-10">
-            <div class="d-flex align-items-center mb-5">
-                <div class="symbol symbol-40px me-3">
-                    <div class="symbol-label bg-light-info">
-                        <i class="fas fa-map-marker-alt text-info fs-4"></i>
-                    </div>
-                </div>
-                <div>
-                    <h4 class="fw-bold mb-1">Ubicación y Contacto</h4>
-                    <p class="text-muted mb-0">Información de contacto (todos opcionales)</p>
-                </div>
-            </div>
-
-            <div class="row g-6">
-                <!-- UBICACIÓN -->
-                <div class="col-xl-6 col-lg-6">
-                    <label class="form-label fw-bold text-muted">
-                        <i class="fas fa-map-marker-alt text-warning me-2"></i>
-                        Ubicación (Opcional)
-                    </label>
-                    <input type="text" name="location" [(ngModel)]="location" (ngModelChange)="onLocationChange()"
-                    class="form-control form-control-lg form-control-solid" 
-                    placeholder="Ej: Lima, San Isidro - Av. Javier Prado">
-                    <div class="form-text text-muted">Ciudad, distrito y referencia específica</div>
-                </div>
-
-                <!-- TELÉFONO -->
-                <div class="col-xl-3 col-lg-6">
-                    <label class="form-label fw-bold text-muted">
-                        <i class="fas fa-phone text-info me-2"></i>
-                        Teléfono (Opcional)
-                    </label>
-                    <input type="text" name="contact_phone" [(ngModel)]="contact_phone" 
-                    class="form-control form-control-lg form-control-solid" 
-                    placeholder="+51 999 888 777">
-                    <div class="form-text text-muted">Incluye código de país</div>
-                </div>
-
-                <!-- EMAIL -->
-                <div class="col-xl-3 col-lg-6">
-                    <label class="form-label fw-bold text-muted">
-                        <i class="fas fa-envelope text-info me-2"></i>
-                        Email (Opcional)
-                    </label>
-                    <input type="email" name="contact_email" [(ngModel)]="contact_email" 
-                    class="form-control form-control-lg form-control-solid" 
-                    placeholder="contacto@ejemplo.com">
-                    <div class="form-text text-muted">Email alternativo de contacto</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- CONFIGURACIÓN AVANZADA (OPCIONAL) -->
-        <div class="mb-10">
-            <div class="d-flex align-items-center mb-5">
-                <div class="symbol symbol-40px me-3">
-                    <div class="symbol-label bg-light-secondary">
-                        <i class="fas fa-cog text-secondary fs-4"></i>
-                    </div>
-                </div>
-                <div>
-                    <h4 class="fw-bold mb-1">Etiquetas del Anuncio</h4>
-                    <p class="text-muted mb-0">Palabras clave para mejorar la búsqueda</p>
-                </div>
-            </div>
-
-            <div class="row g-6">
-                <!-- ETIQUETAS -->
-                <div class="col-xl-12 col-lg-12">
-                    <label class="form-label fw-bold text-muted">
-                        <i class="fas fa-hashtag text-info me-2"></i>
-                        Etiquetas (Opcional)
-                    </label>
-                    <div class="input-group">
-                        <input type="text" name="word" [(ngModel)]="word" 
-                        class="form-control form-control-lg form-control-solid" 
-                        placeholder="Agregar etiqueta personalizada">
-                        <button class="btn btn-primary" type="button" (click)="addItems()">
-                            <i class="fas fa-plus"></i> Agregar
-                        </button>
-                        <button class="btn btn-success" type="button" (click)="generateKeywords()" 
-                        title="Generar etiquetas automáticamente">
-                            <i class="fas fa-magic"></i> Auto
-                        </button>
-                    </div>
-                    <div class="form-text text-muted">Se generan automáticamente del título y descripción</div>
-                    
-                    <!-- SELECTOR DE ETIQUETAS -->
-                    <div class="mt-3" *ngIf="!isShowMultiselect && selectedItems.length > 0">
-                        <ng-multiselect-dropdown
-                            [placeholder]="'Etiquetas generadas automáticamente'"
-                            [settings]="dropdownSettings"
-                            [data]="dropdownList"
-                            [(ngModel)]="selectedItems"
-                            (onSelect)="onItemSelect($event)"
-                            (onSelectAll)="onSelectAll($event)">
-                        </ng-multiselect-dropdown>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- IMAGEN PRINCIPAL (OBLIGATORIO) -->
-        <div class="mb-10">
-            <div class="d-flex align-items-center mb-5">
-                <div class="symbol symbol-40px me-3">
-                    <div class="symbol-label bg-light-danger">
-                        <i class="fas fa-image text-danger fs-4"></i>
-                    </div>
-                </div>
-                <div>
-                    <h4 class="fw-bold mb-1">Imagen Principal</h4>
-                    <p class="text-muted mb-0">Sube la imagen principal de tu anuncio</p>
-                </div>
-            </div>
-
-            <div class="row g-6">
-                <div class="col-xl-6 col-lg-6">
-                    <label class="required form-label fw-bold">
-                        <i class="fas fa-upload text-danger me-2"></i>
-                        Imagen Principal del Anuncio
-                    </label>
-                    <div class="custom-file">
-                        <input type="file" class="form-control form-control-lg" id="customFile" 
-                        accept="image/jpeg,image/jpg,image/png,image/gif,image/bmp,image/webp" 
-                        (change)="processFile($event)">
-                    </div>
-                    <div class="form-text">
-                        <i class="fas fa-info-circle text-primary me-1"></i>
-                        Formatos: JPG, PNG, GIF, WEBP. Máximo 5MB
-                    </div>
-                </div>
-                <div class="col-xl-6 col-lg-6">
-                    <div class="text-center">
-                        <div class="image-input image-input-outline" data-kt-image-input="true">
-                            <img class="img-fluid rounded border shadow-sm" [src]="imagen_previsualiza" 
-                            width="250" alt="Vista previa" style="max-height: 200px; object-fit: cover;">
-                        </div>
-                        <div class="form-text text-muted mt-2">Vista previa de la imagen</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- DESCRIPCIÓN (OBLIGATORIO) -->
-        <div class="mb-10">
-            <div class="d-flex align-items-center mb-5">
-                <div class="symbol symbol-40px me-3">
-                    <div class="symbol-label bg-light-primary">
-                        <i class="fas fa-align-left text-primary fs-4"></i>
-                    </div>
-                </div>
-                <div>
-                    <h4 class="fw-bold mb-1">Descripción Detallada</h4>
-                    <p class="text-muted mb-0">Describe tu producto de manera completa y atractiva</p>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-12">
-                    <label class="required form-label fw-bold">
-                        <i class="fas fa-file-alt text-primary me-2"></i>
-                        Descripción del Anuncio
-                    </label>
-                    <textarea class="form-control form-control-solid" rows="8" 
-                    name="description" [(ngModel)]="description" (ngModelChange)="onDescriptionChange()" 
-                    placeholder="Describe detalladamente tu producto o servicio:
-• Estado del producto (nuevo, usado, como nuevo)
-• Características principales
-• Motivo de venta
-• Condiciones de entrega
-• Cualquier detalle importante"></textarea>
-                    <div class="form-text">
-                        <i class="fas fa-lightbulb text-warning me-1"></i>
-                        Una buena descripción genera más interés en tu anuncio
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- LEYENDA DE CAMPOS -->
-        <div class="notice d-flex bg-light-primary rounded border-primary border border-dashed p-6 mb-6">
-            <i class="fas fa-info-circle fs-2tx text-primary me-4"></i>
-            <div class="d-flex flex-stack flex-grow-1">
-                <div class="fw-semibold">
-                    <h4 class="text-gray-900 fw-bold">Campos Obligatorios vs Opcionales</h4>
-                    <div class="fs-6 text-gray-700">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <strong class="text-danger">✅ OBLIGATORIOS:</strong>
-                                <ul class="list-unstyled mt-2">
-                                    <li><i class="fas fa-check text-danger me-2"></i>Título del anuncio</li>
-                                    <li><i class="fas fa-check text-danger me-2"></i>Categoría</li>
-                                    <li><i class="fas fa-check text-danger me-2"></i>Imagen principal</li>
-                                    <li><i class="fas fa-check text-danger me-2"></i>Descripción</li>
-                                </ul>
+<!-- FORMULARIO MEJORADO PARA CREAR ANUNCIO -->
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-xl-10">
+            
+            <!-- HEADER PRINCIPAL -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-gradient-primary border-0 py-4">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="symbol symbol-50px">
+                                <div class="symbol-label bg-white bg-opacity-20">
+                                    <i class="fas fa-plus-circle text-white fs-2x"></i>
+                                </div>
                             </div>
-                            <div class="col-md-6">
-                                <strong class="text-muted">🔸 OPCIONALES:</strong>
-                                <ul class="list-unstyled mt-2">
-                                    <li><i class="fas fa-circle text-muted me-2" style="font-size: 6px;"></i>Precio</li>
-                                    <li><i class="fas fa-circle text-muted me-2" style="font-size: 6px;"></i>Ubicación</li>
-                                    <li><i class="fas fa-circle text-muted me-2" style="font-size: 6px;"></i>Contacto (teléfono/email)</li>
-
-                                    <li><i class="fas fa-circle text-muted me-2" style="font-size: 6px;"></i>Etiquetas</li>
-                                </ul>
+                        </div>
+                        <div class="flex-grow-1 ms-4">
+                            <h1 class="text-white mb-1 fs-2 fw-bold">Crear Nuevo Anuncio</h1>
+                            <p class="text-white-50 mb-0 fs-6">Publica tu producto o servicio en AvisOnline de forma rápida y sencilla</p>
+                        </div>
+                        <div class="flex-shrink-0" *ngIf="isLoading$ | async">
+                            <div class="spinner-border text-white" role="status">
+                                <span class="visually-hidden">Cargando...</span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- BOTONES DE ACCIÓN -->
-        <div class="d-flex justify-content-end">
-            <button type="button" class="btn btn-lg btn-light me-3" onclick="history.back()">
-                <i class="fas fa-arrow-left"></i>
-                Cancelar
-            </button>
-            <button type="button" class="btn btn-lg btn-primary" (click)="save()">
-                <i class="fas fa-bullhorn me-2"></i>
-                Publicar Anuncio
-            </button>
+            <!-- FORMULARIO EN PASOS -->
+            <form class="needs-validation" novalidate>
+                
+                <!-- PASO 1: INFORMACIÓN BÁSICA -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-light py-3">
+                        <div class="d-flex align-items-center">
+                            <span class="badge badge-circle badge-primary me-3 fs-6">1</span>
+                            <div>
+                                <h5 class="mb-0 text-gray-800">Información Básica</h5>
+                                <small class="text-muted">Título y categoría de tu anuncio</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-6">
+                        <div class="row g-4">
+                            <!-- TÍTULO -->
+                            <div class="col-12 col-lg-8">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" id="title" name="title" 
+                                           [(ngModel)]="title" (ngModelChange)="onTitleChange()" 
+                                           placeholder="Título de tu anuncio" required>
+                                    <label for="title">Título del anuncio <span class="text-danger">*</span></label>
+                                </div>
+                                <div class="form-text text-muted">
+                                    <i class="fas fa-lightbulb text-warning me-1"></i>
+                                    Sé específico y atractivo (ej: "iPhone 12 Pro Max 256GB como nuevo")
+                                </div>
+                            </div>
+                            
+                            <!-- SKU AUTOMÁTICO -->
+                            <div class="col-12 col-lg-4">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control bg-light" id="sku" name="sku" 
+                                           [(ngModel)]="sku" placeholder="SKU" readonly>
+                                    <label for="sku">Código SKU (automático)</label>
+                                </div>
+                                <div class="form-text text-muted">
+                                    <i class="fas fa-magic text-primary me-1"></i>
+                                    Se genera automáticamente
+                                </div>
+                            </div>
+                            
+                            <!-- CATEGORÍA -->
+                            <div class="col-12">
+                                <div class="form-floating">
+                                    <select class="form-select" id="categoria" name="categoria" 
+                                            [(ngModel)]="categorie_first_id" required>
+                                        <option value="">Selecciona una categoría</option>
+                                        <ng-container *ngFor="let item of categories_first">
+                                            <option [value]="item.id">{{ item.name }}</option>
+                                        </ng-container>
+                                    </select>
+                                    <label for="categoria">Categoría <span class="text-danger">*</span></label>
+                                </div>
+                                <div class="form-text text-muted">
+                                    <i class="fas fa-tag text-success me-1"></i>
+                                    Elige la categoría que mejor describa tu producto
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PASO 2: PRECIO Y UBICACIÓN -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-light py-3">
+                        <div class="d-flex align-items-center">
+                            <span class="badge badge-circle badge-success me-3 fs-6">2</span>
+                            <div>
+                                <h5 class="mb-0 text-gray-800">Precio y Ubicación</h5>
+                                <small class="text-muted">Información comercial (opcional)</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-6">
+                        <div class="row g-4">
+                            <!-- PRECIO -->
+                            <div class="col-12 col-md-6">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light-success border-success">
+                                        <i class="fas fa-dollar-sign text-success"></i>
+                                    </span>
+                                    <div class="form-floating flex-grow-1">
+                                        <input type="number" class="form-control border-success" id="price" 
+                                               name="price_pen" [(ngModel)]="price_pen" 
+                                               placeholder="0.00" min="0" step="0.01">
+                                        <label for="price">Precio en Soles (PEN)</label>
+                                    </div>
+                                </div>
+                                <div class="form-text text-muted">
+                                    Deja vacío si prefieres "Precio a consultar"
+                                </div>
+                            </div>
+                            
+                            <!-- UBICACIÓN -->
+                            <div class="col-12 col-md-6">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" id="location" name="location" 
+                                           [(ngModel)]="location" (ngModelChange)="onLocationChange()" 
+                                           placeholder="Tingo María">
+                                    <label for="location">Ubicación</label>
+                                </div>
+                                <div class="form-text text-muted">
+                                    Ciudad, distrito (ej: Tingo María, Rupa Rupa)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PASO 3: CONTACTO -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-light py-3">
+                        <div class="d-flex align-items-center">
+                            <span class="badge badge-circle badge-info me-3 fs-6">3</span>
+                            <div>
+                                <h5 class="mb-0 text-gray-800">Información de Contacto</h5>
+                                <small class="text-muted">Datos para que te contacten (opcional)</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-6">
+                        <div class="row g-4">
+                            <!-- TELÉFONO -->
+                            <div class="col-12 col-md-6">
+                                <div class="form-floating">
+                                    <input type="tel" class="form-control" id="phone" name="contact_phone" 
+                                           [(ngModel)]="contact_phone" placeholder="Teléfono">
+                                    <label for="phone">Teléfono</label>
+                                </div>
+                                <div class="form-text text-muted">
+                                    Incluye código de país (+51 999 888 777)
+                                </div>
+                            </div>
+                            
+                            <!-- EMAIL -->
+                            <div class="col-12 col-md-6">
+                                <div class="form-floating">
+                                    <input type="email" class="form-control" id="email" name="contact_email" 
+                                           [(ngModel)]="contact_email" placeholder="Email">
+                                    <label for="email">Email de contacto</label>
+                                </div>
+                                <div class="form-text text-muted">
+                                    Email alternativo para contacto directo
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PASO 4: IMAGEN PRINCIPAL -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-light py-3">
+                        <div class="d-flex align-items-center">
+                            <span class="badge badge-circle badge-warning me-3 fs-6">4</span>
+                            <div>
+                                <h5 class="mb-0 text-gray-800">Imagen Principal</h5>
+                                <small class="text-muted">Sube la foto principal de tu anuncio</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-6">
+                        <div class="row g-4 align-items-center">
+                            <!-- UPLOAD -->
+                            <div class="col-12 col-md-6">
+                                <div class="border border-dashed border-primary rounded p-4 text-center">
+                                    <input type="file" class="form-control d-none" id="image-upload" 
+                                           accept="image/jpeg,image/jpg,image/png,image/gif,image/bmp,image/webp" 
+                                           (change)="processFile($event)">
+                                    <label for="image-upload" class="btn btn-light-primary btn-lg mb-3 cursor-pointer">
+                                        <i class="fas fa-cloud-upload-alt me-2"></i>
+                                        Seleccionar Imagen
+                                    </label>
+                                    <div class="text-muted">
+                                        <small>
+                                            <strong>Formatos:</strong> JPG, PNG, GIF, WEBP<br>
+                                            <strong>Tamaño máximo:</strong> 5MB
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- PREVIEW -->
+                            <div class="col-12 col-md-6">
+                                <div class="text-center">
+                                    <div class="position-relative d-inline-block">
+                                        <img class="img-fluid rounded shadow-sm border" 
+                                             [src]="imagen_previsualiza" 
+                                             alt="Vista previa" 
+                                             style="max-width: 100%; max-height: 200px; object-fit: cover;">
+                                        <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center bg-dark bg-opacity-50 rounded" 
+                                             *ngIf="!imagen_previsualiza || imagen_previsualiza === '/assets/media/svg/files/blank-image.svg'">
+                                            <div class="text-white text-center">
+                                                <i class="fas fa-image fs-2x mb-2"></i>
+                                                <div class="fs-6">Vista previa</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PASO 5: DESCRIPCIÓN -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-light py-3">
+                        <div class="d-flex align-items-center">
+                            <span class="badge badge-circle badge-secondary me-3 fs-6">5</span>
+                            <div>
+                                <h5 class="mb-0 text-gray-800">Descripción Detallada</h5>
+                                <small class="text-muted">Describe tu producto de manera completa y atractiva</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-6">
+                        <div class="form-floating">
+                            <textarea class="form-control" id="description" name="description" 
+                                      [(ngModel)]="description" (ngModelChange)="onDescriptionChange()" 
+                                      placeholder="Descripción" style="min-height: 150px;" required></textarea>
+                            <label for="description">Descripción del anuncio <span class="text-danger">*</span></label>
+                        </div>
+                        <div class="form-text text-muted">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-info-circle text-primary me-2 mt-1"></i>
+                                <div>
+                                    <strong>Incluye:</strong> Estado del producto, características principales, motivo de venta, condiciones de entrega.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PASO 6: ETIQUETAS (OPCIONAL) -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-light py-3">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <span class="badge badge-circle badge-light me-3 fs-6">6</span>
+                                <div>
+                                    <h5 class="mb-0 text-gray-800">Etiquetas</h5>
+                                    <small class="text-muted">Palabras clave para mejorar búsquedas (opcional)</small>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-light-primary" (click)="generateKeywords()">
+                                <i class="fas fa-magic me-1"></i>
+                                Auto-generar
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body p-6">
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" name="word" [(ngModel)]="word" 
+                                   placeholder="Agregar etiqueta personalizada">
+                            <button class="btn btn-outline-primary" type="button" (click)="addItems()">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- Dropdown de etiquetas sin contenedor fijo -->
+                        <div *ngIf="!isShowMultiselect && selectedItems.length > 0">
+                            <ng-multiselect-dropdown
+                                [placeholder]="'Etiquetas disponibles'"
+                                [settings]="dropdownSettings"
+                                [data]="dropdownList"
+                                [(ngModel)]="selectedItems"
+                                (onSelect)="onItemSelect($event)"
+                                (onSelectAll)="onSelectAll($event)"
+                                class="dropdown-up">
+                            </ng-multiselect-dropdown>
+                        </div>
+                    </div>
+                </div>
+
+            </form>
+
+            <!-- BOTONES DE ACCIÓN -->
+            <div class="mt-4">
+                <div class="d-flex flex-column flex-md-row gap-3 justify-content-end">
+                    <button type="button" class="btn btn-light-secondary btn-lg flex-fill flex-md-grow-0" 
+                            onclick="history.back()">
+                        <i class="fas fa-arrow-left me-2"></i>
+                        Cancelar
+                    </button>
+                    <button type="button" class="btn btn-primary btn-lg flex-fill flex-md-grow-0" 
+                            (click)="save()" [disabled]="isLoading$ | async">
+                        <i class="fas fa-paper-plane me-2"></i>
+                        <span *ngIf="!(isLoading$ | async)">Publicar Anuncio</span>
+                        <span *ngIf="isLoading$ | async">Publicando...</span>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 </div>

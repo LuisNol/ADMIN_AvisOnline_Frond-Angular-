@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { IDropdownSettings } from 'ng-multiselect-dropdown';
 import { ToastrService } from 'ngx-toastr';
 import { ProductService } from '../service/product.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { DeleteImagenAddComponent } from './delete-imagen-add/delete-imagen-add.component';
 
@@ -65,6 +65,7 @@ export class EditProductComponent {
     public productService: ProductService,
     private toastr: ToastrService,
     private activedRoute: ActivatedRoute,
+    private router: Router,
     public modalService: NgbModal,
   ) {}
 
@@ -378,6 +379,11 @@ export class EditProductComponent {
           this.file_imagen = null;
           this.toastr.success("Éxito", "El anuncio se actualizó correctamente");
           console.log("Anuncio actualizado exitosamente");
+          
+          // Redireccionar a la lista de productos después de 1.5 segundos
+          setTimeout(() => {
+            this.router.navigate(['/products/list']);
+          }, 1500);
         }
       },
       error: (error: any) => {
@@ -391,6 +397,35 @@ export class EditProductComponent {
           this.toastr.error("Error", "Ha ocurrido un error al actualizar el anuncio");
         }
       }
+    });
+  }
+
+  // ===== FUNCIONES AUXILIARES PARA ESTADÍSTICAS =====
+  getStateText(state: number): string {
+    switch(state) {
+      case 1: return 'Activo';
+      case 0: return 'Inactivo';
+      case 2: return 'Pausado';
+      default: return 'Desconocido';
+    }
+  }
+
+  getStateDays(): number {
+    if (!this.PRODUCT_SELECTED?.created_at) return 0;
+    const createdDate = new Date(this.PRODUCT_SELECTED.created_at);
+    const today = new Date();
+    const diffTime = Math.abs(today.getTime() - createdDate.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  }
+
+  formatDate(dateString: string): string {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('es-PE', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
     });
   }
 }

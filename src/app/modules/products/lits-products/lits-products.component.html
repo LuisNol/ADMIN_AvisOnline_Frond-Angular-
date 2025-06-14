@@ -29,7 +29,7 @@
                     [class.fa-spin]="(isLoading$ | async)"></i>
                     Refrescar
                 </button>
-                <button type="button" class="btn btn-primary" [routerLink]="['/products/create-product']">
+                <button type="button" class="btn btn-primary" [routerLink]="['/products/register']">
                     <i class="fas fa-plus fs-2"></i>
                     Nuevo Anuncio
                 </button>
@@ -309,51 +309,43 @@
                                 'badge-light-danger': product.state === 0,
                                 'badge-light-warning': product.state === 2
                             }">
-                                <i class="fas" 
+                                <i class="fas me-1" 
                                 [ngClass]="{
                                     'fa-check-circle': product.state === 1,
                                     'fa-times-circle': product.state === 0,
                                     'fa-pause-circle': product.state === 2
-                                }" class="me-1"></i>
+                                }"></i>
                                 {{ getStateText(product.state) }}
                             </span>
                         </td>
 
                         <!-- ACCIONES -->
-                        <td class="text-center">
-                            <div ngbDropdown class="d-inline-block">
+                        <td class="text-center position-relative">
+                            <div ngbDropdown class="d-inline-block" placement="bottom-right">
                                 <button class="btn btn-light btn-active-light-primary btn-sm" 
-                                type="button" ngbDropdownToggle>
+                                        type="button" ngbDropdownToggle 
+                                        aria-label="Más acciones">
                                     <i class="fas fa-ellipsis-v"></i>
                                 </button>
-                                <div ngbDropdownMenu class="dropdown-menu shadow">
+                                <div ngbDropdownMenu class="dropdown-menu dropdown-menu-end shadow-lg">
                                     <h6 class="dropdown-header">
                                         <i class="fas fa-cog me-2"></i>
                                         Acciones disponibles
                                     </h6>
                                     <a class="dropdown-item d-flex align-items-center" 
-                                    [routerLink]="['/products/edit-product', product.id]">
+                                       [routerLink]="['/products/list/edit', product.id]">
                                         <i class="fas fa-edit text-primary me-3"></i>
                                         Editar Anuncio
                                     </a>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item d-flex align-items-center" href="javascript:void(0)">
+                                    <a class="dropdown-item d-flex align-items-center" 
+                                       href="javascript:void(0)" (click)="viewDetails(product)">
                                         <i class="fas fa-eye text-info me-3"></i>
                                         Ver Detalles
                                     </a>
-                                    <a class="dropdown-item d-flex align-items-center" 
-                                    *ngIf="product.contact_phone" [href]="'tel:' + product.contact_phone">
-                                        <i class="fas fa-phone text-success me-3"></i>
-                                        Llamar
-                                    </a>
-                                    <a class="dropdown-item d-flex align-items-center" 
-                                    *ngIf="product.contact_email" [href]="'mailto:' + product.contact_email">
-                                        <i class="fas fa-envelope text-warning me-3"></i>
-                                        Email
-                                    </a>
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item d-flex align-items-center text-danger" 
-                                    href="javascript:void(0)" (click)="delete(product.id, i)">
+                                       href="javascript:void(0)" (click)="delete(product.id, i)">
                                         <i class="fas fa-trash-alt text-danger me-3"></i>
                                         Eliminar
                                     </a>
@@ -377,7 +369,7 @@
                         No hay anuncios que coincidan con los filtros aplicados.<br>
                         Intenta ajustar los criterios de búsqueda o crear un nuevo anuncio.
                     </p>
-                    <button type="button" class="btn btn-primary" [routerLink]="['/products/create-product']">
+                    <button type="button" class="btn btn-primary" [routerLink]="['/products/register']">
                         <i class="fas fa-plus me-2"></i>
                         Crear Primer Anuncio
                     </button>

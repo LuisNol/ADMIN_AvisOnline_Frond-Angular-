@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ProductService } from '../service/product.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { DeleteProductComponent } from '../delete-product/delete-product.component';
+import { ProductDetailsModalComponent } from './product-details-modal.component';
 import { ToastrService } from 'ngx-toastr';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs/operators';
@@ -268,5 +269,28 @@ export class LitsProductsComponent implements OnInit, OnDestroy {
       case 2: return 'Pausado';
       default: return 'Desconocido';
     }
+  }
+
+  // ===== VER DETALLES DEL PRODUCTO =====
+  viewDetails(product: any): void {
+    const modalRef = this.modalService.open(ProductDetailsModalComponent, { 
+      centered: true, 
+      size: 'xl',
+      backdrop: 'static',
+      keyboard: false 
+    });
+    
+    modalRef.componentInstance.product = product;
+    
+    // Manejar el resultado del modal
+    modalRef.result.then((result) => {
+      if (result?.action === 'edit') {
+        // Navegar a editar si el usuario clickea "Editar Anuncio" desde el modal
+        this.router.navigate(['/products/list/edit', product.id]);
+      }
+    }).catch((error) => {
+      // Modal cerrado sin acción
+      console.log('Modal cerrado');
+    });
   }
 }
