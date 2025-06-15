@@ -19,8 +19,8 @@ export class AuthGoogleService {
       clientId: '431701941715-svgds8216hqotg3jo70a15gphp8ceoqq.apps.googleusercontent.com', // TU NUEVO CLIENT_ID
       
       // URLs de producción (TU CONFIGURACIÓN)
-      redirectUri: 'https://www.avisonline.store/auth/main',
-      postLogoutRedirectUri: 'https://www.avisonline.store/auth/login',
+      redirectUri: 'https://www.admin.avisonline.store/auth/main',
+      postLogoutRedirectUri: 'https://www.admin.avisonline.store/auth/main',
       
       // URLs de desarrollo (para testing local)
       // redirectUri: 'http://localhost:5000/auth/main',
@@ -29,7 +29,7 @@ export class AuthGoogleService {
       scope: 'openid profile email',
       
       // Configuraciones adicionales para refresh automático
-      silentRefreshRedirectUri: 'https://www.avisonline.store/silent-refresh.html',
+      silentRefreshRedirectUri: 'https://www.admin.avisonline.store/silent-refresh.html',
       useSilentRefresh: true,
       silentRefreshTimeout: 5000,
       timeoutFactor: 0.75, // Refrescar cuando quede 25% del tiempo
