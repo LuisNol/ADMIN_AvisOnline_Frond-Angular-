@@ -16,16 +16,20 @@ export class AuthGoogleService {
     const config: AuthConfig = {
       issuer: 'https://accounts.google.com',
       strictDiscoveryDocumentValidation: false,
-      clientId: '659951375693-30d2b3d30ug2ccucoi4hr6jbdhte108r.apps.googleusercontent.com',
+      clientId: '431701941715-svgds8216hqotg3jo70a15gphp8ceoqq.apps.googleusercontent.com', // TU NUEVO CLIENT_ID
       
-      // CORREGIR: Usar URLs explícitas para development
-      redirectUri: 'http://localhost:5000/auth/main',
-
-      postLogoutRedirectUri: 'http://localhost:5000/auth/login',
+      // URLs de producción (TU CONFIGURACIÓN)
+      redirectUri: 'https://www.avisonline.store/auth/main',
+      postLogoutRedirectUri: 'https://www.avisonline.store/auth/login',
+      
+      // URLs de desarrollo (para testing local)
+      // redirectUri: 'http://localhost:5000/auth/main',
+      // postLogoutRedirectUri: 'http://localhost:5000/auth/login',
+      
       scope: 'openid profile email',
       
       // Configuraciones adicionales para refresh automático
-      silentRefreshRedirectUri: 'http://localhost:5000/silent-refresh.html',
+      silentRefreshRedirectUri: 'https://www.avisonline.store/silent-refresh.html',
       useSilentRefresh: true,
       silentRefreshTimeout: 5000,
       timeoutFactor: 0.75, // Refrescar cuando quede 25% del tiempo
