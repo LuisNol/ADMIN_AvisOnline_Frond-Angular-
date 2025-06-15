@@ -20,7 +20,7 @@ export class AuthGoogleService {
       
       // URLs de producción (TU CONFIGURACIÓN)
       redirectUri: 'https://www.admin.avisonline.store/auth/main',
-      postLogoutRedirectUri: 'https://www.admin.avisonline.store/auth/main',
+      postLogoutRedirectUri: 'https://www.admin.avisonline.store/auth/login',
       
       // URLs de desarrollo (para testing local)
       // redirectUri: 'http://localhost:5000/auth/main',
