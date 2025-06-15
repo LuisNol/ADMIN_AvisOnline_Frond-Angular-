@@ -17,17 +17,15 @@ export class AuthGoogleService {
       issuer: 'https://accounts.google.com',
       strictDiscoveryDocumentValidation: false,
       clientId: '659951375693-30d2b3d30ug2ccucoi4hr6jbdhte108r.apps.googleusercontent.com',
-
-    
       
       // CORREGIR: Usar URLs explícitas para development
-      redirectUri: ' https://www.admin.avisonline.store/auth/main',
+      redirectUri: 'http://localhost:5000/auth/main',
 
-      postLogoutRedirectUri: 'https://www.admin.avisonline.store/auth/login',
+      postLogoutRedirectUri: 'http://localhost:5000/auth/login',
       scope: 'openid profile email',
       
       // Configuraciones adicionales para refresh automático
-      silentRefreshRedirectUri: 'https://www.admin.avisonline.store/silent-refresh.html',
+      silentRefreshRedirectUri: 'http://localhost:5000/silent-refresh.html',
       useSilentRefresh: true,
       silentRefreshTimeout: 5000,
       timeoutFactor: 0.75, // Refrescar cuando quede 25% del tiempo
