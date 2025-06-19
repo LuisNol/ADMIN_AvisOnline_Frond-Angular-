@@ -3,7 +3,9 @@
 /* Fix para dropdown de acciones - evitar que aparezca cortado */
 :host ::ng-deep {
   .table-responsive {
-    overflow: visible !important; /* Permitir que el dropdown se muestre fuera del contenedor */
+        /* Mantener los dropdowns visibles pero permitir scroll horizontal */
+    overflow-y: visible !important;
+    overflow-x: auto !important;
   }
   
   /* Estilos para el dropdown de acciones */

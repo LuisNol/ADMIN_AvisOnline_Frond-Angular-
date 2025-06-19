@@ -19,12 +19,12 @@ export class AuthGoogleService {
       clientId: '431701941715-svgds8216hqotg3jo70a15gphp8ceoqq.apps.googleusercontent.com', // TU NUEVO CLIENT_ID
       
       // URLs de producción (TU CONFIGURACIÓN)
-      redirectUri: 'https://www.admin.avisonline.store/auth/main',
-      postLogoutRedirectUri: 'https://www.admin.avisonline.store/auth/login',
+      //redirectUri: 'https://www.admin.avisonline.store/auth/main',
+      //postLogoutRedirectUri: 'https://www.admin.avisonline.store/auth/login',
       
       // URLs de desarrollo (para testing local)
-      // redirectUri: 'http://localhost:5000/auth/main',
-      // postLogoutRedirectUri: 'http://localhost:5000/auth/login',
+       redirectUri: 'http://localhost:5000/auth/main',
+       postLogoutRedirectUri: 'http://localhost:5000/auth/login',
       
       scope: 'openid profile email',
       
