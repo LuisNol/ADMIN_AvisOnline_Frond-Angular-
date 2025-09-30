@@ -156,9 +156,9 @@ export const environment = {
       'thumbnail': './assets/media/demos/demo20.png'
     },
   },
-    URL_BACKEND: 'https://apis.avisonline.store/',
+    URL_BACKEND: 'https://apis.avisonline.store',
     URL_SERVICIOS: 'https://apis.avisonline.store/api',
-    URL_FRONTED: 'https://www.admin.avisonline.store/',
+    URL_FRONTED: 'https://www.admin.avisonline.store',
     URL_TIENDA: 'https://www.avisonline.store',
 };
 
